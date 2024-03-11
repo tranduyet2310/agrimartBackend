@@ -1,10 +1,13 @@
 package com.example.agriecommerce.service.impl;
 
+import com.example.agriecommerce.entity.Category;
 import com.example.agriecommerce.entity.SubCategory;
+import com.example.agriecommerce.exception.ResourceNotFoundException;
 import com.example.agriecommerce.payload.SubCategoryDto;
 import com.example.agriecommerce.repository.CategoryRepository;
 import com.example.agriecommerce.repository.SubCategoryRepository;
 import com.example.agriecommerce.service.SubCategoryService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,20 +15,29 @@ import org.springframework.stereotype.Service;
 public class SubcategoryServiceImpl implements SubCategoryService {
     private SubCategoryRepository subCategoryRepository;
     private CategoryRepository categoryRepository;
+    private ModelMapper modelMapper;
 
     @Autowired
     public SubcategoryServiceImpl(SubCategoryRepository subCategoryRepository,
-                                  CategoryRepository categoryRepository) {
+                                  CategoryRepository categoryRepository,
+                                  ModelMapper modelMapper) {
         this.subCategoryRepository = subCategoryRepository;
         this.categoryRepository = categoryRepository;
+        this.modelMapper = modelMapper;
     }
 
     @Override
     public SubCategoryDto createSubcategory(SubCategoryDto subCategoryDto) {
         SubCategory subCategory = new SubCategory();
         subCategory.setSubcategoryName(subCategoryDto.getSubcategoryName());
+        Category category = categoryRepository.findByCategoryName(subCategoryDto.getCategoryName()).orElseThrow(
+                () -> new ResourceNotFoundException("Category does not exists")
+        );
+        subCategory.setCategory(category);
 
-        return null;
+        SubCategory savedSubcategory = subCategoryRepository.save(subCategory);
+
+        return modelMapper.map(savedSubcategory, SubCategoryDto.class);
     }
 
     @Override

@@ -15,4 +15,6 @@ public interface ImageService {
     void delete(int id);
 
     boolean exists(int id);
+    Image findImage(String publicId);
+    Image getImageByImageUrl(String imageUrl);
 }

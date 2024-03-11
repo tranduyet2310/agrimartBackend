@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -23,5 +24,5 @@ public class Category {
     @Column(name = "image", nullable = false)
     private String categoryImage;
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<SubCategory> subCategories;
+    private List<SubCategory> subCategories = new ArrayList<>();
 }

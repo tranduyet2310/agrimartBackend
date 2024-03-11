@@ -57,4 +57,9 @@ public class CloudinaryController {
         imageService.delete(id);
         return new ResponseEntity<>("Delete image successfully", HttpStatus.OK);
     }
+
+    @GetMapping("{id}")
+    public Image getImageByPublicId(@PathVariable("id") String imageId) {
+        return imageService.findImage(imageId);
+    }
 }
