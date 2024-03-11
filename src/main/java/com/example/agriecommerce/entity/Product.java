@@ -30,4 +30,6 @@ public class Product {
     private Integer isActive;
     @Column(name = "is_new")
     private Integer isNew;
+    @Column(name = "is_available")
+    private Integer isAvailable;
 }
