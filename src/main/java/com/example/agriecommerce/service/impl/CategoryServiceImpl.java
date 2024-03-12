@@ -2,16 +2,12 @@ package com.example.agriecommerce.service.impl;
 
 import com.example.agriecommerce.entity.Category;
 import com.example.agriecommerce.entity.Image;
-import com.example.agriecommerce.entity.SubCategory;
 import com.example.agriecommerce.exception.ResourceNotFoundException;
-import com.example.agriecommerce.payload.CategoryRequest;
-import com.example.agriecommerce.payload.CategoryResponse;
-import com.example.agriecommerce.payload.SubCategoryDto;
+import com.example.agriecommerce.payload.CategoryDto;
 import com.example.agriecommerce.repository.CategoryRepository;
 import com.example.agriecommerce.repository.ImageRepository;
 import com.example.agriecommerce.service.CategoryService;
 import com.example.agriecommerce.service.CloudinaryService;
-import com.example.agriecommerce.service.ImageService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -42,7 +38,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    public CategoryResponse createCategory(String categoryName, MultipartFile file) {
+    public CategoryDto createCategory(String categoryName, MultipartFile file) {
         Category category = new Category();
         category.setCategoryName(categoryName);
 
@@ -56,20 +52,20 @@ public class CategoryServiceImpl implements CategoryService {
 
         Category savedCategory = categoryRepository.save(category);
 
-        return modelMapper.map(savedCategory, CategoryResponse.class);
+        return modelMapper.map(savedCategory, CategoryDto.class);
     }
 
     @Override
-    public List<CategoryResponse> getAllCategories() {
+    public List<CategoryDto> getAllCategories() {
         List<Category> categories = categoryRepository.findAll();
         return categories.stream()
-                .map(category -> modelMapper.map(category, CategoryResponse.class))
+                .map(category -> modelMapper.map(category, CategoryDto.class))
                 .collect(Collectors.toList());
     }
 
     @Override
     @Transactional
-    public CategoryResponse updateCategory(String categoryName, MultipartFile file, Long id, Boolean isUpdated) {
+    public CategoryDto updateCategory(String categoryName, MultipartFile file, Long id, Boolean isUpdated) {
         Category category = categoryRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("category", "id", id)
         );
@@ -97,15 +93,15 @@ public class CategoryServiceImpl implements CategoryService {
 
         Category updatedCategory = categoryRepository.save(category);
 
-        return modelMapper.map(updatedCategory, CategoryResponse.class);
+        return modelMapper.map(updatedCategory, CategoryDto.class);
     }
 
     @Override
-    public CategoryResponse getCategoryById(Long id) {
+    public CategoryDto getCategoryById(Long id) {
         Category category = categoryRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("category", "id", id)
         );
-        return modelMapper.map(category, CategoryResponse.class);
+        return modelMapper.map(category, CategoryDto.class);
     }
 
     @Override

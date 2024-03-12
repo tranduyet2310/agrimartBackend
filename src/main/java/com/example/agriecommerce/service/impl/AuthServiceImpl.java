@@ -79,14 +79,16 @@ public class AuthServiceImpl implements AuthService {
         user.setEmail(userRegisterDto.getEmail());
         user.setPassword(passwordEncoder.encode(userRegisterDto.getPassword()));
 
-        Set<Role> roles = new HashSet<>();
+//        Set<Role> roles = new HashSet<>();
         Role userRole = roleRepository.findByName("ROLE_USER").get();
-        roles.add(userRole);
+//        roles.add(userRole);
 
-        user.setRoles(roles);
+//        user.setRoles(roles);
+        user.setRoles(userRole);
         user.setStatus(1); // 1 - active; 0 - deleted
 
         // get public key RSA
+        user.setPublicKey(userRegisterDto.getRsaPublicKey());
 
         userRepository.save(user);
 
@@ -107,14 +109,14 @@ public class AuthServiceImpl implements AuthService {
         supplier.setPhone(supplierRegisterDto.getPhone());
         supplier.setCccd(supplierRegisterDto.getCccd());
         supplier.setTax_number(supplierRegisterDto.getTax_number());
-        supplier.setProvince(supplierRegisterDto.getProvince());
+        supplier.setAddress(supplierRegisterDto.getAddress());
         supplier.setSellerType(supplierRegisterDto.getSellerType());
         supplier.setEmail(supplierRegisterDto.getEmail());
         supplier.setPassword(passwordEncoder.encode(supplierRegisterDto.getPassword()));
 
-        Set<Role> roles = new HashSet<>();
+//        Set<Role> roles = new HashSet<>();
         Role supplierRole = roleRepository.findByName("ROLE_SUPPLIER").get();
-        roles.add(supplierRole);
+//        roles.add(supplierRole);
 
         SupplierBankInfo info = new SupplierBankInfo();
         info.setBankAccountNumber(supplierRegisterDto.getBankAccountNumber());
@@ -124,9 +126,11 @@ public class AuthServiceImpl implements AuthService {
 
         bankInfoRepository.save(info);
 
-        supplier.setRoles(roles);
+//        supplier.setRoles(roles);
+        supplier.setRoles(supplierRole);
         supplier.setBankInfo(info);
         // get public key RSA
+        supplier.setPublicKey(supplierRegisterDto.getRsaPublicKey());
 
         supplierRepository.save(supplier);
 

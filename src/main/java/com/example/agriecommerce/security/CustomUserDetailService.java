@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,15 +34,25 @@ public class CustomUserDetailService implements UserDetailsService {
         Optional<User> optionalUser = userRepository.findByEmail(email);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
-            Set<GrantedAuthority> authorities = user.getRoles().stream().map((role) -> new SimpleGrantedAuthority(role.getName()))
-                    .collect(Collectors.toSet());
+//            Set<GrantedAuthority> authorities = user.getRoles().stream().map((role) -> new SimpleGrantedAuthority(role.getName()))
+//                    .collect(Collectors.toSet());
+
+            Set<GrantedAuthority> authorities = new HashSet<>();
+            SimpleGrantedAuthority s = new SimpleGrantedAuthority(user.getRoles().getName());
+            authorities.add(s);
+
             return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), authorities);
         } else {
             Supplier supplier = supplierRepository.findByEmail(email).orElseThrow(
                     () -> new UsernameNotFoundException("user not found with email: " + email)
             );
-            Set<GrantedAuthority> authorities = supplier.getRoles().stream().map((role) -> new SimpleGrantedAuthority(role.getName()))
-                    .collect(Collectors.toSet());
+//            Set<GrantedAuthority> authorities = supplier.getRoles().stream().map((role) -> new SimpleGrantedAuthority(role.getName()))
+//                    .collect(Collectors.toSet());
+
+            Set<GrantedAuthority> authorities = new HashSet<>();
+            SimpleGrantedAuthority s = new SimpleGrantedAuthority(supplier.getRoles().getName());
+            authorities.add(s);
+
             return new org.springframework.security.core.userdetails.User(supplier.getEmail(), supplier.getPassword(), authorities);
         }
     }

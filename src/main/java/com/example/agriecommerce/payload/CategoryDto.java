@@ -10,7 +10,9 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CategoryRequest {
+public class CategoryDto {
+    private Long id;
     private String categoryName;
+    private String categoryImage;
     private List<SubCategoryDto> subCategoryList;
 }

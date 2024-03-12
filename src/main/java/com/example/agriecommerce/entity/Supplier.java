@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.Set;
 
 @Setter
@@ -29,7 +30,7 @@ public class Supplier {
     @Column(nullable = false)
     private String tax_number;
     @Column(nullable = false)
-    private String province;
+    private String address;
     @Column(nullable = false)
     private String sellerType;
     @Column(nullable = false, unique = true)
@@ -42,10 +43,17 @@ public class Supplier {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "bank_info_id", referencedColumnName = "id")
     private SupplierBankInfo bankInfo;
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(name = "tbl_supplier_role",
-            joinColumns = @JoinColumn(name = "supplier_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")
-    )
-    private Set<Role> roles;
+
+//    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+//    @JoinTable(name = "tbl_supplier_role",
+//            joinColumns = @JoinColumn(name = "supplier_id", referencedColumnName = "id"),
+//            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")
+//    )
+//    private Set<Role> roles;
+
+    @ManyToOne
+    @JoinColumn(name = "role_id")
+    private Role roles;
+    @OneToMany(mappedBy = "supplier", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Warehouse> warehouses;
 }

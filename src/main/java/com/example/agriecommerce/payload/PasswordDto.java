@@ -9,8 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class SubCategoryDto {
-    private Long id;
-    private String subcategoryName;
-    private String categoryName;
+public class PasswordDto {
+    private String currentPass;
+    private String newPass;
 }

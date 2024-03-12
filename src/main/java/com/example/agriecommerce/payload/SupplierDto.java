@@ -7,9 +7,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
-public class SupplierRegisterDto {
+@NoArgsConstructor
+public class SupplierDto {
+    private Long id;
     private String contactName;
     private String shopName;
     private String email;
@@ -20,8 +21,8 @@ public class SupplierRegisterDto {
     private String password;
     private String sellerType;
     private String bankAccountNumber;
-    private String accountOwner;
+    private String bankAccountOwner;
     private String bankName;
     private String bankBranchName;
-    private String rsaPublicKey;
+    private String avatar;
 }

@@ -11,27 +11,23 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "tbl_warehouse")
-public class Warehouse {
+@Table(name = "tbl_user_address")
+public class UserAddress {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "name", nullable = false)
-    private String warehouseName;
     @Column(nullable = false)
-    private String contact;
+    private String contactName;
     @Column(nullable = false)
     private String phone;
-    @Column(nullable = false)
-    private String email;
     @Column(nullable = false)
     private String province;
     @Column(nullable = false)
     private String district;
     @Column(nullable = false)
     private String commune;
-    private String detail;
+    private String details;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "supplier_id", referencedColumnName = "id")
-    private Supplier supplier;
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User user;
 }

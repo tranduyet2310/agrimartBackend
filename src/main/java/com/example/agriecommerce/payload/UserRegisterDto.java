@@ -14,4 +14,5 @@ public class UserRegisterDto {
     private String phone;
     private String email;
     private String password;
+    private String rsaPublicKey;
 }

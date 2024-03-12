@@ -2,12 +2,16 @@ package com.example.agriecommerce.service;
 
 import com.example.agriecommerce.payload.SubCategoryDto;
 
+import java.util.List;
+
 public interface SubCategoryService {
-    SubCategoryDto createSubcategory(SubCategoryDto subCategoryDto);
+    SubCategoryDto createSubcategory(Long categoryId, SubCategoryDto subCategoryDto);
 
-    SubCategoryDto updateSubcategory(Long id, SubCategoryDto subCategoryDto);
+    SubCategoryDto updateSubcategory(Long subcategoryId, SubCategoryDto subCategoryDto, Long categoryId);
 
-    SubCategoryDto findSubcateogry(Long id);
+    SubCategoryDto getSubcategoryById(Long subcategoryId);
 
-    void deleteSubcategory(Long id);
+    List<SubCategoryDto> getSubcategoryByCategoryId(Long categoryId);
+
+    void deleteSubcategory(Long subcategoryId);
 }

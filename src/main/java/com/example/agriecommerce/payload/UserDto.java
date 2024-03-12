@@ -5,14 +5,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CategoryResponse {
-    private Long id;
-    private String categoryName;
-    private String categoryImage;
-    private List<SubCategoryDto> subCategoryList;
+public class UserDto {
+    private String fullName;
+    private String phone;
+    private String email;
+    private String password;
+    private String avatar;
 }
