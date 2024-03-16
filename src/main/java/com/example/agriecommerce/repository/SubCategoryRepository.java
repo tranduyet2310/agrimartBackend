@@ -8,4 +8,5 @@ import java.util.Optional;
 
 public interface SubCategoryRepository extends JpaRepository<SubCategory, Long> {
     Optional<List<SubCategory>> findByCategoryId(Long id);
+    Optional<SubCategory> findBySubcategoryName(String subcategoryName);
 }

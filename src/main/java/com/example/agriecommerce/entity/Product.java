@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -27,9 +29,24 @@ public class Product {
     private Long discountPrice;
     private Integer quantity;
     @Column(name = "is_active")
-    private Integer isActive;
+    private boolean isActive;
     @Column(name = "is_new")
-    private Integer isNew;
+    private boolean isNew;
     @Column(name = "is_available")
-    private Integer isAvailable;
+    private boolean isAvailable;
+    @ManyToOne
+    @JoinColumn(name = "category_id", referencedColumnName = "id")
+    private Category category;
+    @ManyToOne
+    @JoinColumn(name = "subcategory_id", referencedColumnName = "id")
+    private SubCategory subCategory;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "warehouse_id", referencedColumnName = "id")
+    private Warehouse warehouse;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "supplier_id", referencedColumnName = "id")
+    private Supplier supplier;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "product_id")
+    private List<Image> images;
 }
