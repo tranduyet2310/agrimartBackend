@@ -29,8 +29,9 @@ public class Supplier {
     private String cccd;
     @Column(nullable = false)
     private String tax_number;
-    @Column(nullable = false)
     private String address;
+    @Column(nullable = false)
+    private String province;
     @Column(nullable = false)
     private String sellerType;
     @Column(nullable = false, unique = true)

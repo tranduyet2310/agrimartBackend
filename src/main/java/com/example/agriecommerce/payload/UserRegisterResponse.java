@@ -9,11 +9,9 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDto {
+public class UserRegisterResponse {
     private Long id;
     private String fullName;
     private String phone;
     private String email;
-    private String password;
-    private String avatar;
 }

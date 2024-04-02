@@ -4,6 +4,7 @@ import com.example.agriecommerce.entity.User;
 import com.example.agriecommerce.entity.UserAddress;
 import com.example.agriecommerce.exception.AgriMartException;
 import com.example.agriecommerce.exception.ResourceNotFoundException;
+import com.example.agriecommerce.payload.ResultDto;
 import com.example.agriecommerce.payload.UserAddressDto;
 import com.example.agriecommerce.repository.UserAddressRepository;
 import com.example.agriecommerce.repository.UserRepository;
@@ -16,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.example.agriecommerce.utils.AppConstants.MAX_ADDRESS;
 
 @Service
 public class UserAddressServiceImpl implements UserAddressService {
@@ -49,7 +52,7 @@ public class UserAddressServiceImpl implements UserAddressService {
         address.setDetails(userAddressDto.getDetails());
 
         int numberOfAddress = userAddressRepository.countByUserId(userId);
-        if(numberOfAddress > 4)
+        if(numberOfAddress >= MAX_ADDRESS)
             throw new AgriMartException(HttpStatus.BAD_REQUEST, "User can only have a maximum of 5 address");
 
         UserAddress savedAddress = userAddressRepository.save(address);
@@ -83,7 +86,7 @@ public class UserAddressServiceImpl implements UserAddressService {
 
     @Override
     @Transactional
-    public void deleteAddress(Long userId, Long addressId) {
+    public ResultDto deleteAddress(Long userId, Long addressId) {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new ResourceNotFoundException("user", "id", userId)
         );
@@ -92,6 +95,10 @@ public class UserAddressServiceImpl implements UserAddressService {
         );
 
         userAddressRepository.delete(address);
+        ResultDto resultDto = new ResultDto();
+        resultDto.setSuccessful(true);
+        resultDto.setMessage("Delete user address successfully");
+        return resultDto;
     }
 
     @Override

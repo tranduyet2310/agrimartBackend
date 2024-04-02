@@ -8,12 +8,14 @@ import com.example.agriecommerce.exception.AgriMartException;
 import com.example.agriecommerce.payload.LoginDto;
 import com.example.agriecommerce.payload.SupplierRegisterDto;
 import com.example.agriecommerce.payload.UserRegisterDto;
+import com.example.agriecommerce.payload.UserRegisterResponse;
 import com.example.agriecommerce.repository.BankInfoRepository;
 import com.example.agriecommerce.repository.RoleRepository;
 import com.example.agriecommerce.repository.SupplierRepository;
 import com.example.agriecommerce.repository.UserRepository;
 import com.example.agriecommerce.security.JwtTokenProvider;
 import com.example.agriecommerce.service.AuthService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -36,6 +38,7 @@ public class AuthServiceImpl implements AuthService {
     private RoleRepository roleRepository;
     private PasswordEncoder passwordEncoder;
     private JwtTokenProvider jwtTokenProvider;
+    private ModelMapper modelMapper;
     @Autowired
     public AuthServiceImpl(AuthenticationManager authenticationManager,
                            UserRepository userRepository,
@@ -43,7 +46,8 @@ public class AuthServiceImpl implements AuthService {
                            BankInfoRepository bankInfoRepository,
                            RoleRepository roleRepository,
                            PasswordEncoder passwordEncoder,
-                           JwtTokenProvider jwtTokenProvider) {
+                           JwtTokenProvider jwtTokenProvider,
+                           ModelMapper modelMapper) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.supplierRepository = supplierRepository;
@@ -51,6 +55,7 @@ public class AuthServiceImpl implements AuthService {
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
         this.bankInfoRepository = bankInfoRepository;
+        this.modelMapper = modelMapper;
     }
 
     @Override
@@ -67,7 +72,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public String userRegister(UserRegisterDto userRegisterDto) {
+    public UserRegisterResponse userRegister(UserRegisterDto userRegisterDto) {
         // add check for email exists in DB
         if(userRepository.existsByEmail(userRegisterDto.getEmail())){
             throw  new AgriMartException(HttpStatus.BAD_REQUEST, "Email is already exists");
@@ -90,9 +95,9 @@ public class AuthServiceImpl implements AuthService {
         // get public key RSA
         user.setPublicKey(userRegisterDto.getRsaPublicKey());
 
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
 
-        return "User registered successfully";
+        return modelMapper.map(savedUser, UserRegisterResponse.class);
     }
 
     @Override
@@ -109,10 +114,12 @@ public class AuthServiceImpl implements AuthService {
         supplier.setPhone(supplierRegisterDto.getPhone());
         supplier.setCccd(supplierRegisterDto.getCccd());
         supplier.setTax_number(supplierRegisterDto.getTax_number());
-        supplier.setAddress(supplierRegisterDto.getAddress());
+        supplier.setProvince(supplierRegisterDto.getProvince());
         supplier.setSellerType(supplierRegisterDto.getSellerType());
         supplier.setEmail(supplierRegisterDto.getEmail());
         supplier.setPassword(passwordEncoder.encode(supplierRegisterDto.getPassword()));
+        // address is empty when supplier registers account
+        supplier.setAddress("");
 
 //        Set<Role> roles = new HashSet<>();
         Role supplierRole = roleRepository.findByName("ROLE_SUPPLIER").get();

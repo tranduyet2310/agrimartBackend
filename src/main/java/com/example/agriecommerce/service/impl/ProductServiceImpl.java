@@ -4,11 +4,16 @@ import com.example.agriecommerce.entity.*;
 import com.example.agriecommerce.exception.AgriMartException;
 import com.example.agriecommerce.exception.ResourceNotFoundException;
 import com.example.agriecommerce.payload.ProductDto;
+import com.example.agriecommerce.payload.ProductResponse;
 import com.example.agriecommerce.repository.*;
 import com.example.agriecommerce.service.CloudinaryService;
 import com.example.agriecommerce.service.ProductService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -127,6 +132,121 @@ public class ProductServiceImpl implements ProductService {
         return products.stream()
                 .map(product -> modelMapper.map(product, ProductDto.class))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public ProductResponse getProductByCategoryId(Long categoryId, int pageNo, int pageSize, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        Page<Product> productPage = productRepository.findByCategoryId(categoryId, pageable).orElseThrow(
+                () -> new ResourceNotFoundException("Don't have any product with category id " + categoryId)
+        );
+
+        List<Product> products = productPage.getContent();
+        List<ProductDto> content = products.stream().map(product -> modelMapper.map(product, ProductDto.class)).toList();
+
+        ProductResponse productResponse = new ProductResponse();
+        productResponse.setContent(content);
+        productResponse.setPageNo(productPage.getNumber());
+        productResponse.setPageSize(productPage.getSize());
+        productResponse.setTotalElements(productPage.getTotalElements());
+        productResponse.setTotalPage(productPage.getTotalPages());
+        productResponse.setLast(productPage.isLast());
+
+        return productResponse;
+    }
+
+    @Override
+    public ProductResponse getProductBySubcategoryId(Long subcategoryId, int pageNo, int pageSize, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        Page<Product> productPage = productRepository.findBySubCategoryId(subcategoryId, pageable).orElseThrow(
+                () -> new ResourceNotFoundException("Don't have any product with subcategory id " + subcategoryId)
+        );
+
+        List<Product> products = productPage.getContent();
+        List<ProductDto> content = products.stream().map(product -> modelMapper.map(product, ProductDto.class)).toList();
+
+        ProductResponse productResponse = new ProductResponse();
+        productResponse.setContent(content);
+        productResponse.setPageNo(productPage.getNumber());
+        productResponse.setPageSize(productPage.getSize());
+        productResponse.setTotalElements(productPage.getTotalElements());
+        productResponse.setTotalPage(productPage.getTotalPages());
+        productResponse.setLast(productPage.isLast());
+
+        return productResponse;
+    }
+
+    @Override
+    public ProductResponse getProductsWithDiscount(int pageNo, int pageSize, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        Page<Product> productPage = productRepository.findProductsWithDiscount(pageable).orElseThrow(
+                () -> new ResourceNotFoundException("Don't have any product with discountPrice > 0")
+        );
+
+        List<Product> products = productPage.getContent();
+        List<ProductDto> content = products.stream().map(product -> modelMapper.map(product, ProductDto.class)).toList();
+
+        ProductResponse productResponse = new ProductResponse();
+        productResponse.setContent(content);
+        productResponse.setPageNo(productPage.getNumber());
+        productResponse.setPageSize(productPage.getSize());
+        productResponse.setTotalElements(productPage.getTotalElements());
+        productResponse.setTotalPage(productPage.getTotalPages());
+        productResponse.setLast(productPage.isLast());
+
+        return productResponse;
+    }
+
+    @Override
+    public ProductResponse getUpcomingProducts(int pageNo, int pageSize, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        Page<Product> productPage = productRepository.findUpcomingProduct(pageable).orElseThrow(
+                () -> new ResourceNotFoundException("There are no upcoming products yet")
+        );
+
+        List<Product> products = productPage.getContent();
+        List<ProductDto> content = products.stream().map(product -> modelMapper.map(product, ProductDto.class)).toList();
+
+        ProductResponse productResponse = new ProductResponse();
+        productResponse.setContent(content);
+        productResponse.setPageNo(productPage.getNumber());
+        productResponse.setPageSize(productPage.getSize());
+        productResponse.setTotalElements(productPage.getTotalElements());
+        productResponse.setTotalPage(productPage.getTotalPages());
+        productResponse.setLast(productPage.isLast());
+
+        return productResponse;
+    }
+
+    @Override
+    public ProductResponse searchProduct(String query, int pageNo, int pageSize, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        Page<Product> productPage = productRepository.searchProduct(query, pageable).orElseThrow(
+                () -> new ResourceNotFoundException("There are no results for that condition "+query)
+        );
+
+        List<Product> products = productPage.getContent();
+        List<ProductDto> content = products.stream().map(product -> modelMapper.map(product, ProductDto.class)).toList();
+
+        ProductResponse productResponse = new ProductResponse();
+        productResponse.setContent(content);
+        productResponse.setPageNo(productPage.getNumber());
+        productResponse.setPageSize(productPage.getSize());
+        productResponse.setTotalElements(productPage.getTotalElements());
+        productResponse.setTotalPage(productPage.getTotalPages());
+        productResponse.setLast(productPage.isLast());
+
+        return productResponse;
     }
 
     @Override

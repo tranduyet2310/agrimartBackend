@@ -11,8 +11,11 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class FavoriteDto {
-    private Long id;
-    private Long userId;
-    private ProductDto product;
+public class ProductResponse {
+    private List<ProductDto> content;
+    private int pageNo;
+    private int pageSize;
+    private long totalElements;
+    private int totalPage;
+    private boolean last;
 }

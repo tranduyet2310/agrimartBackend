@@ -1,6 +1,7 @@
 package com.example.agriecommerce.controller;
 
 import com.example.agriecommerce.payload.CartDto;
+import com.example.agriecommerce.payload.ResultDto;
 import com.example.agriecommerce.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -38,9 +39,16 @@ public class CartController {
         return ResponseEntity.ok(cartService.changeQuantity(userId, productId, quantity));
     }
 
-    @DeleteMapping("{id}")
-    public ResponseEntity<String> removeFromCart(@PathVariable("id") Long id){
-        cartService.removeFromCart(id);
-        return ResponseEntity.ok("Item deleted successfully");
+    @DeleteMapping("{userId}/{productId}")
+    public ResponseEntity<ResultDto> removeFromCart(@PathVariable("userId") Long userId,
+                                                    @PathVariable("productId") Long productId){
+        ResultDto resultDto = cartService.removeFromCart(userId, productId);
+        return ResponseEntity.ok(resultDto);
+    }
+
+    @DeleteMapping("{userId}")
+    public ResponseEntity<ResultDto> deleteAllItemsByUserId(@PathVariable("userId") Long userId){
+        ResultDto resultDto = cartService.deleteAllItemsByUserId(userId);
+        return ResponseEntity.ok(resultDto);
     }
 }

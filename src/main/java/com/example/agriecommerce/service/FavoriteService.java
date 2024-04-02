@@ -1,6 +1,7 @@
 package com.example.agriecommerce.service;
 
 import com.example.agriecommerce.payload.FavoriteDto;
+import com.example.agriecommerce.payload.ResultDto;
 
 import java.util.List;
 
@@ -13,5 +14,5 @@ public interface FavoriteService {
 
     void deleteFavoriteProductById(Long id, Long userId);
 
-    void deleteFavoriteProduct(Long userId, Long productId);
+    ResultDto deleteFavoriteProduct(Long userId, Long productId);
 }

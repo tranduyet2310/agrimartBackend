@@ -16,7 +16,7 @@ public class SupplierRegisterDto {
     private String phone;
     private String cccd;
     private String tax_number;
-    private String address;
+    private String province;
     private String password;
     private String sellerType;
     private String bankAccountNumber;

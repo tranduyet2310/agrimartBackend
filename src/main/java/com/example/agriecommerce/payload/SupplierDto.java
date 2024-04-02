@@ -18,6 +18,7 @@ public class SupplierDto {
     private String cccd;
     private String tax_number;
     private String address;
+    private String province;
     private String password;
     private String sellerType;
     private String bankAccountNumber;

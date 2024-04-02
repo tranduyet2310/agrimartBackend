@@ -6,6 +6,7 @@ import com.example.agriecommerce.entity.User;
 import com.example.agriecommerce.exception.AgriMartException;
 import com.example.agriecommerce.exception.ResourceNotFoundException;
 import com.example.agriecommerce.payload.FavoriteDto;
+import com.example.agriecommerce.payload.ResultDto;
 import com.example.agriecommerce.repository.FavoriteRepository;
 import com.example.agriecommerce.repository.ProductRepository;
 import com.example.agriecommerce.repository.UserRepository;
@@ -21,10 +22,10 @@ import java.util.stream.Collectors;
 
 @Service
 public class FavoriteServiceImpl implements FavoriteService {
-    private FavoriteRepository favoriteRepository;
-    private UserRepository userRepository;
-    private ProductRepository productRepository;
-    private ModelMapper modelMapper;
+    private final FavoriteRepository favoriteRepository;
+    private final UserRepository userRepository;
+    private final ProductRepository productRepository;
+    private final ModelMapper modelMapper;
 
     @Autowired
     public FavoriteServiceImpl(FavoriteRepository favoriteRepository,
@@ -89,10 +90,16 @@ public class FavoriteServiceImpl implements FavoriteService {
     }
 
     @Override
-    public void deleteFavoriteProduct(Long userId, Long productId) {
+    public ResultDto deleteFavoriteProduct(Long userId, Long productId) {
         Favorite favorite = favoriteRepository.findByUserIdAndProductId(userId, productId).orElseThrow(
                 () -> new ResourceNotFoundException("favorite does not exists with userId, productId: " + userId + "-" + productId)
         );
         favoriteRepository.delete(favorite);
+
+        ResultDto resultDto = new ResultDto();
+        resultDto.setSuccessful(true);
+        resultDto.setMessage("Delete favorite products successfully");
+
+        return resultDto;
     }
 }

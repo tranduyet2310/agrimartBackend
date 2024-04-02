@@ -9,11 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDto {
-    private Long id;
-    private String fullName;
-    private String phone;
-    private String email;
-    private String password;
-    private String avatar;
+public class ResultDto {
+    private boolean isSuccessful;
+    private String message;
 }

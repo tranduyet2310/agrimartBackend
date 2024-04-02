@@ -22,6 +22,7 @@ public class Product {
     private String productName;
     @Column(name = "product_image", nullable = false)
     private String productImage;
+    @Column(columnDefinition = "longtext")
     private String description;
     @Column(name = "standard_price", nullable = false)
     private Long standardPrice;
@@ -49,4 +50,5 @@ public class Product {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "product_id")
     private List<Image> images;
+    private Long sold;
 }

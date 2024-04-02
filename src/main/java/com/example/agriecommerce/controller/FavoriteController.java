@@ -1,6 +1,7 @@
 package com.example.agriecommerce.controller;
 
 import com.example.agriecommerce.payload.FavoriteDto;
+import com.example.agriecommerce.payload.ResultDto;
 import com.example.agriecommerce.service.FavoriteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -44,10 +45,10 @@ public class FavoriteController {
     }
 
     @DeleteMapping("{userId}/{productId}")
-    public ResponseEntity<String> deleteFavoriteByUserAndProductId(@PathVariable("userId") Long userId,
-                                                                   @PathVariable("productId") Long productId) {
-        favoriteService.deleteFavoriteProduct(userId, productId);
-        return ResponseEntity.ok("Favorite product deleted successfully");
+    public ResponseEntity<ResultDto> deleteFavoriteByUserAndProductId(@PathVariable("userId") Long userId,
+                                                                      @PathVariable("productId") Long productId) {
+        ResultDto resultDto = favoriteService.deleteFavoriteProduct(userId, productId);
+        return ResponseEntity.ok(resultDto);
     }
 
 }

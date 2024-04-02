@@ -12,4 +12,5 @@ public interface UserService {
     UserDto updateUserAvatar(Long userId, MultipartFile file);
     UserDto changePassword(Long userId, PasswordDto passwordDto);
     List<UserDto> getAllUsers();
+    Long getUserIdByEmail(String email);
 }

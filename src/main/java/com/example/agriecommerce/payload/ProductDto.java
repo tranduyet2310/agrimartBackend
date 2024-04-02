@@ -24,6 +24,9 @@ public class ProductDto {
     private String categoryName;
     private String subCategoryName;
     private String warehouseName;
-    private String supplierContactName;
+    private String supplierShopName;
     private List<ImageDto> images;
+    private Long sold;
+    private String supplierProvince;
+    private String supplierId;
 }

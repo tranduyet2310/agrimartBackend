@@ -127,4 +127,12 @@ public class UserServiceImpl implements UserService {
 
         return modelMapper.map(updatedUser, UserDto.class);
     }
+
+    @Override
+    public Long getUserIdByEmail(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new ResourceNotFoundException("Email does not exists in DB")
+        );
+        return user.getId();
+    }
 }

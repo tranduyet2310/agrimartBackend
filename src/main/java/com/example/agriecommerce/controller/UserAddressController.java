@@ -1,5 +1,6 @@
 package com.example.agriecommerce.controller;
 
+import com.example.agriecommerce.payload.ResultDto;
 import com.example.agriecommerce.payload.UserAddressDto;
 import com.example.agriecommerce.service.UserAddressService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,9 +45,9 @@ public class UserAddressController {
     }
 
     @DeleteMapping("{userId}/addresses/{id}")
-    public ResponseEntity<String> deleteAddress(@PathVariable("userId") Long userId,
-                                                @PathVariable("id") Long addressId){
-        userAddressService.deleteAddress(userId, addressId);
-        return ResponseEntity.ok("Address deleted successfully");
+    public ResponseEntity<ResultDto> deleteAddress(@PathVariable("userId") Long userId,
+                                                   @PathVariable("id") Long addressId){
+        ResultDto resultDto = userAddressService.deleteAddress(userId, addressId);
+        return ResponseEntity.ok(resultDto);
     }
 }
