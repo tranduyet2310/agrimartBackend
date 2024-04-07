@@ -22,9 +22,9 @@ import static com.example.agriecommerce.utils.AppConstants.MAX_ADDRESS;
 
 @Service
 public class UserAddressServiceImpl implements UserAddressService {
-    private UserAddressRepository userAddressRepository;
-    private UserRepository userRepository;
-    private ModelMapper modelMapper;
+    private final UserAddressRepository userAddressRepository;
+    private final UserRepository userRepository;
+    private final ModelMapper modelMapper;
 
     @Autowired
     public UserAddressServiceImpl(UserAddressRepository userAddressRepository,

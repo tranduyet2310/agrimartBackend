@@ -17,9 +17,9 @@ import java.util.stream.Collectors;
 
 @Service
 public class SubcategoryServiceImpl implements SubCategoryService {
-    private SubCategoryRepository subCategoryRepository;
-    private CategoryRepository categoryRepository;
-    private ModelMapper modelMapper;
+    private final SubCategoryRepository subCategoryRepository;
+    private final CategoryRepository categoryRepository;
+    private final ModelMapper modelMapper;
 
     @Autowired
     public SubcategoryServiceImpl(SubCategoryRepository subCategoryRepository,

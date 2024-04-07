@@ -13,7 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("api/details")
 public class OrderDetailController {
-    private OrderDetailService orderDetailService;
+    private final OrderDetailService orderDetailService;
     @Autowired
     public OrderDetailController(OrderDetailService orderDetailService) {
         this.orderDetailService = orderDetailService;

@@ -41,7 +41,7 @@ public class Supplier {
     private String avatar;
     @Column(name = "public_key")
     private String publicKey;
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "bank_info_id", referencedColumnName = "id")
     private SupplierBankInfo bankInfo;
 

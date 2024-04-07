@@ -13,7 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("api/favorites")
 public class FavoriteController {
-    private FavoriteService favoriteService;
+    private final FavoriteService favoriteService;
 
     @Autowired
     public FavoriteController(FavoriteService favoriteService) {

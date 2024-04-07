@@ -20,10 +20,10 @@ import java.util.stream.Collectors;
 
 @Service
 public class CartServiceImpl implements CartService {
-    private CartRepository cartRepository;
-    private UserRepository userRepository;
-    private ProductRepository productRepository;
-    private ModelMapper modelMapper;
+    private final CartRepository cartRepository;
+    private final UserRepository userRepository;
+    private final ProductRepository productRepository;
+    private final ModelMapper modelMapper;
 
     @Autowired
     public CartServiceImpl(CartRepository cartRepository,

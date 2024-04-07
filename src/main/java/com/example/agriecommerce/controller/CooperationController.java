@@ -13,7 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("api/cooperation")
 public class CooperationController {
-    private CooperationService cooperationService;
+    private final CooperationService cooperationService;
 
     @Autowired
     public CooperationController(CooperationService cooperationService) {

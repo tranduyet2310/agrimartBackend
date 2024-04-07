@@ -20,10 +20,10 @@ import java.util.stream.Collectors;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
-    private ModelMapper modelMapper;
-    private CategoryRepository categoryRepository;
-    private CloudinaryService cloudinaryService;
-    private ImageRepository imageRepository;
+    private final ModelMapper modelMapper;
+    private final CategoryRepository categoryRepository;
+    private final CloudinaryService cloudinaryService;
+    private final ImageRepository imageRepository;
 
     @Autowired
     public CategoryServiceImpl(ModelMapper modelMapper,

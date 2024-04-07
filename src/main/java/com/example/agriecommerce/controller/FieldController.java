@@ -12,7 +12,7 @@ import java.util.List;
 @RestController
 @RequestMapping("api/field")
 public class FieldController {
-    private FieldService fieldService;
+    private final FieldService fieldService;
     @Autowired
     public FieldController(FieldService fieldService) {
         this.fieldService = fieldService;

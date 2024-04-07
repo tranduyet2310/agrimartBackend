@@ -25,11 +25,11 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
-    private UserRepository userRepository;
-    private ModelMapper modelMapper;
-    private CloudinaryService cloudinaryService;
-    private ImageRepository imageRepository;
-    private PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final ModelMapper modelMapper;
+    private final CloudinaryService cloudinaryService;
+    private final ImageRepository imageRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository,

@@ -12,7 +12,6 @@ import com.example.agriecommerce.repository.BankInfoRepository;
 import com.example.agriecommerce.repository.ImageRepository;
 import com.example.agriecommerce.repository.SupplierRepository;
 import com.example.agriecommerce.service.CloudinaryService;
-import com.example.agriecommerce.service.ImageService;
 import com.example.agriecommerce.service.SupplierService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,12 +28,12 @@ import java.util.stream.Collectors;
 
 @Service
 public class SupplierServiceImpl implements SupplierService {
-    private SupplierRepository supplierRepository;
-    private BankInfoRepository bankInfoRepository;
-    private ModelMapper modelMapper;
-    private CloudinaryService cloudinaryService;
-    private ImageRepository imageRepository;
-    private PasswordEncoder passwordEncoder;
+    private final SupplierRepository supplierRepository;
+    private final BankInfoRepository bankInfoRepository;
+    private final ModelMapper modelMapper;
+    private final CloudinaryService cloudinaryService;
+    private final ImageRepository imageRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
     public SupplierServiceImpl(SupplierRepository supplierRepository,
@@ -188,5 +187,13 @@ public class SupplierServiceImpl implements SupplierService {
         imageDto.setImageUrl(supplier.getAvatar());
 
         return imageDto;
+    }
+
+    @Override
+    public Long getSupplierIdByEmail(String email) {
+        Supplier supplier = supplierRepository.findByEmail(email).orElseThrow(
+                () -> new ResourceNotFoundException("Supplier does not exists")
+        );
+        return supplier.getId();
     }
 }

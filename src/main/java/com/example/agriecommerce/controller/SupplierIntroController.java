@@ -15,7 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("api/shop")
 public class SupplierIntroController {
-    private SupplierIntroService supplierIntroService;
+    private final SupplierIntroService supplierIntroService;
 
     @Autowired
     public SupplierIntroController(SupplierIntroService supplierIntroService) {

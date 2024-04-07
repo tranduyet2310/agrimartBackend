@@ -2,6 +2,7 @@ package com.example.agriecommerce.controller;
 
 import com.example.agriecommerce.payload.*;
 import com.example.agriecommerce.service.AuthService;
+import com.example.agriecommerce.service.SupplierService;
 import com.example.agriecommerce.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,12 +15,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
-    private AuthService authService;
-    private UserService userService;
+    private final AuthService authService;
+    private final UserService userService;
+    private final SupplierService supplierService;
     @Autowired
-    public AuthController(AuthService authService, UserService userService) {
+    public AuthController(AuthService authService,
+                          UserService userService,
+                          SupplierService supplierService) {
         this.authService = authService;
         this.userService = userService;
+        this.supplierService = supplierService;
     }
     @PostMapping("login")
     public ResponseEntity<JWTAuthResponse> login(@RequestBody LoginDto loginDto) {
@@ -29,6 +34,18 @@ public class AuthController {
 
         Long userId = userService.getUserIdByEmail(loginDto.getEmail());
         jwtAuthResponse.setUserId(userId);
+
+        return ResponseEntity.ok(jwtAuthResponse);
+    }
+
+    @PostMapping("login/supplier")
+    public ResponseEntity<JWTAuthResponseSupplier> loginSupplier(@RequestBody LoginDto loginDto) {
+        String token = authService.login(loginDto);
+        JWTAuthResponseSupplier jwtAuthResponse = new JWTAuthResponseSupplier();
+        jwtAuthResponse.setAccessToken(token);
+
+        Long supplierId = supplierService.getSupplierIdByEmail(loginDto.getEmail());
+        jwtAuthResponse.setSupplierId(supplierId);
 
         return ResponseEntity.ok(jwtAuthResponse);
     }

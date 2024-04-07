@@ -17,9 +17,9 @@ import java.util.stream.Collectors;
 
 @Service
 public class WarehouseServiceImpl implements WarehouseService {
-    private WarehouseReposiotry warehouseReposiotry;
-    private SupplierRepository supplierRepository;
-    private ModelMapper modelMapper;
+    private final WarehouseReposiotry warehouseReposiotry;
+    private final SupplierRepository supplierRepository;
+    private final ModelMapper modelMapper;
 
     @Autowired
     public WarehouseServiceImpl(WarehouseReposiotry warehouseReposiotry, SupplierRepository supplierRepository, ModelMapper modelMapper) {

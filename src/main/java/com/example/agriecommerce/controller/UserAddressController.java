@@ -13,7 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("api/users")
 public class UserAddressController {
-    private UserAddressService userAddressService;
+    private final UserAddressService userAddressService;
 
     @Autowired
     public UserAddressController(UserAddressService userAddressService) {

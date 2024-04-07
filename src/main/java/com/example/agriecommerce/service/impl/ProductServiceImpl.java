@@ -7,7 +7,6 @@ import com.example.agriecommerce.payload.*;
 import com.example.agriecommerce.repository.*;
 import com.example.agriecommerce.service.CloudinaryService;
 import com.example.agriecommerce.service.ProductService;
-import com.example.agriecommerce.service.SupplierService;
 import com.example.agriecommerce.utils.SupplierCategory;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +19,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class ProductServiceImpl implements ProductService {
