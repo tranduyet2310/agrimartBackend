@@ -5,6 +5,7 @@ import com.example.agriecommerce.entity.Supplier;
 import com.example.agriecommerce.entity.SupplierBankInfo;
 import com.example.agriecommerce.exception.AgriMartException;
 import com.example.agriecommerce.exception.ResourceNotFoundException;
+import com.example.agriecommerce.payload.ImageDto;
 import com.example.agriecommerce.payload.PasswordDto;
 import com.example.agriecommerce.payload.SupplierDto;
 import com.example.agriecommerce.repository.BankInfoRepository;
@@ -176,5 +177,16 @@ public class SupplierServiceImpl implements SupplierService {
         Supplier updatedSupplier = supplierRepository.save(supplier);
 
         return modelMapper.map(updatedSupplier, SupplierDto.class);
+    }
+
+    @Override
+    public ImageDto getSupplierAvatar(Long supplierId) {
+        Supplier supplier = supplierRepository.findById(supplierId).orElseThrow(
+                () -> new ResourceNotFoundException("supplier", "id", supplierId)
+        );
+        ImageDto imageDto = new ImageDto();
+        imageDto.setImageUrl(supplier.getAvatar());
+
+        return imageDto;
     }
 }

@@ -7,8 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -16,20 +14,17 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "tbl_review")
-public class Review {
+@Table(name = "tbl_field_detail")
+public class FieldDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String feedBack;
-    @Column(precision = 2, scale = 1)
-    private BigDecimal rating;
+    @Enumerated(EnumType.ORDINAL)
+    private CropsStatus cropsStatus;
     @CreationTimestamp
-    private LocalDateTime reviewDate;
+    private LocalDateTime dateCreated;
+    private String details;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
-    private User user;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", referencedColumnName = "id")
-    private Product product;
+    @JoinColumn(name = "field_id", referencedColumnName = "id")
+    private Field field;
 }

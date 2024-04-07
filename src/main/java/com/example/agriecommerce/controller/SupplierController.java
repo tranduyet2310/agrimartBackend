@@ -1,5 +1,6 @@
 package com.example.agriecommerce.controller;
 
+import com.example.agriecommerce.payload.ImageDto;
 import com.example.agriecommerce.payload.PasswordDto;
 import com.example.agriecommerce.payload.SupplierDto;
 import com.example.agriecommerce.service.SupplierService;
@@ -58,5 +59,10 @@ public class SupplierController {
     public ResponseEntity<SupplierDto> changePassword(@PathVariable("id") Long supplierId,
                                                       @RequestBody PasswordDto passwordDto) {
         return ResponseEntity.ok(supplierService.changePassword(supplierId, passwordDto));
+    }
+
+    @GetMapping("{id}/image")
+    public ResponseEntity<ImageDto> getSupplierAvatar(@PathVariable("id") Long supplierId){
+        return ResponseEntity.ok(supplierService.getSupplierAvatar(supplierId));
     }
 }

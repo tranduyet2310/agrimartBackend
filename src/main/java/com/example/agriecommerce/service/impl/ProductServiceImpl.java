@@ -3,11 +3,12 @@ package com.example.agriecommerce.service.impl;
 import com.example.agriecommerce.entity.*;
 import com.example.agriecommerce.exception.AgriMartException;
 import com.example.agriecommerce.exception.ResourceNotFoundException;
-import com.example.agriecommerce.payload.ProductDto;
-import com.example.agriecommerce.payload.ProductResponse;
+import com.example.agriecommerce.payload.*;
 import com.example.agriecommerce.repository.*;
 import com.example.agriecommerce.service.CloudinaryService;
 import com.example.agriecommerce.service.ProductService;
+import com.example.agriecommerce.service.SupplierService;
+import com.example.agriecommerce.utils.SupplierCategory;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -19,21 +20,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
-    private ModelMapper modelMapper;
-    private CloudinaryService cloudinaryService;
-    private ImageRepository imageRepository;
-    private CategoryRepository categoryRepository;
-    private SubCategoryRepository subCategoryRepository;
-    private WarehouseReposiotry warehouseReposiotry;
-    private SupplierRepository supplierRepository;
+    private final ModelMapper modelMapper;
+    private final CloudinaryService cloudinaryService;
+    private final ImageRepository imageRepository;
+    private final CategoryRepository categoryRepository;
+    private final SubCategoryRepository subCategoryRepository;
+    private final WarehouseReposiotry warehouseReposiotry;
+    private final SupplierRepository supplierRepository;
 
     @Autowired
     public ProductServiceImpl(ProductRepository productRepository,
@@ -125,13 +124,26 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductDto> getProductBySupplierId(Long supplierId) {
-        List<Product> products = productRepository.findBySupplierId(supplierId).orElseThrow(
+    public ProductResponse getProductBySupplierId(Long supplierId, int pageNo, int pageSize, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        Page<Product> productPage = productRepository.findBySupplierId(supplierId, pageable).orElseThrow(
                 () -> new ResourceNotFoundException("Supplier does not have any products")
         );
-        return products.stream()
-                .map(product -> modelMapper.map(product, ProductDto.class))
-                .collect(Collectors.toList());
+
+        List<Product> products = productPage.getContent();
+        List<ProductDto> content = products.stream().map(product -> modelMapper.map(product, ProductDto.class)).toList();
+
+        ProductResponse productResponse = new ProductResponse();
+        productResponse.setContent(content);
+        productResponse.setPageNo(productPage.getNumber());
+        productResponse.setPageSize(productPage.getSize());
+        productResponse.setTotalElements(productPage.getTotalElements());
+        productResponse.setTotalPage(productPage.getTotalPages());
+        productResponse.setLast(productPage.isLast());
+
+        return productResponse;
     }
 
     @Override
@@ -232,7 +244,7 @@ public class ProductServiceImpl implements ProductService {
 
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
         Page<Product> productPage = productRepository.searchProduct(query, pageable).orElseThrow(
-                () -> new ResourceNotFoundException("There are no results for that condition "+query)
+                () -> new ResourceNotFoundException("There are no results for that condition " + query)
         );
 
         List<Product> products = productPage.getContent();
@@ -375,5 +387,95 @@ public class ProductServiceImpl implements ProductService {
         productRepository.delete(product);
     }
 
+    @Override
+    public ProductDto increaseSoldNumber(Long productId, Long quantity) {
+        Product product = productRepository.findById(productId).orElseThrow(
+                () -> new ResourceNotFoundException("product", "id", productId)
+        );
+        if (quantity > 0){
+            Long newValue = product.getSold() + quantity;
+            product.setSold(newValue);
+        }
+        product.setId(productId);
 
+        Product updatedProduct = productRepository.save(product);
+
+        return modelMapper.map(updatedProduct, ProductDto.class);
+    }
+
+    @Override
+    public List<CategoryDto> getCategoryBySupplierId(Long supplierId) {
+        List<SupplierCategory> list = productRepository.getCategoryBySupplierId(supplierId);
+
+        List<SupplierCategoryDto> categoryDtos = new ArrayList<>();
+
+        for (SupplierCategory s : list){
+            SupplierCategoryDto dto = new SupplierCategoryDto();
+            dto.setCategoryId(s.getCategoryId());
+            dto.setImageUrl(s.getImageUrl());
+            dto.setCategoryName(s.getCategoryName());
+            dto.setSubcategoryId(s.getSubcategoryId());
+            dto.setSubcategoryName(s.getSubcategoryName());
+            categoryDtos.add(dto);
+        }
+
+        List<CategoryDto> categoryDtoList = new ArrayList<>();
+        for (SupplierCategoryDto sc : categoryDtos){
+            boolean check = false;
+            for (CategoryDto categoryDto : categoryDtoList){
+                if (categoryDto.getCategoryName().equals(sc.getCategoryName())){
+                    List<SubCategoryDto> dtos = categoryDto.getSubCategoryList();
+                    SubCategoryDto dto = new SubCategoryDto();
+                    dto.setId(sc.getSubcategoryId());
+                    dto.setSubcategoryName(sc.getSubcategoryName());
+                    dto.setCategoryName(sc.getCategoryName());
+                    dtos.add(dto);
+                    categoryDto.setSubCategoryList(dtos);
+                    check = true;
+                }
+            }
+            if (!check){
+                createNewCategoryDto(sc, categoryDtoList);
+            }
+        }
+
+        return categoryDtoList;
+    }
+
+    private void createNewCategoryDto(SupplierCategoryDto sc, List<CategoryDto> categoryDtoList){
+        CategoryDto categoryDto = new CategoryDto();
+        categoryDto.setId(sc.getCategoryId());
+        categoryDto.setCategoryName(sc.getCategoryName());
+        categoryDto.setCategoryImage(sc.getImageUrl());
+
+        List<SubCategoryDto> subCategoryDtos = new ArrayList<>();
+        SubCategoryDto dto = new SubCategoryDto();
+        dto.setId(sc.getSubcategoryId());
+        dto.setSubcategoryName(sc.getSubcategoryName());
+        dto.setCategoryName(sc.getCategoryName());
+        subCategoryDtos.add(dto);
+
+        categoryDto.setSubCategoryList(subCategoryDtos);
+        categoryDtoList.add(categoryDto);
+    }
+
+    @Override
+    public ResultDto countTotalProducts(Long supplierId) {
+        Supplier supplier = supplierRepository.findById(supplierId).orElseThrow(
+                () -> new ResourceNotFoundException("supplier", "id", supplierId)
+        );
+        Long result = productRepository.countProducts(supplierId);
+        if (result == null) result = 0L;
+        return new ResultDto(true, result.toString());
+    }
+
+    @Override
+    public ResultDto countSoldProducts(Long supplierId) {
+        Supplier supplier = supplierRepository.findById(supplierId).orElseThrow(
+                () -> new ResourceNotFoundException("supplier", "id", supplierId)
+        );
+        Long result = productRepository.countSoldProduct(supplierId);
+        if (result == null) result = 0L;
+        return new ResultDto(true, result.toString());
+    }
 }

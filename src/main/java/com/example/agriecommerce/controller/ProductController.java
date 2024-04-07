@@ -1,7 +1,6 @@
 package com.example.agriecommerce.controller;
 
-import com.example.agriecommerce.payload.ProductDto;
-import com.example.agriecommerce.payload.ProductResponse;
+import com.example.agriecommerce.payload.*;
 import com.example.agriecommerce.service.ProductService;
 import com.example.agriecommerce.utils.AppConstants;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,6 +93,7 @@ public class ProductController {
     ) {
         return ResponseEntity.ok(productService.getProductsWithDiscount(pageNo, pageSize, sortBy, sortDir));
     }
+
     @GetMapping("upcoming")
     public ResponseEntity<ProductResponse> getUpcomingProducts(
             @RequestParam(value = "pageNo", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
@@ -103,6 +103,7 @@ public class ProductController {
     ) {
         return ResponseEntity.ok(productService.getUpcomingProducts(pageNo, pageSize, sortBy, sortDir));
     }
+
     @GetMapping("search")
     public ResponseEntity<ProductResponse> searchProduct(
             @RequestParam(value = "query") String query,
@@ -110,12 +111,18 @@ public class ProductController {
             @RequestParam(value = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) int pageSize,
             @RequestParam(value = "sortBy", defaultValue = AppConstants.DEFAULT_SORT_BY, required = false) String sortBy,
             @RequestParam(value = "sortDir", defaultValue = AppConstants.DEFAULT_SORT_DIRECTION, required = false) String sortDir
-    ){
+    ) {
         return ResponseEntity.ok(productService.searchProduct(query, pageNo, pageSize, sortBy, sortDir));
     }
+
     @GetMapping("suppliers/{id}")
-    public ResponseEntity<List<ProductDto>> getProductBySupplierId(@PathVariable("id") Long supplierId) {
-        return ResponseEntity.ok(productService.getProductBySupplierId(supplierId));
+    public ResponseEntity<ProductResponse> getProductBySupplierId(
+            @PathVariable("id") Long supplierId,
+            @RequestParam(value = "pageNo", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) int pageSize,
+            @RequestParam(value = "sortBy", defaultValue = AppConstants.DEFAULT_SORT_BY, required = false) String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = AppConstants.DEFAULT_SORT_DIRECTION, required = false) String sortDir) {
+        return ResponseEntity.ok(productService.getProductBySupplierId(supplierId, pageNo, pageSize, sortBy, sortDir));
     }
 
     @PatchMapping("{supplierId}/{productId}/active")
@@ -168,5 +175,26 @@ public class ProductController {
                                                 @PathVariable("productId") Long productId) {
         productService.deleteProduct(supplierId, productId);
         return ResponseEntity.ok("Product deleted successfully");
+    }
+
+    @PatchMapping("{productId}")
+    public ResponseEntity<ProductDto> increaseSoldNumber(@PathVariable("productId") Long productId,
+                                                         @RequestParam("quantity") Long quantity) {
+        return ResponseEntity.ok(productService.increaseSoldNumber(productId, quantity));
+    }
+
+    @GetMapping("category/{supplierId}")
+    public ResponseEntity<List<CategoryDto>> getCategoryBySupplierId(@PathVariable("supplierId") Long supplierId){
+        return ResponseEntity.ok(productService.getCategoryBySupplierId(supplierId));
+    }
+
+    @GetMapping("{supplierId}/total")
+    public ResponseEntity<ResultDto> getTotalProductBySupplier(@PathVariable("supplierId") Long supplierId){
+        return ResponseEntity.ok(productService.countTotalProducts(supplierId));
+    }
+
+    @GetMapping("{supplierId}/sold")
+    public ResponseEntity<ResultDto> getSoldProductBySupplier(@PathVariable("supplierId") Long supplierId){
+        return ResponseEntity.ok(productService.countSoldProducts(supplierId));
     }
 }

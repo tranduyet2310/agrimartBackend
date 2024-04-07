@@ -1,17 +1,20 @@
 package com.example.agriecommerce.service.impl;
 
-import com.example.agriecommerce.entity.Product;
-import com.example.agriecommerce.entity.Review;
-import com.example.agriecommerce.entity.User;
+import com.example.agriecommerce.entity.*;
 import com.example.agriecommerce.exception.ResourceNotFoundException;
-import com.example.agriecommerce.payload.ReviewDto;
+import com.example.agriecommerce.payload.*;
 import com.example.agriecommerce.repository.ProductRepository;
 import com.example.agriecommerce.repository.ReviewRepository;
+import com.example.agriecommerce.repository.SupplierRepository;
 import com.example.agriecommerce.repository.UserRepository;
 import com.example.agriecommerce.service.ReviewService;
 import com.example.agriecommerce.utils.DateTimeUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
@@ -25,20 +28,23 @@ import java.util.stream.Collectors;
 
 @Service
 public class ReviewServiceImpl implements ReviewService {
-    private ReviewRepository reviewRepository;
-    private UserRepository userRepository;
-    private ProductRepository productRepository;
-    private ModelMapper modelMapper;
+    private final ReviewRepository reviewRepository;
+    private final UserRepository userRepository;
+    private final ProductRepository productRepository;
+    private final ModelMapper modelMapper;
+    private final SupplierRepository supplierRepository;
 
     @Autowired
     public ReviewServiceImpl(ReviewRepository reviewRepository,
                              UserRepository userRepository,
                              ProductRepository productRepository,
-                             ModelMapper modelMapper) {
+                             ModelMapper modelMapper,
+                             SupplierRepository supplierRepository) {
         this.reviewRepository = reviewRepository;
         this.userRepository = userRepository;
         this.productRepository = productRepository;
         this.modelMapper = modelMapper;
+        this.supplierRepository = supplierRepository;
     }
 
     @Override
@@ -50,14 +56,18 @@ public class ReviewServiceImpl implements ReviewService {
                 () -> new ResourceNotFoundException("product", "id", productId)
         );
 
-        LocalDate date = DateTimeUtil.convertToLocalDate(reviewDto.getReviewDate());
+        Review review;
+        boolean check = reviewRepository.existsByUserIdAndProductId(userId, productId);
+        if (check){
+            review = reviewRepository.findByUserIdAndProductId(userId, productId);
+        } else {
+            review = new Review();
+        }
 
-        Review review = new Review();
         review.setUser(user);
         review.setProduct(product);
         review.setFeedBack(reviewDto.getFeedBack());
         review.setRating(reviewDto.getRating());
-        review.setReviewDate(date);
 
         Review savedReview = reviewRepository.save(review);
 
@@ -73,46 +83,119 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public List<ReviewDto> getAllReviewsByProductId(Long productId) {
-        List<Review> reviews = reviewRepository.findByProductId(productId).orElseThrow(
+    public ReviewResponse getAllReviewsByProductId(Long productId, int pageNo, int pageSize, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        Page<Review> reviewsPage = reviewRepository.findByProductId(productId, pageable).orElseThrow(
                 () -> new ResourceNotFoundException("product does not have any review " + productId)
         );
-        return reviews.stream()
-                .map(review -> modelMapper.map(review, ReviewDto.class))
-                .collect(Collectors.toList());
+
+        List<Review> reviews = reviewsPage.getContent();
+        List<ReviewDto> content = reviews.stream().map(review -> modelMapper.map(review, ReviewDto.class)).collect(Collectors.toList());
+
+        ReviewResponse reviewResponse = new ReviewResponse();
+        reviewResponse.setContent(content);
+        reviewResponse.setPageNo(reviewsPage.getNumber());
+        reviewResponse.setPageSize(reviewsPage.getSize());
+        reviewResponse.setTotalElements(reviewsPage.getTotalElements());
+        reviewResponse.setTotalPage(reviewsPage.getTotalPages());
+        reviewResponse.setLast(reviewsPage.isLast());
+
+        return reviewResponse;
     }
 
     @Override
-    public Long calculateTotalRating(Long productId) {
+    public ReviewStatisticDto calculateTotalRating(Long productId) {
         Product product = productRepository.findById(productId).orElseThrow(
                 () -> new ResourceNotFoundException("product", "id", productId)
         );
-        return reviewRepository.countByProductId(productId);
+        Long total = reviewRepository.countByProductId(productId);
+        ReviewStatisticDto dto = new ReviewStatisticDto();
+        dto.setTotalReviews(total);
+
+        return dto;
     }
 
     @Override
-    public Map<Integer, Long> statisticRating(Long productId) {
-        Map<Integer, Long> ratingMap = new HashMap<>();
+    public ReviewStatisticDto statisticRating(Long productId) {
+        Product product = productRepository.findById(productId).orElseThrow(
+                () -> new ResourceNotFoundException("product", "id", productId)
+        );
+        ReviewStatisticDto dto = new ReviewStatisticDto();
         for (int i = 1; i <= 5; i++) {
-            Long count = reviewRepository.countByRating(productId, i);
+            double b = (i+0.5);
+            Long count = reviewRepository.countByRating(productId, i, b);
             if (ObjectUtils.isEmpty(count)) count = 0L;
-            ratingMap.put(i, count);
+            switch (i) {
+                case 1 -> dto.setOneStar(count);
+                case 2 -> dto.setTwoStar(count);
+                case 3 -> dto.setThreeStar(count);
+                case 4 -> dto.setFourStar(count);
+                case 5 -> dto.setFiveStar(count);
+            }
         }
-        return ratingMap;
-    }
-
-    @Override
-    public BigDecimal averageRating(Long productId) {
-        Product product = productRepository.findById(productId).orElseThrow(
-                () -> new ResourceNotFoundException("product", "id", productId)
-        );
 
         Long total = reviewRepository.countByProductId(productId);
-        BigDecimal totalRating = BigDecimal.valueOf(total);
-        BigDecimal values = reviewRepository.getTotalRating(productId);
-        System.out.println(totalRating);
-        System.out.println(values);
+        dto.setTotalReviews(total);
 
-        return values.divide(totalRating, 1, RoundingMode.HALF_UP);
+        if (total == 0){
+            dto.setAverageRating(BigDecimal.valueOf(0));
+        } else {
+            BigDecimal totalRating = BigDecimal.valueOf(total);
+            BigDecimal values = reviewRepository.getTotalRating(productId);
+            dto.setAverageRating(values.divide(totalRating, 1, RoundingMode.HALF_UP));
+        }
+
+        return dto;
+    }
+
+    @Override
+    public ReviewStatisticDto averageRating(Long productId) {
+        Product product = productRepository.findById(productId).orElseThrow(
+                () -> new ResourceNotFoundException("product", "id", productId)
+        );
+
+        ReviewStatisticDto dto = new ReviewStatisticDto();
+        Long total = reviewRepository.countByProductId(productId);
+        if (total == 0){
+            dto.setAverageRating(BigDecimal.valueOf(0));
+        } else {
+            BigDecimal totalRating = BigDecimal.valueOf(total);
+            BigDecimal values = reviewRepository.getTotalRating(productId);
+            dto.setAverageRating(values.divide(totalRating, 1, RoundingMode.HALF_UP));
+        }
+
+        return dto;
+    }
+
+    @Override
+    public ReviewStatisticDto supplierAverageRating(Long supplierId) {
+        Supplier supplier = supplierRepository.findById(supplierId).orElseThrow(
+                () -> new ResourceNotFoundException("supplierId", "id", supplierId)
+        );
+
+        ReviewStatisticDto dto = new ReviewStatisticDto();
+        Long total = reviewRepository.countBySupplierId(supplierId);
+        if (total == 0){
+            dto.setAverageRating(BigDecimal.valueOf(0));
+        } else {
+            BigDecimal totalRating = BigDecimal.valueOf(total);
+            BigDecimal values = reviewRepository.getSupplierRating(supplierId);
+            dto.setAverageRating(values.divide(totalRating, 1, RoundingMode.HALF_UP));
+        }
+
+        return dto;
+    }
+
+    @Override
+    public ResultDto getTotalReviewsBySupplier(Long supplierId) {
+        Supplier supplier = supplierRepository.findById(supplierId).orElseThrow(
+                () -> new ResourceNotFoundException("supplierId", "id", supplierId)
+        );
+
+        Long result = reviewRepository.countBySupplierId(supplierId);
+        if (result == null) result = 0L;
+        return new ResultDto(true, result.toString());
     }
 }

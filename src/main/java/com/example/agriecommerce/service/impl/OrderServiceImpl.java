@@ -1,12 +1,8 @@
 package com.example.agriecommerce.service.impl;
 
-import com.example.agriecommerce.entity.Order;
-import com.example.agriecommerce.entity.OrderStatus;
-import com.example.agriecommerce.entity.User;
-import com.example.agriecommerce.entity.UserAddress;
+import com.example.agriecommerce.entity.*;
 import com.example.agriecommerce.exception.ResourceNotFoundException;
-import com.example.agriecommerce.payload.OrderDto;
-import com.example.agriecommerce.payload.ResultDto;
+import com.example.agriecommerce.payload.*;
 import com.example.agriecommerce.repository.OrderRepository;
 import com.example.agriecommerce.repository.ProductRepository;
 import com.example.agriecommerce.repository.UserAddressRepository;
@@ -15,6 +11,10 @@ import com.example.agriecommerce.service.OrderService;
 import com.example.agriecommerce.utils.OrderNumberGenerator;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -44,7 +44,7 @@ public class OrderServiceImpl implements OrderService {
                 () -> new ResourceNotFoundException("user does not exists")
         );
 
-        Long addressId = orderDto.getUserAddressId();
+        Long addressId = orderDto.getAddressId();
         UserAddress address = userAddressRepository.findById(addressId).orElseThrow(
                 () -> new ResourceNotFoundException("address does not exists")
         );
@@ -72,7 +72,7 @@ public class OrderServiceImpl implements OrderService {
         );
 
         Long userId = orderDto.getUserId();
-        Long addressId = orderDto.getUserAddressId();
+        Long addressId = orderDto.getAddressId();
 
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new ResourceNotFoundException("user does not exists")
@@ -95,13 +95,26 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderDto> getOrderByUserId(Long userId) {
-        List<Order> orders = orderRepository.findByUserId(userId).orElseThrow(
+    public OrderResponse getOrderByUserId(Long userId, int pageNo, int pageSize, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        Page<Order> orderPage = orderRepository.findByUserId(userId, pageable).orElseThrow(
                 () -> new ResourceNotFoundException("user's order is empty")
         );
-        return orders.stream()
-                .map(order -> modelMapper.map(order, OrderDto.class))
-                .collect(Collectors.toList());
+
+        List<Order> orders = orderPage.getContent();
+        List<OrderDto> content = orders.stream().map(order -> modelMapper.map(order, OrderDto.class)).collect(Collectors.toList());
+
+        OrderResponse orderResponse = new OrderResponse();
+        orderResponse.setContent(content);
+        orderResponse.setPageNo(orderPage.getNumber());
+        orderResponse.setPageSize(orderPage.getSize());
+        orderResponse.setTotalElements(orderPage.getTotalElements());
+        orderResponse.setTotalPage(orderPage.getTotalPages());
+        orderResponse.setLast(orderPage.isLast());
+
+        return orderResponse;
     }
 
     @Override
@@ -131,5 +144,14 @@ public class OrderServiceImpl implements OrderService {
         Order updatedOrder = orderRepository.save(order);
 
         return modelMapper.map(updatedOrder, OrderDto.class);
+    }
+
+    @Override
+    public ResultDto hasUserPurchasedProduct(Long userId, Long productId) {
+        int result = orderRepository.hasUserPurchasedProduct(userId, productId);
+        ResultDto dto = new ResultDto();
+        dto.setSuccessful(result > 0);
+        dto.setMessage(result+"");
+        return dto;
     }
 }
