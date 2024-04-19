@@ -22,5 +22,7 @@ public class FieldDto {
     private String area;
     private Double estimateYield;
     private List<FieldDetailDto> fieldDetails;
+    private Long estimatePrice;
+    private Boolean isComplete;
     private Long supplierId;
 }

@@ -8,7 +8,9 @@ import java.util.Set;
 
 public interface ProductService {
     ProductDto createProduct(Long supplierId, ProductDto productDto, List<MultipartFile> files);
+    ProductDto createProductV2(Long supplierId, ProductDto productDto, List<MultipartFile> files);
     ProductDto getProductById(Long productId);
+    ProductResponse getProductBySupplierIdV2(Long supplierId, int pageNo, int pageSize, String sortBy, String sortDir);
     ProductResponse getProductBySupplierId(Long supplierId, int pageNo, int pageSize, String sortBy, String sortDir);
     ProductResponse getProductByCategoryId(Long categoryId, int pageNo, int pageSize, String sortBy, String sortDir);
     ProductResponse getProductBySubcategoryId(Long subcategoryId, int pageNo, int pageSize, String sortBy, String sortDir);

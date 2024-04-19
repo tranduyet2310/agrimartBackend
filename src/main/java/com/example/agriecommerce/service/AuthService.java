@@ -1,12 +1,11 @@
 package com.example.agriecommerce.service;
 
-import com.example.agriecommerce.payload.LoginDto;
-import com.example.agriecommerce.payload.SupplierRegisterDto;
-import com.example.agriecommerce.payload.UserRegisterDto;
-import com.example.agriecommerce.payload.UserRegisterResponse;
+import com.example.agriecommerce.payload.*;
 
 public interface AuthService {
     String login(LoginDto loginDto);
     UserRegisterResponse userRegister(UserRegisterDto userRegisterDto);
-    String supplierRegister(SupplierRegisterDto supplierRegisterDto);
+    SupplierRegisterResponse supplierRegister(SupplierRegisterDto supplierRegisterDto);
+    AESDto requestAESKey(AESDto aesDto);
+    AESDto getSessionKey(AESDto aesDto);
 }

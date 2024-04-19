@@ -5,16 +5,15 @@ import com.example.agriecommerce.entity.Supplier;
 import com.example.agriecommerce.entity.SupplierBankInfo;
 import com.example.agriecommerce.entity.User;
 import com.example.agriecommerce.exception.AgriMartException;
-import com.example.agriecommerce.payload.LoginDto;
-import com.example.agriecommerce.payload.SupplierRegisterDto;
-import com.example.agriecommerce.payload.UserRegisterDto;
-import com.example.agriecommerce.payload.UserRegisterResponse;
+import com.example.agriecommerce.payload.*;
 import com.example.agriecommerce.repository.BankInfoRepository;
 import com.example.agriecommerce.repository.RoleRepository;
 import com.example.agriecommerce.repository.SupplierRepository;
 import com.example.agriecommerce.repository.UserRepository;
 import com.example.agriecommerce.security.JwtTokenProvider;
 import com.example.agriecommerce.service.AuthService;
+import com.example.agriecommerce.utils.AES;
+import com.example.agriecommerce.utils.RSA;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -36,6 +35,9 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final ModelMapper modelMapper;
+    private final RSA rsa;
+    private final AES aes;
+
     @Autowired
     public AuthServiceImpl(AuthenticationManager authenticationManager,
                            UserRepository userRepository,
@@ -44,7 +46,9 @@ public class AuthServiceImpl implements AuthService {
                            RoleRepository roleRepository,
                            PasswordEncoder passwordEncoder,
                            JwtTokenProvider jwtTokenProvider,
-                           ModelMapper modelMapper) {
+                           ModelMapper modelMapper,
+                           RSA rsa,
+                           AES aes) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.supplierRepository = supplierRepository;
@@ -53,6 +57,8 @@ public class AuthServiceImpl implements AuthService {
         this.jwtTokenProvider = jwtTokenProvider;
         this.bankInfoRepository = bankInfoRepository;
         this.modelMapper = modelMapper;
+        this.rsa = rsa;
+        this.aes = aes;
     }
 
     @Override
@@ -63,16 +69,14 @@ public class AuthServiceImpl implements AuthService {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        String token = jwtTokenProvider.generateToken(authentication);
-
-        return token;
+        return jwtTokenProvider.generateToken(authentication);
     }
 
     @Override
     public UserRegisterResponse userRegister(UserRegisterDto userRegisterDto) {
         // add check for email exists in DB
-        if(userRepository.existsByEmail(userRegisterDto.getEmail())){
-            throw  new AgriMartException(HttpStatus.BAD_REQUEST, "Email is already exists");
+        if (userRepository.existsByEmail(userRegisterDto.getEmail())) {
+            throw new AgriMartException(HttpStatus.BAD_REQUEST, "Email is already exists");
         }
 
         User user = new User();
@@ -99,22 +103,35 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public String supplierRegister(SupplierRegisterDto supplierRegisterDto) {
+    public SupplierRegisterResponse supplierRegister(SupplierRegisterDto supplierRegisterDto) {
         // add check for email exists in DB
-        if(supplierRepository.existsByEmail(supplierRegisterDto.getEmail())){
-            throw  new AgriMartException(HttpStatus.BAD_REQUEST, "Email is already exists");
+        if (supplierRepository.existsByEmail(supplierRegisterDto.getEmail())) {
+            throw new AgriMartException(HttpStatus.BAD_REQUEST, "Email is already exists");
         }
 
+        String encryptedAESKey = supplierRegisterDto.getAesKey();
+        String encryptedIV = supplierRegisterDto.getIv();
+        String aesKey, iv;
+
+        try {
+            aesKey = rsa.decrypt(encryptedAESKey);
+            iv = rsa.decrypt(encryptedIV);
+        } catch (Exception e) {
+            throw new AgriMartException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to initialize key");
+        }
+
+        SupplierRegisterDto decryptDto = decryptSupplierDto(supplierRegisterDto, aesKey, iv);
+
         Supplier supplier = new Supplier();
-        supplier.setContactName(supplierRegisterDto.getContactName());
-        supplier.setShopName(supplierRegisterDto.getShopName());
-        supplier.setPhone(supplierRegisterDto.getPhone());
-        supplier.setCccd(supplierRegisterDto.getCccd());
-        supplier.setTax_number(supplierRegisterDto.getTax_number());
-        supplier.setProvince(supplierRegisterDto.getProvince());
-        supplier.setSellerType(supplierRegisterDto.getSellerType());
-        supplier.setEmail(supplierRegisterDto.getEmail());
-        supplier.setPassword(passwordEncoder.encode(supplierRegisterDto.getPassword()));
+        supplier.setContactName(decryptDto.getContactName());
+        supplier.setShopName(decryptDto.getShopName());
+        supplier.setPhone(decryptDto.getPhone());
+        supplier.setCccd(decryptDto.getCccd());
+        supplier.setTax_number(decryptDto.getTax_number());
+        supplier.setProvince(decryptDto.getProvince());
+        supplier.setSellerType(decryptDto.getSellerType());
+        supplier.setEmail(decryptDto.getEmail());
+        supplier.setPassword(passwordEncoder.encode(decryptDto.getPassword()));
         // address is empty when supplier registers account
         supplier.setAddress("");
 
@@ -123,10 +140,10 @@ public class AuthServiceImpl implements AuthService {
 //        roles.add(supplierRole);
 
         SupplierBankInfo info = new SupplierBankInfo();
-        info.setBankAccountNumber(supplierRegisterDto.getBankAccountNumber());
-        info.setAccountOwner(supplierRegisterDto.getAccountOwner());
-        info.setBankName(supplierRegisterDto.getBankName());
-        info.setBankBranchName(supplierRegisterDto.getBankBranchName());
+        info.setBankAccountNumber(decryptDto.getBankAccountNumber());
+        info.setAccountOwner(decryptDto.getBankAccountOwner());
+        info.setBankName(decryptDto.getBankName());
+        info.setBankBranchName(decryptDto.getBankBranchName());
 
         bankInfoRepository.save(info);
 
@@ -134,10 +151,97 @@ public class AuthServiceImpl implements AuthService {
         supplier.setRoles(supplierRole);
         supplier.setBankInfo(info);
         // get public key RSA
-        supplier.setPublicKey(supplierRegisterDto.getRsaPublicKey());
+        supplier.setPublicKey(decryptDto.getRsaPublicKey());
 
-        supplierRepository.save(supplier);
+        Supplier savedSupplier = supplierRepository.save(supplier);
 
-        return "Supplier registered successfully";
+        return modelMapper.map(savedSupplier, SupplierRegisterResponse.class);
+    }
+
+    @Override
+    public AESDto requestAESKey(AESDto aesDto) {
+        AESDto dto = new AESDto();
+        try {
+            aes.init();
+            aes.initIV();
+            String aesKey = aes.exportKeys();
+            String iv = aes.exportIV();
+
+            System.out.println("aesKey " + aesKey);
+            System.out.println("iv " + iv);
+
+            String clientRSAPubKey = aesDto.getRsaPublicKey();
+            String encryptedAESKey = rsa.encryptWithDestinationKey(clientRSAPubKey, aesKey);
+            String encryptedIV = rsa.encryptWithDestinationKey(clientRSAPubKey, iv);
+
+            dto.setIv(encryptedIV);
+            dto.setAesKey(encryptedAESKey);
+            dto.setRsaPublicKeyServer(rsa.publicKey());
+            dto.setRsaPublicKey(clientRSAPubKey);
+        } catch (Exception e) {
+            throw new AgriMartException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to create Key");
+        }
+        return dto;
+    }
+
+    @Override
+    public AESDto getSessionKey(AESDto aesDto) {
+        AESDto dto = new AESDto();
+        try {
+            aes.init();
+            aes.initIV();
+            String aesKey = aes.exportKeys();
+            String iv = aes.exportIV();
+
+            System.out.println("Session-aesKey " + aesKey);
+            System.out.println("Session-iv " + iv);
+
+            Supplier supplier = supplierRepository.findByPublicKey(aesDto.getRsaPublicKey()).orElseThrow(
+                    () ->  new AgriMartException(HttpStatus.BAD_REQUEST, "Public key does not exists")
+            );
+
+            String clientRSAPubKey = aesDto.getRsaPublicKey();
+            String encryptedAESKey = rsa.encryptWithDestinationKey(clientRSAPubKey, aesKey);
+            String encryptedIV = rsa.encryptWithDestinationKey(clientRSAPubKey, iv);
+
+            dto.setIv(encryptedIV);
+            dto.setAesKey(encryptedAESKey);
+            dto.setRsaPublicKeyServer(rsa.publicKey());
+            dto.setRsaPublicKey(clientRSAPubKey);
+
+            supplier.setAesKey(aesKey);
+            supplier.setIv(iv);
+
+            supplierRepository.save(supplier);
+
+        } catch (Exception e) {
+            throw new AgriMartException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to create Key");
+        }
+        return dto;
+    }
+
+    private SupplierRegisterDto decryptSupplierDto(SupplierRegisterDto supplierRegisterDto, String aesKey, String iv) {
+        SupplierRegisterDto registerDto = new SupplierRegisterDto();
+
+        aes.initFromString(aesKey, iv);
+        try {
+            registerDto.setContactName(aes.decrypt(supplierRegisterDto.getContactName()));
+            registerDto.setShopName(aes.decrypt(supplierRegisterDto.getShopName()));
+            registerDto.setEmail(aes.decrypt(supplierRegisterDto.getEmail()));
+            registerDto.setPhone(aes.decrypt(supplierRegisterDto.getPhone()));
+            registerDto.setCccd(aes.decrypt(supplierRegisterDto.getCccd()));
+            registerDto.setTax_number(aes.decrypt(supplierRegisterDto.getTax_number()));
+            registerDto.setProvince(aes.decrypt(supplierRegisterDto.getProvince()));
+            registerDto.setPassword(aes.decrypt(supplierRegisterDto.getPassword()));
+            registerDto.setSellerType(aes.decrypt(supplierRegisterDto.getSellerType()));
+            registerDto.setBankAccountNumber(aes.decrypt(supplierRegisterDto.getBankAccountNumber()));
+            registerDto.setBankAccountOwner(aes.decrypt(supplierRegisterDto.getBankAccountOwner()));
+            registerDto.setBankName(aes.decrypt(supplierRegisterDto.getBankName()));
+            registerDto.setBankBranchName(aes.decrypt(supplierRegisterDto.getBankBranchName()));
+            registerDto.setRsaPublicKey(supplierRegisterDto.getRsaPublicKey());
+        } catch (Exception e) {
+            throw new AgriMartException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to decrypt data");
+        }
+        return registerDto;
     }
 }

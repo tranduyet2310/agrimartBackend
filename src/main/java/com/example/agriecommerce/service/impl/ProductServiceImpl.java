@@ -7,6 +7,7 @@ import com.example.agriecommerce.payload.*;
 import com.example.agriecommerce.repository.*;
 import com.example.agriecommerce.service.CloudinaryService;
 import com.example.agriecommerce.service.ProductService;
+import com.example.agriecommerce.utils.AES;
 import com.example.agriecommerce.utils.SupplierCategory;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,7 @@ public class ProductServiceImpl implements ProductService {
     private final SubCategoryRepository subCategoryRepository;
     private final WarehouseReposiotry warehouseReposiotry;
     private final SupplierRepository supplierRepository;
+    private final AES aes;
 
     @Autowired
     public ProductServiceImpl(ProductRepository productRepository,
@@ -42,7 +44,8 @@ public class ProductServiceImpl implements ProductService {
                               CategoryRepository categoryRepository,
                               SubCategoryRepository subCategoryRepository,
                               WarehouseReposiotry warehouseReposiotry,
-                              SupplierRepository supplierRepository) {
+                              SupplierRepository supplierRepository,
+                              AES aes) {
         this.productRepository = productRepository;
         this.modelMapper = modelMapper;
         this.cloudinaryService = cloudinaryService;
@@ -51,6 +54,7 @@ public class ProductServiceImpl implements ProductService {
         this.subCategoryRepository = subCategoryRepository;
         this.warehouseReposiotry = warehouseReposiotry;
         this.supplierRepository = supplierRepository;
+        this.aes = aes;
     }
 
     @Override
@@ -116,6 +120,76 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
+    public ProductDto createProductV2(Long supplierId, ProductDto productDto, List<MultipartFile> files) {
+        Supplier supplier = supplierRepository.findById(supplierId).orElseThrow(
+                () -> new ResourceNotFoundException("supplier", "id", supplierId)
+        );
+
+        String secretKey = supplier.getAesKey();
+        String iv = supplier.getIv();
+
+        ProductDto decryptDto = decryptProductDto(productDto, secretKey, iv);
+
+        Product product = new Product();
+        product.setProductName(decryptDto.getProductName());
+        product.setDescription(decryptDto.getDescription());
+        product.setStandardPrice(decryptDto.getStandardPrice());
+        product.setDiscountPrice(decryptDto.getDiscountPrice());
+        product.setQuantity(decryptDto.getQuantity());
+        product.setActive(decryptDto.isActive());
+        product.setNew(decryptDto.isNew());
+        product.setAvailable(decryptDto.isAvailable());
+        product.setSold(0L);
+
+        String categoryName = decryptDto.getCategoryName();
+        String subcategoryName = decryptDto.getSubCategoryName();
+        String warehouseName = decryptDto.getWarehouseName();
+
+        Category category = categoryRepository.findByCategoryName(categoryName).orElseThrow(
+                () -> new ResourceNotFoundException("category does not exists " + categoryName)
+        );
+        SubCategory subCategory = subCategoryRepository.findBySubcategoryName(subcategoryName).orElseThrow(
+                () -> new ResourceNotFoundException("subcategory does not exists " + subcategoryName)
+        );
+        Warehouse warehouse = warehouseReposiotry.findByWarehouseName(warehouseName).orElseThrow(
+                () -> new ResourceNotFoundException("warehouse does not exists " + warehouseName)
+        );
+        // check valid value field
+        product.setCategory(category);
+        List<SubCategory> subCategories = category.getSubCategories();
+        if (subCategories.contains(subCategory)) {
+            product.setSubCategory(subCategory);
+        } else throw new AgriMartException(HttpStatus.BAD_REQUEST, "Subcategory does not match with Category");
+
+        List<Warehouse> warehouses = supplier.getWarehouses();
+        if (warehouses.contains(warehouse)) {
+            product.setWarehouse(warehouse);
+        } else throw new AgriMartException(HttpStatus.BAD_REQUEST, "Warehouse does not belong to Supplier");
+        product.setSupplier(supplier);
+
+        List<Image> images = new ArrayList<>();
+        for (int i = 0; i < files.size(); i++) {
+            Map result = cloudinaryService.upload(files.get(i));
+            // save to images table
+            Image image = new Image((String) result.get("original_filename"),
+                    (String) result.get("url"),
+                    (String) result.get("public_id"));
+            images.add(image);
+            if (i == 0) {
+                product.setProductImage((String) result.get("url"));
+            }
+        }
+        product.setImages(images);
+
+        Product savedProduct = productRepository.save(product);
+
+        ProductDto result = modelMapper.map(savedProduct, ProductDto.class);
+
+        return encryptProductDto(result, secretKey, iv);
+    }
+
+    @Override
     public ProductDto getProductById(Long productId) {
         Product product = productRepository.findById(productId).orElseThrow(
                 () -> new ResourceNotFoundException("product", "id", productId)
@@ -137,6 +211,44 @@ public class ProductServiceImpl implements ProductService {
 
         ProductResponse productResponse = new ProductResponse();
         productResponse.setContent(content);
+        productResponse.setPageNo(productPage.getNumber());
+        productResponse.setPageSize(productPage.getSize());
+        productResponse.setTotalElements(productPage.getTotalElements());
+        productResponse.setTotalPage(productPage.getTotalPages());
+        productResponse.setLast(productPage.isLast());
+
+        return productResponse;
+    }
+
+    @Override
+    public ProductResponse getProductBySupplierIdV2(Long supplierId, int pageNo, int pageSize, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        Page<Product> productPage = productRepository.findBySupplierId(supplierId, pageable).orElseThrow(
+                () -> new ResourceNotFoundException("Supplier does not have any products")
+        );
+
+        Supplier supplier = supplierRepository.findById(supplierId).orElseThrow(
+                () -> new ResourceNotFoundException("Supplier does not exists")
+        );
+
+        List<Product> products = productPage.getContent();
+        List<ProductDto> content = products.stream().map(product -> modelMapper.map(product, ProductDto.class)).toList();
+        List<ProductDto> encryptedContent = new ArrayList<>();
+
+        String secretKey = supplier.getAesKey();
+        String iv = supplier.getIv();
+
+        System.out.println("secretKey "+secretKey);
+        System.out.println("iv "+iv);
+
+        for (ProductDto d : content){
+            encryptedContent.add(encryptProductDto(d, secretKey, iv));
+        }
+
+        ProductResponse productResponse = new ProductResponse();
+        productResponse.setContent(encryptedContent);
         productResponse.setPageNo(productPage.getNumber());
         productResponse.setPageSize(productPage.getSize());
         productResponse.setTotalElements(productPage.getTotalElements());
@@ -477,5 +589,72 @@ public class ProductServiceImpl implements ProductService {
         Long result = productRepository.countSoldProduct(supplierId);
         if (result == null) result = 0L;
         return new ResultDto(true, result.toString());
+    }
+
+    private ProductDto encryptProductDto(ProductDto sourceDto, String secretKey, String iv){
+        ProductDto destDto = new ProductDto();
+
+        try {
+            aes.initFromString(secretKey, iv);
+
+            destDto.setId(sourceDto.getId());
+            destDto.setProductName(aes.encrypt(sourceDto.getProductName()));
+            destDto.setDescription(aes.encrypt(sourceDto.getDescription()));
+            destDto.setStandardPrice(sourceDto.getStandardPrice());
+            destDto.setDiscountPrice(sourceDto.getDiscountPrice());
+            destDto.setQuantity(sourceDto.getQuantity());
+            destDto.setCategoryName(aes.encrypt(sourceDto.getCategoryName()));
+            destDto.setSubCategoryName(aes.encrypt(sourceDto.getSubCategoryName()));
+            destDto.setWarehouseName(aes.encrypt(sourceDto.getWarehouseName()));
+            destDto.setSupplierShopName(aes.encrypt(sourceDto.getSupplierShopName()));
+            destDto.setImages(sourceDto.getImages());
+            destDto.setActive(sourceDto.isActive());
+            destDto.setAvailable(sourceDto.isAvailable());
+            destDto.setNew(sourceDto.isNew());
+            destDto.setSupplierProvince(aes.encrypt(sourceDto.getSupplierProvince()));
+            destDto.setSupplierId(sourceDto.getSupplierId());
+            destDto.setSold(sourceDto.getSold());
+
+        }catch (Exception e){
+            throw new AgriMartException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to encrypt data");
+        }
+
+        return destDto;
+    }
+
+    private ProductDto decryptProductDto(ProductDto sourceDto, String secretKey, String iv){
+        ProductDto destDto = new ProductDto();
+
+        try {
+            aes.initFromString(secretKey, iv);
+
+            destDto.setId(sourceDto.getId());
+            System.out.println("standard price "+sourceDto.getStandardPrice());
+            System.out.println("isNew "+sourceDto.isNew());
+            System.out.println("Name "+sourceDto.getProductName());
+            String productName = sourceDto.getProductName();
+            destDto.setProductName(aes.decrypt(productName));
+            destDto.setDescription(aes.decrypt(sourceDto.getDescription()));
+            destDto.setStandardPrice(sourceDto.getStandardPrice());
+            destDto.setDiscountPrice(sourceDto.getDiscountPrice());
+            destDto.setQuantity(sourceDto.getQuantity());
+            destDto.setCategoryName(aes.decrypt(sourceDto.getCategoryName()));
+            destDto.setSubCategoryName(aes.decrypt(sourceDto.getSubCategoryName()));
+            destDto.setWarehouseName(aes.decrypt(sourceDto.getWarehouseName()));
+//            destDto.setSupplierShopName(aes.decrypt(sourceDto.getSupplierShopName()));
+            destDto.setImages(sourceDto.getImages());
+            destDto.setActive(sourceDto.isActive());
+            destDto.setAvailable(sourceDto.isAvailable());
+            destDto.setNew(sourceDto.isNew());
+//            destDto.setSupplierProvince(aes.decrypt(sourceDto.getSupplierProvince()));
+//            destDto.setSupplierId(sourceDto.getSupplierId());
+//            destDto.setSold(sourceDto.getSold());
+
+        }catch (Exception e){
+            e.printStackTrace();
+            throw new AgriMartException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to decrypt data");
+        }
+
+        return destDto;
     }
 }

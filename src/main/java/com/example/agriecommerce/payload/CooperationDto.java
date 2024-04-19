@@ -1,9 +1,6 @@
 package com.example.agriecommerce.payload;
 
-import com.example.agriecommerce.entity.Field;
-import com.example.agriecommerce.entity.OrderStatus;
-import com.example.agriecommerce.entity.Supplier;
-import com.example.agriecommerce.entity.User;
+import com.example.agriecommerce.entity.*;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -29,4 +26,6 @@ public class CooperationDto {
     private String supplierContactName;
     private Long fieldId;
     private OrderStatus cooperationStatus;
+    private Long addressId;
+    private String paymentStatus;
 }

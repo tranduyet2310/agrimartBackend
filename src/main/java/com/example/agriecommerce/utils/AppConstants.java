@@ -10,5 +10,9 @@ public class AppConstants {
     public static final int MAX_SHORT_TERM_PLANT = 6;
     public static final String LONG_TERM_PLANT = "Cây lâu năm";
     public static final String SHORT_TERM_PLANT = "Cây ngắn ngày";
+    public static final String CLOUD_NAME = "dtdctll9c";
+    public static final String CLOUD_API_KEY = "342769926395116";
+    public static final String CLOUD_API_SECRET = "B8_B_EPbb4o7i-1QbFWmdVqjuSA";
+    public static final String DATE_PATTERN = "dd/MM/yyyy";
 
 }

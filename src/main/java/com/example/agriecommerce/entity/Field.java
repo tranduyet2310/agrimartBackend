@@ -23,6 +23,8 @@ public class Field {
     private String cropsType;
     private String area;
     private Double estimateYield;
+    private Long estimatePrice;
+    private Boolean isComplete;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "field", cascade = CascadeType.ALL)
     private List<FieldDetail> fieldDetails;
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)

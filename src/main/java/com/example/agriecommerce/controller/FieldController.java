@@ -25,6 +25,23 @@ public class FieldController {
         return new ResponseEntity<>(result, HttpStatus.CREATED);
     }
 
+    @PutMapping("{fieldId}")
+    public ResponseEntity<FieldDto> updateCrops(@PathVariable("fieldId") Long fieldId,
+                                                   @RequestBody FieldDto fieldDto){
+        return ResponseEntity.ok(fieldService.updateCropsField(fieldId, fieldDto));
+    }
+
+    @PatchMapping("{fieldId}/complete")
+    public ResponseEntity<FieldDto> completeCrops(@PathVariable("fieldId") Long fieldId){
+        return ResponseEntity.ok(fieldService.completeCrops(fieldId));
+    }
+
+    @PatchMapping("{fieldId}")
+    public ResponseEntity<FieldDto> updateYield(@PathVariable("fieldId") Long fieldId,
+                                                @RequestBody FieldDto fieldDto){
+        return ResponseEntity.ok(fieldService.updateYield(fieldId, fieldDto));
+    }
+
     @GetMapping("{supplierId}")
     public ResponseEntity<List<FieldDto>> getAllFieldBySupplierId(@PathVariable("supplierId") Long supplierId){
         return ResponseEntity.ok(fieldService.getAllFieldBySupplierId(supplierId));

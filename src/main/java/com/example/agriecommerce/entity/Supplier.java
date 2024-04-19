@@ -52,9 +52,15 @@ public class Supplier {
 //    )
 //    private Set<Role> roles;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "role_id")
     private Role roles;
     @OneToMany(mappedBy = "supplier", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Warehouse> warehouses;
+
+    @Column(name = "aes_key")
+    private String aesKey;
+
+    @Column(name = "iv")
+    private String iv;
 }

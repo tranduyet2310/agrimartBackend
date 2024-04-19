@@ -20,8 +20,10 @@ public class SupplierRegisterDto {
     private String password;
     private String sellerType;
     private String bankAccountNumber;
-    private String accountOwner;
+    private String bankAccountOwner;
     private String bankName;
     private String bankBranchName;
     private String rsaPublicKey;
+    private String aesKey;
+    private String iv;
 }

@@ -21,6 +21,7 @@ public class FieldServiceImpl implements FieldService {
     private final FieldRepository fieldRepository;
     private final SupplierRepository supplierRepository;
     private final ModelMapper modelMapper;
+
     @Autowired
     public FieldServiceImpl(FieldRepository fieldRepository, SupplierRepository supplierRepository, ModelMapper modelMapper) {
         this.fieldRepository = fieldRepository;
@@ -44,6 +45,9 @@ public class FieldServiceImpl implements FieldService {
         field.setEstimateYield(fieldDto.getEstimateYield());
         field.setFieldDetails(fieldDetails);
         field.setSupplier(supplier);
+        field.setIsComplete(false);
+        field.setEstimatePrice(0L);
+        field.setEstimateYield(0.0);
 
         Field savedField = fieldRepository.save(field);
 
@@ -55,28 +59,44 @@ public class FieldServiceImpl implements FieldService {
         Field field = fieldRepository.findById(fieldId).orElseThrow(
                 () -> new ResourceNotFoundException("field does not exists")
         );
-        Supplier supplier = supplierRepository.findById(fieldDto.getSupplierId()).orElseThrow(
-                () -> new ResourceNotFoundException("supplier does not exists")
-        );
 
-        field.setId(fieldId);
         field.setCropsName(fieldDto.getCropsName());
         field.setArea(fieldDto.getArea());
         field.setCropsType(fieldDto.getCropsType());
         field.setSeason(fieldDto.getSeason());
+
+        Field updatedField = fieldRepository.save(field);
+
+        return modelMapper.map(updatedField, FieldDto.class);
+    }
+
+    @Override
+    public FieldDto updateYield(Long fieldId, FieldDto fieldDto) {
+        Field field = fieldRepository.findById(fieldId).orElseThrow(
+                () -> new ResourceNotFoundException("field does not exists")
+        );
+
         field.setEstimateYield(fieldDto.getEstimateYield());
-        field.setSupplier(supplier);
+        field.setEstimatePrice(fieldDto.getEstimatePrice());
 
-//        List<FieldDetail> fieldDetails = field.getFieldDetails();
-//
-//        field.setFieldDetails(fieldDetails);
+        Field updatedField = fieldRepository.save(field);
 
-        return null;
+        return modelMapper.map(updatedField, FieldDto.class);
+    }
+
+    @Override
+    public FieldDto completeCrops(Long fieldId) {
+        Field field = fieldRepository.findById(fieldId).orElseThrow(
+                () -> new ResourceNotFoundException("field does not exists")
+        );
+        field.setIsComplete(true);
+        Field savedField = fieldRepository.save(field);
+        return modelMapper.map(savedField, FieldDto.class);
     }
 
     @Override
     public List<FieldDto> getAllFieldBySupplierId(Long supplierId) {
-        List<Field> fields = fieldRepository.findBySupplierId(supplierId).orElseThrow(
+        List<Field> fields = fieldRepository.findByIdAndIsComplete(supplierId, false).orElseThrow(
                 () -> new ResourceNotFoundException("supplier does not have any filed")
         );
 

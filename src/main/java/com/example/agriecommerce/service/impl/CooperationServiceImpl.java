@@ -2,15 +2,15 @@ package com.example.agriecommerce.service.impl;
 
 import com.example.agriecommerce.entity.*;
 import com.example.agriecommerce.exception.ResourceNotFoundException;
-import com.example.agriecommerce.payload.CooperationDto;
-import com.example.agriecommerce.payload.ResultDto;
-import com.example.agriecommerce.repository.CooperationRepository;
-import com.example.agriecommerce.repository.FieldRepository;
-import com.example.agriecommerce.repository.SupplierRepository;
-import com.example.agriecommerce.repository.UserRepository;
+import com.example.agriecommerce.payload.*;
+import com.example.agriecommerce.repository.*;
 import com.example.agriecommerce.service.CooperationService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,6 +21,7 @@ public class CooperationServiceImpl implements CooperationService {
     private final CooperationRepository cooperationRepository;
     private final SupplierRepository supplierRepository;
     private final UserRepository userRepository;
+    private final UserAddressRepository userAddressRepository;
     private final ModelMapper modelMapper;
     private final FieldRepository fieldRepository;
 
@@ -29,12 +30,14 @@ public class CooperationServiceImpl implements CooperationService {
                                   SupplierRepository supplierRepository,
                                   UserRepository userRepository,
                                   ModelMapper modelMapper,
-                                  FieldRepository fieldRepository) {
+                                  FieldRepository fieldRepository,
+                                  UserAddressRepository userAddressRepository) {
         this.cooperationRepository = cooperationRepository;
         this.supplierRepository = supplierRepository;
         this.userRepository = userRepository;
         this.modelMapper = modelMapper;
         this.fieldRepository = fieldRepository;
+        this.userAddressRepository = userAddressRepository;
     }
 
     @Override
@@ -76,35 +79,24 @@ public class CooperationServiceImpl implements CooperationService {
                 () -> new ResourceNotFoundException("cooperation does not exists")
         );
 
-        Long userId = cooperationDto.getUserId();
-        Long fieldId = cooperationDto.getFieldId();
-        Long supplierId = cooperationDto.getSupplierId();
-
-        User user = userRepository.findById(userId).orElseThrow(
-                () -> new ResourceNotFoundException("user does not exists")
-        );
-        Field field = fieldRepository.findById(fieldId).orElseThrow(
-                () -> new ResourceNotFoundException("Field does not exists")
-        );
-        Supplier supplier = supplierRepository.findById(supplierId).orElseThrow(
-                () -> new ResourceNotFoundException("supplier does not exists")
-        );
-
         cooperation.setId(cooperationId);
-        cooperation.setSupplier(supplier);
-        cooperation.setUser(user);
-        cooperation.setField(field);
         cooperation.setFullName(cooperationDto.getFullName());
         cooperation.setDescription(cooperationDto.getDescription());
-        cooperation.setCropsName(cooperationDto.getCropsName());
         cooperation.setRequireYield(cooperationDto.getRequireYield());
         cooperation.setInvestment(cooperationDto.getInvestment());
         cooperation.setContact(cooperationDto.getContact());
-        cooperation.setCooperationStatus(cooperationDto.getCooperationStatus());
 
         Cooperation updatedCooperation = cooperationRepository.save(cooperation);
 
         return modelMapper.map(updatedCooperation, CooperationDto.class);
+    }
+
+    @Override
+    public CooperationDto getCooperationById(Long cooperationId) {
+        Cooperation cooperation = cooperationRepository.findById(cooperationId).orElseThrow(
+                () -> new ResourceNotFoundException("Cooperation does not exists")
+        );
+        return modelMapper.map(cooperation, CooperationDto.class);
     }
 
     @Override
@@ -115,6 +107,52 @@ public class CooperationServiceImpl implements CooperationService {
         return cooperations.stream()
                 .map(cooperation -> modelMapper.map(cooperation, CooperationDto.class))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public CooperationResponse getCooperationBySupplierIdV2(Long supplierId, int pageNo, int pageSize, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        Page<Cooperation> cooperationPage = cooperationRepository.findBySupplierId(supplierId, pageable).orElseThrow(
+                () -> new ResourceNotFoundException("Supplier does not have any cooperation")
+        );
+
+        List<Cooperation> cooperationList = cooperationPage.getContent();
+        List<CooperationDto> content = cooperationList.stream().map(cooperation -> modelMapper.map(cooperation, CooperationDto.class)).toList();
+
+        CooperationResponse cooperationResponse = new CooperationResponse();
+        cooperationResponse.setContent(content);
+        cooperationResponse.setPageNo(cooperationPage.getNumber());
+        cooperationResponse.setPageSize(cooperationPage.getSize());
+        cooperationResponse.setTotalElements(cooperationPage.getTotalElements());
+        cooperationResponse.setTotalPage(cooperationPage.getTotalPages());
+        cooperationResponse.setLast(cooperationPage.isLast());
+
+        return cooperationResponse;
+    }
+
+    @Override
+    public CooperationResponse getCooperationSortByField(Long supplierId, Long fieldId, int pageNo, int pageSize, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        Page<Cooperation> cooperationPage = cooperationRepository.findBySupplierIdAndFieldId(supplierId, fieldId, pageable).orElseThrow(
+                () -> new ResourceNotFoundException("Supplier does not have any cooperation")
+        );
+
+        List<Cooperation> cooperationList = cooperationPage.getContent();
+        List<CooperationDto> content = cooperationList.stream().map(cooperation -> modelMapper.map(cooperation, CooperationDto.class)).toList();
+
+        CooperationResponse cooperationResponse = new CooperationResponse();
+        cooperationResponse.setContent(content);
+        cooperationResponse.setPageNo(cooperationPage.getNumber());
+        cooperationResponse.setPageSize(cooperationPage.getSize());
+        cooperationResponse.setTotalElements(cooperationPage.getTotalElements());
+        cooperationResponse.setTotalPage(cooperationPage.getTotalPages());
+        cooperationResponse.setLast(cooperationPage.isLast());
+
+        return cooperationResponse;
     }
 
     @Override
@@ -144,6 +182,32 @@ public class CooperationServiceImpl implements CooperationService {
         cooperation.setId(cooperationId);
         cooperation.setCooperationStatus(cooperationDto.getCooperationStatus());
 
+        Cooperation updatedCooperation = cooperationRepository.save(cooperation);
+        return modelMapper.map(updatedCooperation, CooperationDto.class);
+    }
+
+    @Override
+    public CooperationDto updateAddress(Long cooperationId, Long addressId) {
+        Cooperation cooperation = cooperationRepository.findById(cooperationId).orElseThrow(
+                () -> new ResourceNotFoundException("cooperation does not exists")
+        );
+        UserAddress address = userAddressRepository.findById(addressId).orElseThrow(
+                () -> new ResourceNotFoundException("address does not exists")
+        );
+
+        cooperation.setAddress(address);
+
+        Cooperation updatedCooperation = cooperationRepository.save(cooperation);
+
+        return modelMapper.map(updatedCooperation, CooperationDto.class);
+    }
+
+    @Override
+    public CooperationDto updatePayment(Long cooperationId, CooperationDto cooperationDto) {
+        Cooperation cooperation = cooperationRepository.findById(cooperationId).orElseThrow(
+                () -> new ResourceNotFoundException("cooperation does not exists")
+        );
+        cooperation.setPaymentStatus(cooperationDto.getPaymentStatus());
         Cooperation updatedCooperation = cooperationRepository.save(cooperation);
         return modelMapper.map(updatedCooperation, CooperationDto.class);
     }

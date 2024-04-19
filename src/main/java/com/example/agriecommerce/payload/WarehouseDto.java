@@ -1,5 +1,6 @@
 package com.example.agriecommerce.payload;
 
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,4 +21,5 @@ public class WarehouseDto {
     private String commune;
     private String detail;
     private String supplierContactName;
+    private boolean isActive;
 }

@@ -34,4 +34,6 @@ public class Warehouse {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "supplier_id", referencedColumnName = "id")
     private Supplier supplier;
+    @Column(name = "is_active")
+    private boolean isActive;
 }

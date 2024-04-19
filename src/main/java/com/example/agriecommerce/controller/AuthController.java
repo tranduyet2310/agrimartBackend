@@ -50,6 +50,16 @@ public class AuthController {
         return ResponseEntity.ok(jwtAuthResponse);
     }
 
+    @PostMapping("keys")
+    public ResponseEntity<AESDto> getAESKey(@RequestBody AESDto aesDto) {
+        return ResponseEntity.ok(authService.requestAESKey(aesDto));
+    }
+
+    @PostMapping("key")
+    public ResponseEntity<AESDto> getSessionKey(@RequestBody AESDto aesDto) {
+        return ResponseEntity.ok(authService.getSessionKey(aesDto));
+    }
+
     @PostMapping("/register/user")
     public ResponseEntity<UserRegisterResponse> register(@RequestBody UserRegisterDto userRegisterDto) {
         UserRegisterResponse response = authService.userRegister(userRegisterDto);
@@ -57,8 +67,8 @@ public class AuthController {
     }
 
     @PostMapping("/register/supplier")
-    public ResponseEntity<String> registerSupplier(@RequestBody SupplierRegisterDto supplierRegisterDto) {
-        String response = authService.supplierRegister(supplierRegisterDto);
+    public ResponseEntity<SupplierRegisterResponse> registerSupplier(@RequestBody SupplierRegisterDto supplierRegisterDto) {
+        SupplierRegisterResponse response = authService.supplierRegister(supplierRegisterDto);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 }

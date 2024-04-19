@@ -57,6 +57,39 @@ public class ProductController {
         return new ResponseEntity<>(createdProduct, HttpStatus.CREATED);
     }
 
+    @PostMapping("/{id}/v2")
+    public ResponseEntity<ProductDto> createProductV2(@PathVariable("id") Long supplierId,
+                                                    @RequestParam("productName") String productName,
+                                                    @RequestParam("description") String description,
+                                                    @RequestParam("standardPrice") Long standardPrice,
+                                                    @RequestParam("discountPrice") Long discountPrice,
+                                                    @RequestParam("quantity") Integer quantity,
+                                                    @RequestParam("isActive") Boolean isActive,
+                                                    @RequestParam("isNew") Boolean isNew,
+                                                    @RequestParam("isAvailable") Boolean isAvailable,
+                                                    @RequestParam("categoryName") String categoryName,
+                                                    @RequestParam("subCategoryName") String subCategoryName,
+                                                    @RequestParam("warehouseName") String warehouseName,
+                                                    @RequestParam("file") MultipartFile[] multipartFiles) {
+        ProductDto productDto = new ProductDto();
+        productDto.setProductName(productName.substring(1, productName.length()-1));
+        productDto.setDescription(description.substring(1, description.length()-1));
+        productDto.setStandardPrice(standardPrice);
+        productDto.setDiscountPrice(discountPrice);
+        productDto.setQuantity(quantity);
+        productDto.setActive(isActive);
+        productDto.setNew(isNew);
+        productDto.setAvailable(isAvailable);
+        productDto.setCategoryName(categoryName.substring(1, categoryName.length()-1));
+        productDto.setSubCategoryName(subCategoryName.substring(1, subCategoryName.length()-1));
+        productDto.setWarehouseName(warehouseName.substring(1, warehouseName.length()-1));
+
+        List<MultipartFile> files = new ArrayList<>(Arrays.asList(multipartFiles));
+
+        ProductDto createdProduct = productService.createProductV2(supplierId, productDto, files);
+        return new ResponseEntity<>(createdProduct, HttpStatus.CREATED);
+    }
+
     @GetMapping("{id}")
     public ResponseEntity<ProductDto> getProductById(@PathVariable("id") Long productId) {
         return ResponseEntity.ok(productService.getProductById(productId));
@@ -123,6 +156,16 @@ public class ProductController {
             @RequestParam(value = "sortBy", defaultValue = AppConstants.DEFAULT_SORT_BY, required = false) String sortBy,
             @RequestParam(value = "sortDir", defaultValue = AppConstants.DEFAULT_SORT_DIRECTION, required = false) String sortDir) {
         return ResponseEntity.ok(productService.getProductBySupplierId(supplierId, pageNo, pageSize, sortBy, sortDir));
+    }
+
+    @GetMapping("suppliers/{id}/v2")
+    public ResponseEntity<ProductResponse> getProductBySupplierIdV2(
+            @PathVariable("id") Long supplierId,
+            @RequestParam(value = "pageNo", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) int pageSize,
+            @RequestParam(value = "sortBy", defaultValue = AppConstants.DEFAULT_SORT_BY, required = false) String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = AppConstants.DEFAULT_SORT_DIRECTION, required = false) String sortDir) {
+        return ResponseEntity.ok(productService.getProductBySupplierIdV2(supplierId, pageNo, pageSize, sortBy, sortDir));
     }
 
     @PatchMapping("{supplierId}/{productId}/active")

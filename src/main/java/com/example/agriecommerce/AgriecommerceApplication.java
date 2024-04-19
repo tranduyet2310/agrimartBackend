@@ -10,16 +10,17 @@ import org.springframework.context.annotation.Bean;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.example.agriecommerce.utils.AppConstants.*;
+
 @SpringBootApplication
 public class AgriecommerceApplication {
     @Bean
     public Cloudinary getCloudinary() {
-        Cloudinary cloudinary = new Cloudinary(ObjectUtils.asMap(
-                "cloud_name", "dtdctll9c",
-                "api_key", "342769926395116",
-                "api_secret", "B8_B_EPbb4o7i-1QbFWmdVqjuSA",
+        return new Cloudinary(ObjectUtils.asMap(
+                "cloud_name", CLOUD_NAME,
+                "api_key", CLOUD_API_KEY,
+                "api_secret", CLOUD_API_SECRET,
                 "secure", true));
-        return cloudinary;
     }
 
     @Bean

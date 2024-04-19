@@ -34,4 +34,8 @@ public class Cooperation {
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "status")
     private OrderStatus cooperationStatus;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "address_id", referencedColumnName = "id")
+    private UserAddress address;
+    private String paymentStatus;
 }
