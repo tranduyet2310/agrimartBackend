@@ -1,8 +1,6 @@
 package com.example.agriecommerce.controller;
 
-import com.example.agriecommerce.payload.OrderDto;
-import com.example.agriecommerce.payload.OrderResponse;
-import com.example.agriecommerce.payload.ResultDto;
+import com.example.agriecommerce.payload.*;
 import com.example.agriecommerce.service.OrderService;
 import com.example.agriecommerce.utils.AppConstants;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +26,11 @@ public class OrderController {
         return new ResponseEntity<>(orderService.createOrder(userId, orderDto), HttpStatus.CREATED);
     }
 
+    @GetMapping("{orderId}/info")
+    public ResponseEntity<OrderBasicInfoDto> getOrderById(@PathVariable("orderId") Long orderId) {
+        return ResponseEntity.ok(orderService.getOrderById(orderId));
+    }
+
     @GetMapping("{userId}")
     public ResponseEntity<OrderResponse> getOrderByUserId(
             @PathVariable("userId") Long userId,
@@ -38,10 +41,27 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getOrderByUserId(userId, pageNo, pageSize, sortBy, sortDir));
     }
 
+    @GetMapping("{supplierId}/list")
+    public ResponseEntity<OrderInfoResponse> getOrderBySupplierId(
+            @PathVariable("supplierId") Long supplierId,
+            @RequestParam(value = "date") String datePattern,
+            @RequestParam(value = "pageNo", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) int pageSize,
+            @RequestParam(value = "sortBy", defaultValue = AppConstants.DEFAULT_SORT_BY, required = false) String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = AppConstants.DEFAULT_SORT_DIRECTION, required = false) String sortDir) {
+        return ResponseEntity.ok(orderService.getOrderBySupplierId(supplierId, datePattern, pageNo, pageSize, sortBy, sortDir));
+    }
+
     @PatchMapping("{orderId}")
     public ResponseEntity<OrderDto> updateOrderStatus(@PathVariable("orderId") Long orderId,
                                                       @RequestParam("orderStatus") String orderStatus) {
         return ResponseEntity.ok(orderService.updateOrderStatus(orderId, orderStatus));
+    }
+
+    @PatchMapping("{orderId}/status")
+    public ResponseEntity<OrderBasicInfoDto> updateOrderStatusV2(@PathVariable("orderId") Long orderId,
+                                                      @RequestParam("orderStatus") String orderStatus) {
+        return ResponseEntity.ok(orderService.updateOrderStatusV2(orderId, orderStatus));
     }
 
     @GetMapping("{userId}/{productId}")

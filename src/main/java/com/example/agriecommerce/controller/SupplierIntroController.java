@@ -29,8 +29,8 @@ public class SupplierIntroController {
                                                                 @RequestParam("file") MultipartFile[] multipartFiles) {
         SupplierIntroDto introDto = new SupplierIntroDto();
         introDto.setSupplierId(supplierId);
-        introDto.setDescription(description);
-        introDto.setType(type);
+        introDto.setDescription(description.substring(1, description.length() - 1));
+        introDto.setType(type.substring(1, type.length() - 1));
 
         List<MultipartFile> files = new ArrayList<>(Arrays.asList(multipartFiles));
         SupplierIntroDto resultSupplierIntroDto = supplierIntroService.createSupplierIntro(supplierId, introDto, files);
@@ -50,12 +50,18 @@ public class SupplierIntroController {
                                                                 @RequestParam("file") MultipartFile[] multipartFiles) {
         SupplierIntroDto introDto = new SupplierIntroDto();
         introDto.setSupplierId(supplierId);
-        introDto.setDescription(description);
-        introDto.setType(type);
+        introDto.setDescription(description.substring(1, description.length() - 1));
+        introDto.setType(type.substring(1, type.length() - 1));
 
         List<MultipartFile> files = new ArrayList<>(Arrays.asList(multipartFiles));
         SupplierIntroDto resultSupplierIntroDto = supplierIntroService.updateSupplierIntro(supplierId, introId, introDto, files);
 
         return ResponseEntity.ok(resultSupplierIntroDto);
+    }
+
+    @PatchMapping("{introId}")
+    public ResponseEntity<SupplierIntroDto> updateDescriptionIntro(@PathVariable("introId") Long introId,
+                                                                   @RequestBody SupplierIntroDto introDto) {
+        return ResponseEntity.ok(supplierIntroService.updateDescriptionIntro(introId, introDto));
     }
 }

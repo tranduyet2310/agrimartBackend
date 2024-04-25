@@ -5,13 +5,12 @@ import com.example.agriecommerce.entity.OrderStatus;
 import com.example.agriecommerce.entity.User;
 import com.example.agriecommerce.entity.UserAddress;
 import com.example.agriecommerce.exception.ResourceNotFoundException;
-import com.example.agriecommerce.payload.OrderDto;
-import com.example.agriecommerce.payload.OrderResponse;
-import com.example.agriecommerce.payload.ResultDto;
+import com.example.agriecommerce.payload.*;
 import com.example.agriecommerce.repository.OrderRepository;
 import com.example.agriecommerce.repository.UserAddressRepository;
 import com.example.agriecommerce.repository.UserRepository;
 import com.example.agriecommerce.service.OrderService;
+import com.example.agriecommerce.utils.OrderInfoDto;
 import com.example.agriecommerce.utils.OrderNumberGenerator;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +20,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -99,6 +102,14 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public OrderBasicInfoDto getOrderById(Long orderId) {
+        Order order = orderRepository.findById(orderId).orElseThrow(
+                () -> new ResourceNotFoundException("Order does not exists")
+        );
+        return modelMapper.map(order, OrderBasicInfoDto.class);
+    }
+
+    @Override
     public OrderResponse getOrderByUserId(Long userId, int pageNo, int pageSize, String sortBy, String sortDir) {
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
@@ -122,6 +133,66 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public OrderInfoResponse getOrderBySupplierId(Long supplierId, String datePattern, int pageNo, int pageSize, String sortBy, String sortDir) {
+        String formatDate = "%"+datePattern+"%";
+
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        Page<OrderInfoDto> orderPage = orderRepository.findOrderBySupplier(supplierId, formatDate, pageable).orElseThrow(
+                () -> new ResourceNotFoundException("user's order is empty")
+        );
+
+        List<OrderInfoDto> pageContent = orderPage.getContent();
+        List<OrderInfo> orderInfos = new ArrayList<>();
+
+        Map<Long, List<OrderProductDto>> groupProduct = new HashMap<>();
+        for (OrderInfoDto ofd : pageContent) {
+            if (!groupProduct.containsKey(ofd.getId())) {
+                groupProduct.put(ofd.getId(), new ArrayList<>());
+
+                OrderInfo orderInfo = new OrderInfo();
+                orderInfo.setId(ofd.getId());
+                orderInfo.setDateCreated(ofd.getDateCreated());
+                orderInfo.setOrderStatus(ofd.getOrderStatus());
+                orderInfo.setAddressId(ofd.getAddressId());
+                orderInfo.setUserId(ofd.getUserId());
+                orderInfo.setOrderNumber(ofd.getOrderNumber());
+
+                orderInfos.add(orderInfo);
+            }
+
+            OrderProductDto productDto = new OrderProductDto();
+            productDto.setProductId(ofd.getProductId());
+            productDto.setProductName(ofd.getProductName());
+            productDto.setProductImage(ofd.getProductImage());
+            productDto.setStandardPrice(ofd.getStandardPrice());
+            productDto.setDiscountPrice(ofd.getDiscountPrice());
+            productDto.setWarehouseName(ofd.getWarehouseName());
+            productDto.setQuantity(ofd.getQuantity());
+
+            groupProduct.get(ofd.getId()).add(productDto);
+        }
+
+        for (long orderId : groupProduct.keySet()) {
+            for (OrderInfo oi : orderInfos) {
+                if (oi.getId() == orderId) {
+                    oi.setProductList(groupProduct.get(orderId));
+                }
+            }
+        }
+
+        OrderInfoResponse orderInfoResponse = new OrderInfoResponse();
+        orderInfoResponse.setContent(orderInfos);
+        orderInfoResponse.setPageNo(orderPage.getNumber());
+        orderInfoResponse.setPageSize(orderPage.getSize());
+        orderInfoResponse.setTotalElements(orderPage.getTotalElements());
+        orderInfoResponse.setTotalPage(orderPage.getTotalPages());
+        orderInfoResponse.setLast(orderPage.isLast());
+
+        return orderInfoResponse;
+    }
+
+    @Override
     public ResultDto deleteOrder(Long orderId) {
         Order order = orderRepository.findById(orderId).orElseThrow(
                 () -> new ResourceNotFoundException("order does not exists")
@@ -137,9 +208,9 @@ public class OrderServiceImpl implements OrderService {
         );
         OrderStatus status;
         try {
-             status = OrderStatus.valueOf(orderStatus);
-        }catch (Exception e){
-            throw new ResourceNotFoundException(orderStatus+" does not exists");
+            status = OrderStatus.valueOf(orderStatus);
+        } catch (Exception e) {
+            throw new ResourceNotFoundException(orderStatus + " does not exists");
         }
 
         order.setId(orderId);
@@ -151,11 +222,31 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public OrderBasicInfoDto updateOrderStatusV2(Long orderId, String orderStatus) {
+        Order order = orderRepository.findById(orderId).orElseThrow(
+                () -> new ResourceNotFoundException("order does not exists")
+        );
+        OrderStatus status;
+        try {
+            status = OrderStatus.valueOf(orderStatus);
+        } catch (Exception e) {
+            throw new ResourceNotFoundException(orderStatus + " does not exists");
+        }
+
+        order.setId(orderId);
+        order.setOrderStatus(status);
+
+        Order updatedOrder = orderRepository.save(order);
+
+        return modelMapper.map(updatedOrder, OrderBasicInfoDto.class);
+    }
+
+    @Override
     public ResultDto hasUserPurchasedProduct(Long userId, Long productId) {
         int result = orderRepository.hasUserPurchasedProduct(userId, productId);
         ResultDto dto = new ResultDto();
         dto.setSuccessful(result > 0);
-        dto.setMessage(result+"");
+        dto.setMessage(result + "");
         return dto;
     }
 }

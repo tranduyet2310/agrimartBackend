@@ -9,4 +9,5 @@ public interface SupplierIntroService {
     SupplierIntroDto createSupplierIntro(Long supplierId, SupplierIntroDto introDto, List<MultipartFile> files);
     List<SupplierIntroDto> getAllSupplierIntro(Long supplierId);
     SupplierIntroDto updateSupplierIntro(Long supplierId, Long introId, SupplierIntroDto introDto, List<MultipartFile> files);
+    SupplierIntroDto updateDescriptionIntro(Long introId, SupplierIntroDto introDto);
 }

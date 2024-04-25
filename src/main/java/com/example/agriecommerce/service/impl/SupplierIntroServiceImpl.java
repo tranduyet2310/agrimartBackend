@@ -27,6 +27,7 @@ public class SupplierIntroServiceImpl implements SupplierIntroService {
     private final CloudinaryService cloudinaryService;
     private final ImageRepository imageRepository;
     private final SupplierRepository supplierRepository;
+
     @Autowired
     public SupplierIntroServiceImpl(SupplierIntroRepository introRepository,
                                     ModelMapper modelMapper,
@@ -114,6 +115,26 @@ public class SupplierIntroServiceImpl implements SupplierIntroService {
         }
         imageList.addAll(images);
         supplierIntro.setImages(imageList);
+
+
+        SupplierIntro updatedSupplierIntro = introRepository.save(supplierIntro);
+
+        return modelMapper.map(updatedSupplierIntro, SupplierIntroDto.class);
+    }
+
+    @Override
+    public SupplierIntroDto updateDescriptionIntro(Long introId, SupplierIntroDto introDto) {
+        Supplier supplier = supplierRepository.findById(introDto.getSupplierId()).orElseThrow(
+                () -> new ResourceNotFoundException("supplier does not exists")
+        );
+        SupplierIntro supplierIntro = introRepository.findById(introId).orElseThrow(
+                () -> new ResourceNotFoundException("supplierIntro does not exists")
+        );
+
+        supplierIntro.setId(introId);
+        supplierIntro.setDescription(introDto.getDescription());
+        supplierIntro.setType(introDto.getType());
+        supplierIntro.setSupplier(supplier);
 
         SupplierIntro updatedSupplierIntro = introRepository.save(supplierIntro);
 
