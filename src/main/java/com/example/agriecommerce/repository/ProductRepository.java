@@ -32,6 +32,11 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "p.supplier.shopName LIKE CONCAT('%', :query, '%')")
     Optional<Page<Product>> searchProduct(String query, Pageable pageable);
 
+    @Query(nativeQuery = true, value = "SELECT * FROM tbl_product p " +
+            "WHERE p.product_name LIKE :query AND p.supplier_id = :supplierId")
+    Optional<Page<Product>> searchProductBySupplier(@Param("query") String query,
+                                                    @Param("supplierId") Long supplierId, Pageable pageable);
+
     @Query(value = "SELECT DISTINCT c.id as categoryId, c.image as imageUrl, " +
             "c.name as categoryName, s.id as subcategoryId, s.name  as subcategoryName " +
             "FROM tbl_product p " +

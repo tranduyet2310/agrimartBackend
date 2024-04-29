@@ -1,6 +1,7 @@
 package com.example.agriecommerce.repository;
 
 import com.example.agriecommerce.entity.Review;
+import com.example.agriecommerce.utils.ReviewStatistic;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -40,4 +41,12 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
             "WHERE p.supplier_id = :supplierId")
     BigDecimal getSupplierRating(@Param("supplierId") Long supplierId);
 
+    @Query(nativeQuery = true, value = "SELECT r.id as id, r.feed_back as feedBack, r.rating as rating, " +
+            "r.review_date as reviewDate, r.product_id as productId, u.full_name as fullName, p.product_name as productName " +
+            "FROM tbl_review r " +
+            "LEFT JOIN tbl_user u ON r.user_id = u.id " +
+            "LEFT JOIN tbl_product p ON r.product_id = p.id " +
+            "WHERE p.supplier_id = :supplierId " +
+            "ORDER BY r.review_date DESC")
+    Optional<List<ReviewStatistic>> getReviewStatistic(@Param("supplierId") Long supplierId);
 }

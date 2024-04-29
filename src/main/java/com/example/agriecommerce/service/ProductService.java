@@ -17,8 +17,11 @@ public interface ProductService {
     ProductResponse getProductsWithDiscount(int pageNo, int pageSize, String sortBy, String sortDir);
     ProductResponse getUpcomingProducts(int pageNo, int pageSize, String sortBy, String sortDir);
     ProductResponse searchProduct(String query, int pageNo, int pageSize, String sortBy, String sortDir);
+    ProductResponse searchProductBySupplier(String query, Long supplierId, int pageNo, int pageSize, String sortBy, String sortDir);
     ProductDto updateProduct(Long supplierId, Long productId, ProductDto productDto, List<MultipartFile> files);
-    void deleteProduct(Long supplierId, Long productId);
+    ProductDto updateProductState(Long productId);
+    ProductDto updateProductInfo(Long supplierId, Long productId, ProductDto productDto);
+    ResultDto deleteProduct(Long supplierId, Long productId);
     ProductDto activeProduct(Long suppilerId, Long productId);
     ProductDto inactiveProduct(Long suppilerId, Long productId);
     ProductDto increaseSoldNumber(Long productId, Long quantity);

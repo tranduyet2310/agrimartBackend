@@ -1,9 +1,6 @@
 package com.example.agriecommerce.controller;
 
-import com.example.agriecommerce.payload.ResultDto;
-import com.example.agriecommerce.payload.ReviewDto;
-import com.example.agriecommerce.payload.ReviewResponse;
-import com.example.agriecommerce.payload.ReviewStatisticDto;
+import com.example.agriecommerce.payload.*;
 import com.example.agriecommerce.service.ReviewService;
 import com.example.agriecommerce.utils.AppConstants;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,5 +68,10 @@ public class ReviewController {
     @GetMapping("{supplierId}/rating")
     public ResponseEntity<ResultDto> getTotalReviews(@PathVariable("supplierId") Long supplierId) {
         return ResponseEntity.ok(reviewService.getTotalReviewsBySupplier(supplierId));
+    }
+
+    @GetMapping("{supplierId}/info")
+    public ResponseEntity<List<ReviewInfo>> getReviewInfo(@PathVariable("supplierId") Long supplierId) {
+        return ResponseEntity.ok(reviewService.getReviewInfo(supplierId));
     }
 }

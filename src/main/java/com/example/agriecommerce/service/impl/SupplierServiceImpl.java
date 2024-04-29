@@ -13,6 +13,7 @@ import com.example.agriecommerce.repository.ImageRepository;
 import com.example.agriecommerce.repository.SupplierRepository;
 import com.example.agriecommerce.service.CloudinaryService;
 import com.example.agriecommerce.service.SupplierService;
+import com.example.agriecommerce.utils.Encryption;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,6 +35,7 @@ public class SupplierServiceImpl implements SupplierService {
     private final CloudinaryService cloudinaryService;
     private final ImageRepository imageRepository;
     private final PasswordEncoder passwordEncoder;
+    private final Encryption encryption;
 
     @Autowired
     public SupplierServiceImpl(SupplierRepository supplierRepository,
@@ -41,13 +43,15 @@ public class SupplierServiceImpl implements SupplierService {
                                ModelMapper modelMapper,
                                CloudinaryService cloudinaryService,
                                ImageRepository imageRepository,
-                               PasswordEncoder passwordEncoder) {
+                               PasswordEncoder passwordEncoder,
+                               Encryption encryption) {
         this.supplierRepository = supplierRepository;
         this.modelMapper = modelMapper;
         this.cloudinaryService = cloudinaryService;
         this.imageRepository = imageRepository;
         this.passwordEncoder = passwordEncoder;
         this.bankInfoRepository = bankInfoRepository;
+        this.encryption = encryption;
     }
 
     @Override
@@ -55,7 +59,13 @@ public class SupplierServiceImpl implements SupplierService {
         Supplier supplier = supplierRepository.findById(supplierId).orElseThrow(
                 () -> new ResourceNotFoundException("supplier", "id", supplierId)
         );
-        return modelMapper.map(supplier, SupplierDto.class);
+
+        String secretKey = supplier.getAesKey();
+        String iv = supplier.getIv();
+
+        SupplierDto supplierDto = modelMapper.map(supplier, SupplierDto.class);
+
+        return encryption.encryptSupplierDto(supplierDto, secretKey, iv);
     }
 
     @Override
@@ -87,18 +97,24 @@ public class SupplierServiceImpl implements SupplierService {
                 () -> new ResourceNotFoundException("supplier", "id", supplierId)
         );
 
+        String secretKey = supplier.getAesKey();
+        String iv = supplier.getIv();
+        SupplierDto decryptedDto = encryption.decryptSupplierDto(supplierDto, secretKey, iv);
+
         supplier.setId(supplierId);
-        supplier.setContactName(supplierDto.getContactName());
-        supplier.setShopName(supplierDto.getShopName());
-        supplier.setCccd(supplierDto.getCccd());
-        supplier.setEmail(supplierDto.getEmail());
-        supplier.setPhone(supplierDto.getPhone());
-        supplier.setTax_number(supplierDto.getTax_number());
-        supplier.setAddress(supplierDto.getAddress());
+        supplier.setContactName(decryptedDto.getContactName());
+        supplier.setShopName(decryptedDto.getShopName());
+        supplier.setCccd(decryptedDto.getCccd());
+        supplier.setEmail(decryptedDto.getEmail());
+        supplier.setPhone(decryptedDto.getPhone());
+        supplier.setTax_number(decryptedDto.getTax_number());
+        supplier.setAddress(decryptedDto.getAddress());
 
         Supplier updatedSupplier = supplierRepository.save(supplier);
 
-        return modelMapper.map(updatedSupplier, SupplierDto.class);
+        SupplierDto dto = modelMapper.map(updatedSupplier, SupplierDto.class);
+
+        return encryption.encryptSupplierDto(dto, secretKey, iv);
     }
 
     @Override
@@ -108,8 +124,12 @@ public class SupplierServiceImpl implements SupplierService {
                 () -> new ResourceNotFoundException("supplier", "id", supplierId)
         );
 
+        String secretKey = supplier.getAesKey();
+        String iv = supplier.getIv();
+        SupplierDto decryptedDto = encryption.decryptSupplierDto(supplierDto, secretKey, iv);
+
         supplier.setId(supplierId);
-        supplier.setSellerType(supplierDto.getSellerType());
+        supplier.setSellerType(decryptedDto.getSellerType());
 
         Long bankInfoId = supplier.getBankInfo().getId();
         SupplierBankInfo supplierBankInfo = bankInfoRepository.findById(bankInfoId).orElseThrow(
@@ -117,15 +137,17 @@ public class SupplierServiceImpl implements SupplierService {
         );
 
         supplierBankInfo.setId(bankInfoId);
-        supplierBankInfo.setBankAccountNumber(supplierDto.getBankAccountNumber());
-        supplierBankInfo.setBankName(supplierDto.getBankName());
-        supplierBankInfo.setBankBranchName(supplierDto.getBankBranchName());
-        supplierBankInfo.setAccountOwner(supplierDto.getBankAccountOwner());
+        supplierBankInfo.setBankAccountNumber(decryptedDto.getBankAccountNumber());
+        supplierBankInfo.setBankName(decryptedDto.getBankName());
+        supplierBankInfo.setBankBranchName(decryptedDto.getBankBranchName());
+        supplierBankInfo.setAccountOwner(decryptedDto.getBankAccountOwner());
 
         bankInfoRepository.save(supplierBankInfo);
         Supplier updatedSupplier = supplierRepository.save(supplier);
 
-        return modelMapper.map(updatedSupplier, SupplierDto.class);
+        SupplierDto dto = modelMapper.map(updatedSupplier, SupplierDto.class);
+
+        return encryption.encryptSupplierDto(dto, secretKey, iv);
     }
 
     @Override
@@ -196,4 +218,5 @@ public class SupplierServiceImpl implements SupplierService {
         );
         return supplier.getId();
     }
+
 }

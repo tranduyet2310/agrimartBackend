@@ -5,15 +5,13 @@ import com.example.agriecommerce.entity.Review;
 import com.example.agriecommerce.entity.Supplier;
 import com.example.agriecommerce.entity.User;
 import com.example.agriecommerce.exception.ResourceNotFoundException;
-import com.example.agriecommerce.payload.ResultDto;
-import com.example.agriecommerce.payload.ReviewDto;
-import com.example.agriecommerce.payload.ReviewResponse;
-import com.example.agriecommerce.payload.ReviewStatisticDto;
+import com.example.agriecommerce.payload.*;
 import com.example.agriecommerce.repository.ProductRepository;
 import com.example.agriecommerce.repository.ReviewRepository;
 import com.example.agriecommerce.repository.SupplierRepository;
 import com.example.agriecommerce.repository.UserRepository;
 import com.example.agriecommerce.service.ReviewService;
+import com.example.agriecommerce.utils.ReviewStatistic;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -25,6 +23,7 @@ import org.springframework.util.ObjectUtils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -199,5 +198,28 @@ public class ReviewServiceImpl implements ReviewService {
         Long result = reviewRepository.countBySupplierId(supplierId);
         if (result == null) result = 0L;
         return new ResultDto(true, result.toString());
+    }
+
+    @Override
+    public List<ReviewInfo> getReviewInfo(Long supplierId) {
+        List<ReviewStatistic> reviewStatistic = reviewRepository.getReviewStatistic(supplierId).orElseThrow(
+                () -> new ResourceNotFoundException("supplier does not exists")
+        );
+
+        List<ReviewInfo> reviewInfos = new ArrayList<>();
+        for (ReviewStatistic rs : reviewStatistic){
+            ReviewInfo reviewInfo = new ReviewInfo();
+            reviewInfo.setId(rs.getId());
+            reviewInfo.setReviewDate(rs.getReviewDate());
+            reviewInfo.setFeedBack(rs.getFeedBack());
+            reviewInfo.setRating(rs.getRating());
+            reviewInfo.setUserFullName(rs.getFullName());
+            reviewInfo.setProductName(rs.getProductName());
+            reviewInfo.setProductId(rs.getProductId());
+
+            reviewInfos.add(reviewInfo);
+        }
+
+        return reviewInfos;
     }
 }

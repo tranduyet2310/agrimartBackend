@@ -60,7 +60,7 @@ public class OrderController {
 
     @PatchMapping("{orderId}/status")
     public ResponseEntity<OrderBasicInfoDto> updateOrderStatusV2(@PathVariable("orderId") Long orderId,
-                                                      @RequestParam("orderStatus") String orderStatus) {
+                                                                 @RequestParam("orderStatus") String orderStatus) {
         return ResponseEntity.ok(orderService.updateOrderStatusV2(orderId, orderStatus));
     }
 
@@ -68,5 +68,23 @@ public class OrderController {
     public ResponseEntity<ResultDto> checkUserPurchasedOrNot(@PathVariable("userId") Long userId,
                                                              @PathVariable("productId") Long productId) {
         return ResponseEntity.ok(orderService.hasUserPurchasedProduct(userId, productId));
+    }
+
+    @GetMapping("{supplierId}/statistic")
+    public ResponseEntity<List<OrderStatisticDto>> getOrderStatistic(@PathVariable("supplierId") Long userId,
+                                                                     @RequestParam(value = "date") String datePattern) {
+        return ResponseEntity.ok(orderService.getOrderStatistic(userId, datePattern));
+    }
+
+    @GetMapping("{supplierId}/recent")
+    public ResponseEntity<List<OrderStatisticDto>> getRecentOrderStatistic(@PathVariable("supplierId") Long userId,
+                                                                     @RequestParam(value = "date") String datePattern) {
+        return ResponseEntity.ok(orderService.getRecentOrderStatistic(userId, datePattern));
+    }
+
+    @GetMapping("{supplierId}/total")
+    public ResponseEntity<OrderStatisticDto> getStatistic(@PathVariable("supplierId") Long userId,
+                                                          @RequestParam(value = "date") String datePattern) {
+        return ResponseEntity.ok(orderService.getStatistic(userId, datePattern));
     }
 }

@@ -9,6 +9,9 @@ public interface OrderService {
     OrderDto updateOrderStatus(Long orderId, String orderStatus);
     OrderBasicInfoDto updateOrderStatusV2(Long orderId, String orderStatus);
     OrderBasicInfoDto getOrderById(Long orderId);
+    List<OrderStatisticDto> getOrderStatistic(Long supplierId, String datePattern);
+    List<OrderStatisticDto> getRecentOrderStatistic(Long supplierId, String datePattern);
+    OrderStatisticDto getStatistic(Long supplierId, String datePattern);
     OrderDto updateOrder(Long orderId, OrderDto orderDto);
     OrderResponse getOrderByUserId(Long userId, int pageNo, int pageSize, String sortBy, String sortDir);
     OrderInfoResponse getOrderBySupplierId(Long supplierId, String datePattern, int pageNo, int pageSize, String sortBy, String sortDir);

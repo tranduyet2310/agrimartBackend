@@ -39,17 +39,17 @@ public class ProductController {
                                                     @RequestParam("warehouseName") String warehouseName,
                                                     @RequestParam("file") MultipartFile[] multipartFiles) {
         ProductDto productDto = new ProductDto();
-        productDto.setProductName(productName);
-        productDto.setDescription(description);
+        productDto.setProductName(productName.substring(1, productName.length() - 1));
+        productDto.setDescription(description.substring(1, description.length() - 1));
         productDto.setStandardPrice(standardPrice);
         productDto.setDiscountPrice(discountPrice);
         productDto.setQuantity(quantity);
         productDto.setActive(isActive);
         productDto.setNew(isNew);
         productDto.setAvailable(isAvailable);
-        productDto.setCategoryName(categoryName);
-        productDto.setSubCategoryName(subCategoryName);
-        productDto.setWarehouseName(warehouseName);
+        productDto.setCategoryName(categoryName.substring(1, categoryName.length() - 1));
+        productDto.setSubCategoryName(subCategoryName.substring(1, subCategoryName.length() - 1));
+        productDto.setWarehouseName(warehouseName.substring(1, warehouseName.length() - 1));
 
         List<MultipartFile> files = new ArrayList<>(Arrays.asList(multipartFiles));
 
@@ -59,30 +59,30 @@ public class ProductController {
 
     @PostMapping("/{id}/v2")
     public ResponseEntity<ProductDto> createProductV2(@PathVariable("id") Long supplierId,
-                                                    @RequestParam("productName") String productName,
-                                                    @RequestParam("description") String description,
-                                                    @RequestParam("standardPrice") Long standardPrice,
-                                                    @RequestParam("discountPrice") Long discountPrice,
-                                                    @RequestParam("quantity") Integer quantity,
-                                                    @RequestParam("isActive") Boolean isActive,
-                                                    @RequestParam("isNew") Boolean isNew,
-                                                    @RequestParam("isAvailable") Boolean isAvailable,
-                                                    @RequestParam("categoryName") String categoryName,
-                                                    @RequestParam("subCategoryName") String subCategoryName,
-                                                    @RequestParam("warehouseName") String warehouseName,
-                                                    @RequestParam("file") MultipartFile[] multipartFiles) {
+                                                      @RequestParam("productName") String productName,
+                                                      @RequestParam("description") String description,
+                                                      @RequestParam("standardPrice") Long standardPrice,
+                                                      @RequestParam("discountPrice") Long discountPrice,
+                                                      @RequestParam("quantity") Integer quantity,
+                                                      @RequestParam("isActive") Boolean isActive,
+                                                      @RequestParam("isNew") Boolean isNew,
+                                                      @RequestParam("isAvailable") Boolean isAvailable,
+                                                      @RequestParam("categoryName") String categoryName,
+                                                      @RequestParam("subCategoryName") String subCategoryName,
+                                                      @RequestParam("warehouseName") String warehouseName,
+                                                      @RequestParam("file") MultipartFile[] multipartFiles) {
         ProductDto productDto = new ProductDto();
-        productDto.setProductName(productName.substring(1, productName.length()-1));
-        productDto.setDescription(description.substring(1, description.length()-1));
+        productDto.setProductName(productName.substring(1, productName.length() - 1));
+        productDto.setDescription(description.substring(1, description.length() - 1));
         productDto.setStandardPrice(standardPrice);
         productDto.setDiscountPrice(discountPrice);
         productDto.setQuantity(quantity);
         productDto.setActive(isActive);
         productDto.setNew(isNew);
         productDto.setAvailable(isAvailable);
-        productDto.setCategoryName(categoryName.substring(1, categoryName.length()-1));
-        productDto.setSubCategoryName(subCategoryName.substring(1, subCategoryName.length()-1));
-        productDto.setWarehouseName(warehouseName.substring(1, warehouseName.length()-1));
+        productDto.setCategoryName(categoryName.substring(1, categoryName.length() - 1));
+        productDto.setSubCategoryName(subCategoryName.substring(1, subCategoryName.length() - 1));
+        productDto.setWarehouseName(warehouseName.substring(1, warehouseName.length() - 1));
 
         List<MultipartFile> files = new ArrayList<>(Arrays.asList(multipartFiles));
 
@@ -148,6 +148,18 @@ public class ProductController {
         return ResponseEntity.ok(productService.searchProduct(query, pageNo, pageSize, sortBy, sortDir));
     }
 
+    @GetMapping("suppliers/{supplierId}/search")
+    public ResponseEntity<ProductResponse> searchProductBySupplier(
+            @PathVariable("supplierId") Long supplierId,
+            @RequestParam(value = "query") String query,
+            @RequestParam(value = "pageNo", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) int pageSize,
+            @RequestParam(value = "sortBy", defaultValue = AppConstants.DEFAULT_SORT_BY, required = false) String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = AppConstants.DEFAULT_SORT_DIRECTION, required = false) String sortDir
+    ) {
+        return ResponseEntity.ok(productService.searchProductBySupplier(query, supplierId, pageNo, pageSize, sortBy, sortDir));
+    }
+
     @GetMapping("suppliers/{id}")
     public ResponseEntity<ProductResponse> getProductBySupplierId(
             @PathVariable("id") Long supplierId,
@@ -196,28 +208,35 @@ public class ProductController {
                                                     @RequestParam("warehouseName") String warehouseName,
                                                     @RequestParam("file") MultipartFile[] multipartFiles) {
         ProductDto productDto = new ProductDto();
-        productDto.setProductName(productName);
-        productDto.setDescription(description);
+        productDto.setProductName(productName.substring(1, productName.length() - 1));
+        productDto.setDescription(description.substring(1, description.length() - 1));
         productDto.setStandardPrice(standardPrice);
         productDto.setDiscountPrice(discountPrice);
         productDto.setQuantity(quantity);
         productDto.setActive(isActive);
         productDto.setNew(isNew);
         productDto.setAvailable(isAvailable);
-        productDto.setCategoryName(categoryName);
-        productDto.setSubCategoryName(subCategoryName);
-        productDto.setWarehouseName(warehouseName);
+        productDto.setCategoryName(categoryName.substring(1, categoryName.length() - 1));
+        productDto.setSubCategoryName(subCategoryName.substring(1, subCategoryName.length() - 1));
+        productDto.setWarehouseName(warehouseName.substring(1, warehouseName.length() - 1));
 
         List<MultipartFile> files = new ArrayList<>(Arrays.asList(multipartFiles));
 
         return ResponseEntity.ok(productService.updateProduct(supplierId, productId, productDto, files));
     }
 
+    @PatchMapping("{supplierId}/{productId}/info")
+    public ResponseEntity<ProductDto> updateProductInfo(@PathVariable("supplierId") Long supplierId,
+                                                        @PathVariable("productId") Long productId,
+                                                        @RequestBody ProductDto productDto) {
+        return ResponseEntity.ok(productService.updateProductInfo(supplierId, productId, productDto));
+    }
+
     @DeleteMapping("{supplierId}/{productId}")
-    public ResponseEntity<String> deleteProduct(@PathVariable("supplierId") Long supplierId,
-                                                @PathVariable("productId") Long productId) {
-        productService.deleteProduct(supplierId, productId);
-        return ResponseEntity.ok("Product deleted successfully");
+    public ResponseEntity<ResultDto> deleteProduct(@PathVariable("supplierId") Long supplierId,
+                                                   @PathVariable("productId") Long productId) {
+        ResultDto result = productService.deleteProduct(supplierId, productId);
+        return ResponseEntity.ok(result);
     }
 
     @PatchMapping("{productId}")
@@ -227,17 +246,22 @@ public class ProductController {
     }
 
     @GetMapping("category/{supplierId}")
-    public ResponseEntity<List<CategoryDto>> getCategoryBySupplierId(@PathVariable("supplierId") Long supplierId){
+    public ResponseEntity<List<CategoryDto>> getCategoryBySupplierId(@PathVariable("supplierId") Long supplierId) {
         return ResponseEntity.ok(productService.getCategoryBySupplierId(supplierId));
     }
 
     @GetMapping("{supplierId}/total")
-    public ResponseEntity<ResultDto> getTotalProductBySupplier(@PathVariable("supplierId") Long supplierId){
+    public ResponseEntity<ResultDto> getTotalProductBySupplier(@PathVariable("supplierId") Long supplierId) {
         return ResponseEntity.ok(productService.countTotalProducts(supplierId));
     }
 
     @GetMapping("{supplierId}/sold")
-    public ResponseEntity<ResultDto> getSoldProductBySupplier(@PathVariable("supplierId") Long supplierId){
+    public ResponseEntity<ResultDto> getSoldProductBySupplier(@PathVariable("supplierId") Long supplierId) {
         return ResponseEntity.ok(productService.countSoldProducts(supplierId));
+    }
+
+    @PatchMapping("{productId}/state")
+    public ResponseEntity<ProductDto> updateProductState(@PathVariable("productId") Long productId) {
+        return ResponseEntity.ok(productService.updateProductState(productId));
     }
 }

@@ -1,9 +1,6 @@
 package com.example.agriecommerce.service;
 
-import com.example.agriecommerce.payload.ResultDto;
-import com.example.agriecommerce.payload.ReviewDto;
-import com.example.agriecommerce.payload.ReviewResponse;
-import com.example.agriecommerce.payload.ReviewStatisticDto;
+import com.example.agriecommerce.payload.*;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -18,4 +15,5 @@ public interface ReviewService {
     ReviewStatisticDto averageRating(Long productId);
     ReviewStatisticDto supplierAverageRating(Long supplierId);
     ResultDto getTotalReviewsBySupplier(Long supplierId);
+    List<ReviewInfo> getReviewInfo(Long supplierId);
 }

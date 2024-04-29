@@ -12,7 +12,7 @@ import java.util.Optional;
 
 public interface WarehouseReposiotry extends JpaRepository<Warehouse, Long> {
     Optional<List<Warehouse>> findBySupplierId(Long supplierId);
-    Optional<Warehouse> findByWarehouseName(String warehouseName);
+    Optional<Warehouse> findByWarehouseNameAndSupplierId(String warehouseName, Long supplierId);
 
     Optional<Page<Warehouse>> findBySupplierId(Long supplierId, Pageable pageable);
     @Query("SELECT w FROM Warehouse w WHERE " +

@@ -12,6 +12,7 @@ import com.example.agriecommerce.repository.UserRepository;
 import com.example.agriecommerce.service.OrderService;
 import com.example.agriecommerce.utils.OrderInfoDto;
 import com.example.agriecommerce.utils.OrderNumberGenerator;
+import com.example.agriecommerce.utils.OrderStatistic;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -139,7 +140,7 @@ public class OrderServiceImpl implements OrderService {
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
         Page<OrderInfoDto> orderPage = orderRepository.findOrderBySupplier(supplierId, formatDate, pageable).orElseThrow(
-                () -> new ResourceNotFoundException("user's order is empty")
+                () -> new ResourceNotFoundException("supplier's order is empty")
         );
 
         List<OrderInfoDto> pageContent = orderPage.getContent();
@@ -190,6 +191,71 @@ public class OrderServiceImpl implements OrderService {
         orderInfoResponse.setLast(orderPage.isLast());
 
         return orderInfoResponse;
+    }
+
+    @Override
+    public List<OrderStatisticDto> getOrderStatistic(Long supplierId, String datePattern) {
+        String formatDate = "%"+datePattern+"%";
+        List<OrderStatistic> orderStatistics = orderRepository.getOrderStatistic(supplierId, formatDate).orElseThrow(
+                () -> new ResourceNotFoundException("supplier's order is empty")
+        );
+
+        List<OrderStatisticDto> list = new ArrayList<>();
+        for (OrderStatistic os : orderStatistics){
+            OrderStatisticDto dto = new OrderStatisticDto();
+            dto.setId(os.getId());
+            dto.setQuantity(os.getQuantity());
+            dto.setOrderStatus(os.getOrderStatus());
+            dto.setProductName(os.getProductName());
+            dto.setDiscountPrice(os.getDiscountPrice());
+            dto.setStandardPrice(os.getStandardPrice());
+            dto.setProductImage(os.getProductImage());
+            dto.setTotal(os.getTotal());
+            dto.setUserFullName(os.getFullName());
+
+            list.add(dto);
+        }
+
+        return list;
+    }
+
+    public List<OrderStatisticDto> getRecentOrderStatistic(Long supplierId, String datePattern) {
+        String formatDate = "%"+datePattern+"%";
+        List<OrderStatistic> orderStatistics = orderRepository.getRecentOrderStatistic(supplierId, formatDate).orElseThrow(
+                () -> new ResourceNotFoundException("supplier's order is empty")
+        );
+
+        List<OrderStatisticDto> list = new ArrayList<>();
+        for (OrderStatistic os : orderStatistics){
+            OrderStatisticDto dto = new OrderStatisticDto();
+            dto.setId(os.getId());
+            dto.setQuantity(os.getQuantity());
+            dto.setOrderStatus(os.getOrderStatus());
+            dto.setProductName(os.getProductName());
+            dto.setDiscountPrice(os.getDiscountPrice());
+            dto.setStandardPrice(os.getStandardPrice());
+            dto.setProductImage(os.getProductImage());
+            dto.setTotal(os.getTotal());
+            dto.setUserFullName(os.getFullName());
+
+            list.add(dto);
+        }
+
+        return list;
+    }
+
+    @Override
+    public OrderStatisticDto getStatistic(Long supplierId, String datePattern) {
+        String formatDate = "%"+datePattern+"%";
+        OrderStatistic orderStatistics = orderRepository.getStatistic(supplierId, formatDate).orElseThrow(
+                () -> new ResourceNotFoundException("supplier's order is empty")
+        );
+
+        OrderStatisticDto dto = new OrderStatisticDto();
+        dto.setQuantity(orderStatistics.getQuantity());
+        dto.setTotal(orderStatistics.getTotal());
+
+        return dto;
     }
 
     @Override
