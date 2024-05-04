@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,4 +22,6 @@ public interface CooperationRepository extends JpaRepository<Cooperation, Long> 
     @Query("SELECT SUM(c.requireYield) FROM Cooperation c " +
             "WHERE c.field.id = :fieldId AND c.supplier.id = :supplierId")
     Double calculateYieldAccepted(Long fieldId, Long supplierId);
+
+    List<Cooperation> findByPaymentStatusIsNullAndDateCreatedBefore(LocalDateTime date);
 }

@@ -42,6 +42,11 @@ public class FieldController {
         return ResponseEntity.ok(fieldService.updateYield(fieldId, fieldDto));
     }
 
+    @GetMapping("{fieldId}/detail")
+    public ResponseEntity<FieldDto> getFieldById(@PathVariable("fieldId") Long fieldId){
+        return ResponseEntity.ok(fieldService.getFieldById(fieldId));
+    }
+
     @GetMapping("{supplierId}")
     public ResponseEntity<List<FieldDto>> getAllFieldBySupplierId(@PathVariable("supplierId") Long supplierId){
         return ResponseEntity.ok(fieldService.getAllFieldBySupplierId(supplierId));

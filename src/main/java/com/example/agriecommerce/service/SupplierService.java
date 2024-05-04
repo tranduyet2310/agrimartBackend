@@ -1,8 +1,6 @@
 package com.example.agriecommerce.service;
 
-import com.example.agriecommerce.payload.ImageDto;
-import com.example.agriecommerce.payload.PasswordDto;
-import com.example.agriecommerce.payload.SupplierDto;
+import com.example.agriecommerce.payload.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -24,4 +22,6 @@ public interface SupplierService {
 
     SupplierDto changePassword(Long supplierId, PasswordDto passwordDto);
     Long getSupplierIdByEmail(String email);
+    ResultDto updateRSAKey(Long supplierId, AESDto dto);
+    AESDto getRSAPubKey(Long supplierId);
 }

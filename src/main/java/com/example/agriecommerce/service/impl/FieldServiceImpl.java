@@ -104,4 +104,12 @@ public class FieldServiceImpl implements FieldService {
                 .map(field -> modelMapper.map(field, FieldDto.class))
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public FieldDto getFieldById(Long fieldId) {
+        Field field = fieldRepository.findById(fieldId).orElseThrow(
+                () -> new ResourceNotFoundException("field does not exists")
+        );
+        return modelMapper.map(field, FieldDto.class);
+    }
 }

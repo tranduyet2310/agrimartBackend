@@ -5,9 +5,7 @@ import com.example.agriecommerce.entity.Supplier;
 import com.example.agriecommerce.entity.SupplierBankInfo;
 import com.example.agriecommerce.exception.AgriMartException;
 import com.example.agriecommerce.exception.ResourceNotFoundException;
-import com.example.agriecommerce.payload.ImageDto;
-import com.example.agriecommerce.payload.PasswordDto;
-import com.example.agriecommerce.payload.SupplierDto;
+import com.example.agriecommerce.payload.*;
 import com.example.agriecommerce.repository.BankInfoRepository;
 import com.example.agriecommerce.repository.ImageRepository;
 import com.example.agriecommerce.repository.SupplierRepository;
@@ -219,4 +217,25 @@ public class SupplierServiceImpl implements SupplierService {
         return supplier.getId();
     }
 
+    @Override
+    public ResultDto updateRSAKey(Long supplierId, AESDto dto) {
+        Supplier supplier = supplierRepository.findById(supplierId).orElseThrow(
+                () -> new ResourceNotFoundException("Supplier does not exists")
+        );
+
+        supplier.setPublicKey(dto.getRsaPublicKey());
+        supplierRepository.save(supplier);
+
+        return new ResultDto(true, "Update public key successfully");
+    }
+
+    @Override
+    public AESDto getRSAPubKey(Long supplierId) {
+        Supplier supplier = supplierRepository.findById(supplierId).orElseThrow(
+                () -> new ResourceNotFoundException("Supplier does not exists")
+        );
+        AESDto aesDto = new AESDto();
+        aesDto.setRsaPublicKey(supplier.getPublicKey());
+        return aesDto;
+    }
 }

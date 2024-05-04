@@ -1,8 +1,6 @@
 package com.example.agriecommerce.controller;
 
-import com.example.agriecommerce.payload.ImageDto;
-import com.example.agriecommerce.payload.PasswordDto;
-import com.example.agriecommerce.payload.SupplierDto;
+import com.example.agriecommerce.payload.*;
 import com.example.agriecommerce.service.SupplierService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -64,5 +62,16 @@ public class SupplierController {
     @GetMapping("{id}/image")
     public ResponseEntity<ImageDto> getSupplierAvatar(@PathVariable("id") Long supplierId){
         return ResponseEntity.ok(supplierService.getSupplierAvatar(supplierId));
+    }
+
+    @PatchMapping("{id}/rsa")
+    public ResponseEntity<ResultDto> updateRSAPubKey(@PathVariable("id") Long supplierId,
+                                                       @RequestBody AESDto dto){
+        return ResponseEntity.ok(supplierService.updateRSAKey(supplierId, dto));
+    }
+
+    @GetMapping("{id}/rsa")
+    public ResponseEntity<AESDto> getRSAPubKey(@PathVariable("id") Long supplierId){
+        return ResponseEntity.ok(supplierService.getRSAPubKey(supplierId));
     }
 }

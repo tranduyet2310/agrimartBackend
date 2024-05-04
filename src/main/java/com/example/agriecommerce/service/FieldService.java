@@ -10,4 +10,5 @@ public interface FieldService {
     FieldDto updateYield(Long fieldId, FieldDto fieldDto);
     FieldDto completeCrops(Long fieldId);
     List<FieldDto> getAllFieldBySupplierId(Long supplierId);
+    FieldDto getFieldById(Long fieldId);
 }

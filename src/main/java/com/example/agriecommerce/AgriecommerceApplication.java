@@ -5,7 +5,11 @@ import com.cloudinary.utils.ObjectUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,6 +17,7 @@ import java.util.Map;
 import static com.example.agriecommerce.utils.AppConstants.*;
 
 @SpringBootApplication
+@EnableScheduling
 public class AgriecommerceApplication {
     @Bean
     public Cloudinary getCloudinary() {
@@ -22,7 +27,6 @@ public class AgriecommerceApplication {
                 "api_secret", CLOUD_API_SECRET,
                 "secure", true));
     }
-
     @Bean
     public ModelMapper modelMapper() {
         return new ModelMapper();
