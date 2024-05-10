@@ -30,14 +30,8 @@ public class User {
     private String password;
     private String avatar;
     private Integer status;
-    @Column(name = "public_key")
-    private String publicKey;
-//    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-//    @JoinTable(name = "tbl_user_role",
-//            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
-//            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")
-//    )
-//    private Set<Role> roles;
+    @Column(name = "fcm")
+    private String fcmToken;
     @ManyToOne
     @JoinColumn(name = "role_id")
     private Role roles;

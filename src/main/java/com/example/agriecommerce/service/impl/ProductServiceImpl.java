@@ -260,6 +260,27 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public ProductResponse getAllProducts(int pageNo, int pageSize, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        Page<Product> productPage = productRepository.findAll(pageable);
+
+        List<Product> products = productPage.getContent();
+        List<ProductDto> content = products.stream().map(product -> modelMapper.map(product, ProductDto.class)).toList();
+
+        ProductResponse productResponse = new ProductResponse();
+        productResponse.setContent(content);
+        productResponse.setPageNo(productPage.getNumber());
+        productResponse.setPageSize(productPage.getSize());
+        productResponse.setTotalElements(productPage.getTotalElements());
+        productResponse.setTotalPage(productPage.getTotalPages());
+        productResponse.setLast(productPage.isLast());
+
+        return productResponse;
+    }
+
+    @Override
     public ProductResponse getProductByCategoryId(Long categoryId, int pageNo, int pageSize, String sortBy, String sortDir) {
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 

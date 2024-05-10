@@ -6,6 +6,7 @@ import com.example.agriecommerce.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,6 +22,7 @@ public class CartController {
     }
 
     @PostMapping("{userId}/{productId}")
+    @PreAuthorize(("hasRole('USER')"))
     public ResponseEntity<CartDto> addToCart(@PathVariable("userId") Long userId,
                                              @PathVariable("productId") Long productId) {
         CartDto cartDto = cartService.addToCart(userId, productId);
@@ -33,6 +35,7 @@ public class CartController {
     }
 
     @PatchMapping
+    @PreAuthorize(("hasRole('USER')"))
     public ResponseEntity<CartDto> changeQuantity(@RequestParam("userId") Long userId,
                                                   @RequestParam("productId") Long productId,
                                                   @RequestParam("quantity") Integer quantity) {
@@ -40,6 +43,7 @@ public class CartController {
     }
 
     @DeleteMapping("{userId}/{productId}")
+    @PreAuthorize(("hasRole('USER')"))
     public ResponseEntity<ResultDto> removeFromCart(@PathVariable("userId") Long userId,
                                                     @PathVariable("productId") Long productId){
         ResultDto resultDto = cartService.removeFromCart(userId, productId);
@@ -47,6 +51,7 @@ public class CartController {
     }
 
     @DeleteMapping("{userId}")
+    @PreAuthorize(("hasRole('USER')"))
     public ResponseEntity<ResultDto> deleteAllItemsByUserId(@PathVariable("userId") Long userId){
         ResultDto resultDto = cartService.deleteAllItemsByUserId(userId);
         return ResponseEntity.ok(resultDto);

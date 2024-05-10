@@ -5,6 +5,7 @@ import com.example.agriecommerce.service.FieldService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +20,7 @@ public class FieldController {
     }
 
     @PostMapping("{supplierId}")
+    @PreAuthorize(("hasRole('SUPPLIER')"))
     public ResponseEntity<FieldDto> createNewCrops(@PathVariable("supplierId") Long supplierId,
                                                    @RequestBody FieldDto fieldDto){
         FieldDto result = fieldService.createNewCrops(supplierId, fieldDto);
@@ -26,17 +28,20 @@ public class FieldController {
     }
 
     @PutMapping("{fieldId}")
+    @PreAuthorize(("hasRole('SUPPLIER')"))
     public ResponseEntity<FieldDto> updateCrops(@PathVariable("fieldId") Long fieldId,
                                                    @RequestBody FieldDto fieldDto){
         return ResponseEntity.ok(fieldService.updateCropsField(fieldId, fieldDto));
     }
 
     @PatchMapping("{fieldId}/complete")
+    @PreAuthorize(("hasRole('SUPPLIER')"))
     public ResponseEntity<FieldDto> completeCrops(@PathVariable("fieldId") Long fieldId){
         return ResponseEntity.ok(fieldService.completeCrops(fieldId));
     }
 
     @PatchMapping("{fieldId}")
+    @PreAuthorize(("hasRole('SUPPLIER')"))
     public ResponseEntity<FieldDto> updateYield(@PathVariable("fieldId") Long fieldId,
                                                 @RequestBody FieldDto fieldDto){
         return ResponseEntity.ok(fieldService.updateYield(fieldId, fieldDto));

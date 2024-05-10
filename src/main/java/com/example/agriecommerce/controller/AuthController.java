@@ -33,7 +33,9 @@ public class AuthController {
         jwtAuthResponse.setAccessToken(token);
 
         Long userId = userService.getUserIdByEmail(loginDto.getEmail());
+        Boolean role = userService.checkAdminRole(loginDto.getEmail());
         jwtAuthResponse.setUserId(userId);
+        jwtAuthResponse.setAdmin(role);
 
         return ResponseEntity.ok(jwtAuthResponse);
     }
@@ -42,10 +44,14 @@ public class AuthController {
     public ResponseEntity<JWTAuthResponseSupplier> loginSupplier(@RequestBody LoginDto loginDto) {
         String token = authService.login(loginDto);
         JWTAuthResponseSupplier jwtAuthResponse = new JWTAuthResponseSupplier();
-        jwtAuthResponse.setAccessToken(token);
 
         Long supplierId = supplierService.getSupplierIdByEmail(loginDto.getEmail());
-        jwtAuthResponse.setSupplierId(supplierId);
+        Boolean status = supplierService.checkAccountStatus(loginDto.getEmail());
+        if (status){
+            jwtAuthResponse.setAccessToken(token);
+            jwtAuthResponse.setSupplierId(supplierId);
+            jwtAuthResponse.setActive(status);
+        }
 
         return ResponseEntity.ok(jwtAuthResponse);
     }

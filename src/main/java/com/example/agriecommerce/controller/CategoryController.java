@@ -18,7 +18,6 @@ import java.util.List;
 @RequestMapping("api/categories")
 public class CategoryController {
     private final CategoryService categoryService;
-//    private ObjectMapper objectMapper;
 
     @Autowired
     public CategoryController(CategoryService categoryService) {
@@ -30,7 +29,7 @@ public class CategoryController {
                                                       @RequestParam("file") MultipartFile multipartFile) throws IOException {
         BufferedImage bi = ImageIO.read(multipartFile.getInputStream());
         if (bi == null) {
-            throw new CloudinaryException("Image not valid");
+            throw new CloudinaryException("Image format is not valid");
         }
         CategoryDto response = categoryService.createCategory(categoryName, multipartFile);
         return new ResponseEntity<>(response, HttpStatus.CREATED);

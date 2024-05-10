@@ -6,6 +6,7 @@ import com.example.agriecommerce.utils.AppConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,6 +26,7 @@ public class ProductController {
     }
 
     @PostMapping("suppliers/{id}")
+    @PreAuthorize(("hasRole('SUPPLIER')"))
     public ResponseEntity<ProductDto> createProduct(@PathVariable("id") Long supplierId,
                                                     @RequestParam("productName") String productName,
                                                     @RequestParam("description") String description,
@@ -58,7 +60,8 @@ public class ProductController {
     }
 
     @PostMapping("/{id}/v2")
-    public ResponseEntity<ProductDto> createProductV2(@PathVariable("id") Long supplierId,
+    @PreAuthorize(("hasRole('SUPPLIER')"))
+    public ResponseEntity<ProductDto> createProduct_Encrypt(@PathVariable("id") Long supplierId,
                                                       @RequestParam("productName") String productName,
                                                       @RequestParam("description") String description,
                                                       @RequestParam("standardPrice") Long standardPrice,
@@ -93,6 +96,16 @@ public class ProductController {
     @GetMapping("{id}")
     public ResponseEntity<ProductDto> getProductById(@PathVariable("id") Long productId) {
         return ResponseEntity.ok(productService.getProductById(productId));
+    }
+
+    @GetMapping("all")
+    public ResponseEntity<ProductResponse> getAllProducts(
+            @RequestParam(value = "pageNo", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) int pageSize,
+            @RequestParam(value = "sortBy", defaultValue = AppConstants.DEFAULT_SORT_BY, required = false) String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = AppConstants.DEFAULT_SORT_DIRECTION, required = false) String sortDir
+    ) {
+        return ResponseEntity.ok(productService.getAllProducts(pageNo, pageSize, sortBy, sortDir));
     }
 
     @GetMapping("category")
@@ -171,7 +184,7 @@ public class ProductController {
     }
 
     @GetMapping("suppliers/{id}/v2")
-    public ResponseEntity<ProductResponse> getProductBySupplierIdV2(
+    public ResponseEntity<ProductResponse> getProductBySupplierId_Encrypt(
             @PathVariable("id") Long supplierId,
             @RequestParam(value = "pageNo", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
             @RequestParam(value = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) int pageSize,
@@ -181,18 +194,21 @@ public class ProductController {
     }
 
     @PatchMapping("{supplierId}/{productId}/active")
+    @PreAuthorize(("hasRole('SUPPLIER')"))
     public ResponseEntity<ProductDto> activeProduct(@PathVariable("supplierId") Long supplierId,
                                                     @PathVariable("productId") Long productId) {
         return ResponseEntity.ok(productService.activeProduct(supplierId, productId));
     }
 
     @PatchMapping("{supplierId}/{productId}/inactive")
+    @PreAuthorize(("hasRole('SUPPLIER')"))
     public ResponseEntity<ProductDto> inactiveProduct(@PathVariable("supplierId") Long supplierId,
                                                       @PathVariable("productId") Long productId) {
         return ResponseEntity.ok(productService.inactiveProduct(supplierId, productId));
     }
 
     @PutMapping("{supplierId}/{productId}")
+    @PreAuthorize(("hasRole('SUPPLIER')"))
     public ResponseEntity<ProductDto> updateProduct(@PathVariable("supplierId") Long supplierId,
                                                     @PathVariable("productId") Long productId,
                                                     @RequestParam("productName") String productName,
@@ -226,6 +242,7 @@ public class ProductController {
     }
 
     @PatchMapping("{supplierId}/{productId}/info")
+    @PreAuthorize(("hasRole('SUPPLIER')"))
     public ResponseEntity<ProductDto> updateProductInfo(@PathVariable("supplierId") Long supplierId,
                                                         @PathVariable("productId") Long productId,
                                                         @RequestBody ProductDto productDto) {
@@ -233,13 +250,14 @@ public class ProductController {
     }
 
     @DeleteMapping("{supplierId}/{productId}")
+    @PreAuthorize(("hasRole('SUPPLIER')"))
     public ResponseEntity<ResultDto> deleteProduct(@PathVariable("supplierId") Long supplierId,
                                                    @PathVariable("productId") Long productId) {
         ResultDto result = productService.deleteProduct(supplierId, productId);
         return ResponseEntity.ok(result);
     }
 
-    @PatchMapping("{productId}")
+    @PatchMapping("{productId}") // both
     public ResponseEntity<ProductDto> increaseSoldNumber(@PathVariable("productId") Long productId,
                                                          @RequestParam("quantity") Long quantity) {
         return ResponseEntity.ok(productService.increaseSoldNumber(productId, quantity));
@@ -261,6 +279,7 @@ public class ProductController {
     }
 
     @PatchMapping("{productId}/state")
+    @PreAuthorize(("hasRole('SUPPLIER')"))
     public ResponseEntity<ProductDto> updateProductState(@PathVariable("productId") Long productId) {
         return ResponseEntity.ok(productService.updateProductState(productId));
     }

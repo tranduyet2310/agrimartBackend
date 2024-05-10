@@ -51,6 +51,7 @@ public class SecurityConfig {
                                 authorize.requestMatchers(HttpMethod.GET, "/api/**").permitAll()
                                         .requestMatchers("/api/auth/**").permitAll()
                                         .requestMatchers("/cloudinary/**").permitAll()
+                                        .requestMatchers("/api/notification/**").permitAll()
                                         .anyRequest().authenticated()
                 ).exceptionHandling(
                         exception -> exception.authenticationEntryPoint(authenticationEntryPoint)

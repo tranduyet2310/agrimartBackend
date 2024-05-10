@@ -8,7 +8,7 @@ import java.util.List;
 public interface SupplierService {
     SupplierDto getSupplierById(Long supplierId);
 
-    List<SupplierDto> getAllSupplier();
+    SupplierResponse getAllSuppliers(boolean status, int pageNo, int pageSize, String sortBy, String sortDir);
 
     ImageDto getSupplierAvatar(Long supplierId);
 
@@ -22,6 +22,7 @@ public interface SupplierService {
 
     SupplierDto changePassword(Long supplierId, PasswordDto passwordDto);
     Long getSupplierIdByEmail(String email);
+    Boolean checkAccountStatus(String email);
     ResultDto updateRSAKey(Long supplierId, AESDto dto);
     AESDto getRSAPubKey(Long supplierId);
 }

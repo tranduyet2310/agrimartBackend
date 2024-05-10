@@ -5,13 +5,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Map;
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class JWTAuthResponseSupplier {
-    private String accessToken;
-    private String tokenType = "Bearer";
-    private Long supplierId;
-    private boolean isActive;
+public class NotificationMessage {
+    private String recipientToken;
+    private String title;
+    private String body;
+    private Map<String, String> data;
 }

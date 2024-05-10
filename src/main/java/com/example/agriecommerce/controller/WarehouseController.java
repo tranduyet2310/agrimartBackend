@@ -9,6 +9,7 @@ import com.example.agriecommerce.utils.AppConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +25,7 @@ public class WarehouseController {
     }
 
     @PostMapping("{supplierId}/warehouses")
+    @PreAuthorize(("hasRole('SUPPLIER')"))
     public ResponseEntity<WarehouseDto> createWarehouse(@PathVariable("supplierId") Long id,
                                                         @RequestBody WarehouseDto warehouseDto) {
         WarehouseDto dto = warehouseService.createWarehouse(id, warehouseDto);
@@ -31,7 +33,8 @@ public class WarehouseController {
     }
 
     @PostMapping("{supplierId}/warehousese")
-    public ResponseEntity<WarehouseDto> createWarehouseEn(@PathVariable("supplierId") Long id,
+    @PreAuthorize(("hasRole('SUPPLIER')"))
+    public ResponseEntity<WarehouseDto> createWarehouseEncrypt(@PathVariable("supplierId") Long id,
                                                           @RequestBody WarehouseDto warehouseDto) {
         WarehouseDto dto = warehouseService.createWarehouseEn(id, warehouseDto);
         return new ResponseEntity<>(dto, HttpStatus.CREATED);
@@ -71,6 +74,7 @@ public class WarehouseController {
     }
 
     @DeleteMapping("/{supplierId}/warehouses/{id}")
+    @PreAuthorize(("hasRole('SUPPLIER')"))
     public ResponseEntity<ResultDto> deleteWarehouse(@PathVariable("supplierId") Long supplierId,
                                                      @PathVariable("id") Long warehouseId) {
         ResultDto result = warehouseService.deleteWarehouse(supplierId, warehouseId);
@@ -78,6 +82,7 @@ public class WarehouseController {
     }
 
     @PutMapping("/{supplierId}/warehouses/{id}")
+    @PreAuthorize(("hasRole('SUPPLIER')"))
     public ResponseEntity<WarehouseDto> updateWarehouse(@PathVariable("supplierId") Long supplierId,
                                                         @PathVariable("id") Long warehouseId,
                                                         @RequestBody WarehouseDto warehouseDto) {
@@ -85,6 +90,7 @@ public class WarehouseController {
     }
 
     @PatchMapping("/{supplierId}/warehouses/{id}")
+    @PreAuthorize(("hasRole('SUPPLIER')"))
     public ResponseEntity<WarehouseDto> updateState(@PathVariable("supplierId") Long supplierId,
                                                     @PathVariable("id") Long warehouseId,
                                                     @RequestBody ResultDto resultDto) {

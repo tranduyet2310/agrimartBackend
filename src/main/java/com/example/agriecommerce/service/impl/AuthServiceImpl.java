@@ -93,9 +93,6 @@ public class AuthServiceImpl implements AuthService {
         user.setRoles(userRole);
         user.setStatus(1); // 1 - active; 0 - deleted
 
-        // get public key RSA
-        user.setPublicKey(userRegisterDto.getRsaPublicKey());
-
         User savedUser = userRepository.save(user);
 
         return modelMapper.map(savedUser, UserRegisterResponse.class);
@@ -134,6 +131,7 @@ public class AuthServiceImpl implements AuthService {
         supplier.setPassword(passwordEncoder.encode(decryptDto.getPassword()));
         // address is empty when supplier registers account
         supplier.setAddress("");
+        supplier.setActive(false);
 
 //        Set<Role> roles = new HashSet<>();
         Role supplierRole = roleRepository.findByName("ROLE_SUPPLIER").get();

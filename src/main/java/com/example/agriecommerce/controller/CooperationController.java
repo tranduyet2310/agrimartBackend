@@ -8,6 +8,7 @@ import com.example.agriecommerce.utils.AppConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,6 +24,7 @@ public class CooperationController {
     }
 
     @PostMapping("{supplierId}")
+    @PreAuthorize(("hasRole('USER')"))
     public ResponseEntity<CooperationDto> createCooperation(@PathVariable("supplierId") Long supplierId,
                                                             @RequestBody CooperationDto cooperationDto) {
         CooperationDto result = cooperationService.createCooperation(supplierId, cooperationDto);
@@ -30,6 +32,7 @@ public class CooperationController {
     }
 
     @PutMapping("{cooperationId}")
+    @PreAuthorize(("hasRole('USER')"))
     public ResponseEntity<CooperationDto> updateCooperation(@PathVariable("cooperationId") Long cooperationId,
                                                             @RequestBody CooperationDto cooperationDto) {
         return ResponseEntity.ok(cooperationService.updateCooperation(cooperationId, cooperationDto));
@@ -72,19 +75,21 @@ public class CooperationController {
         return ResponseEntity.ok(cooperationService.calculateCurrentTotal(fieldId, supplierId));
     }
 
-    @PatchMapping("{cooperationId}")
+    @PatchMapping("{cooperationId}") // both
     public ResponseEntity<CooperationDto> updateCooperationStatus(@PathVariable("cooperationId") Long cooperationId,
                                                                   @RequestBody CooperationDto cooperationDto) {
         return ResponseEntity.ok(cooperationService.updateStatus(cooperationId, cooperationDto));
     }
 
     @PatchMapping("{cooperationId}/{addressId}")
+    @PreAuthorize(("hasRole('USER')"))
     public ResponseEntity<CooperationDto> updateAddress(@PathVariable("cooperationId") Long cooperationId,
                                                         @PathVariable("addressId") Long addressId) {
         return ResponseEntity.ok(cooperationService.updateAddress(cooperationId, addressId));
     }
 
     @PatchMapping("{cooperationId}/payment")
+    @PreAuthorize(("hasRole('USER')"))
     public ResponseEntity<CooperationDto> updatePayment(@PathVariable("cooperationId") Long cooperationId,
                                                         @RequestBody CooperationDto cooperationDto) {
         return ResponseEntity.ok(cooperationService.updatePayment(cooperationId, cooperationDto));

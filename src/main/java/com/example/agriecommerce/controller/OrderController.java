@@ -6,6 +6,7 @@ import com.example.agriecommerce.utils.AppConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,6 +22,7 @@ public class OrderController {
     }
 
     @PostMapping("{userId}")
+    @PreAuthorize(("hasRole('USER')"))
     public ResponseEntity<OrderDto> createOrder(@PathVariable("userId") Long userId,
                                                 @RequestBody OrderDto orderDto) {
         return new ResponseEntity<>(orderService.createOrder(userId, orderDto), HttpStatus.CREATED);
@@ -53,12 +55,14 @@ public class OrderController {
     }
 
     @PatchMapping("{orderId}")
+    @PreAuthorize(("hasRole('USER')"))
     public ResponseEntity<OrderDto> updateOrderStatus(@PathVariable("orderId") Long orderId,
                                                       @RequestParam("orderStatus") String orderStatus) {
         return ResponseEntity.ok(orderService.updateOrderStatus(orderId, orderStatus));
     }
 
     @PatchMapping("{orderId}/status")
+    @PreAuthorize(("hasRole('SUPPLIER')"))
     public ResponseEntity<OrderBasicInfoDto> updateOrderStatusV2(@PathVariable("orderId") Long orderId,
                                                                  @RequestParam("orderStatus") String orderStatus) {
         return ResponseEntity.ok(orderService.updateOrderStatusV2(orderId, orderStatus));

@@ -2,8 +2,10 @@ package com.example.agriecommerce.controller;
 
 import com.example.agriecommerce.payload.*;
 import com.example.agriecommerce.service.SupplierService;
+import com.example.agriecommerce.utils.AppConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,40 +22,63 @@ public class SupplierController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<SupplierDto> getSupplier(@PathVariable("id") Long supplierId) {
+    @PreAuthorize(("hasRole('SUPPLIER')"))
+    public ResponseEntity<SupplierDto> getSupplierById(@PathVariable("id") Long supplierId) {
         return ResponseEntity.ok(supplierService.getSupplierById(supplierId));
     }
 
     @GetMapping
-    public ResponseEntity<List<SupplierDto>> getAllSuppliers() {
-        return ResponseEntity.ok(supplierService.getAllSupplier());
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<SupplierResponse> getAllSuppliers(
+            @RequestParam(value = "pageNo", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) int pageSize,
+            @RequestParam(value = "sortBy", defaultValue = AppConstants.DEFAULT_SORT_BY, required = false) String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = AppConstants.DEFAULT_SORT_DIRECTION, required = false) String sortDir
+    ) {
+        return ResponseEntity.ok(supplierService.getAllSuppliers(true, pageNo, pageSize, sortBy, sortDir));
+    }
+
+    @GetMapping("approval")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<SupplierResponse> getApprovalSuppliers(
+            @RequestParam(value = "pageNo", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) int pageSize,
+            @RequestParam(value = "sortBy", defaultValue = AppConstants.DEFAULT_SORT_BY, required = false) String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = AppConstants.DEFAULT_SORT_DIRECTION, required = false) String sortDir
+    ) {
+        return ResponseEntity.ok(supplierService.getAllSuppliers(false, pageNo, pageSize, sortBy, sortDir));
     }
 
     @PatchMapping("{id}/general")
+    @PreAuthorize(("hasRole('SUPPLIER')"))
     public ResponseEntity<SupplierDto> updateGeneralInfo(@PathVariable("id") Long supplierId,
                                                          @RequestBody SupplierDto supplierDto) {
         return ResponseEntity.ok(supplierService.updateGeneralInfo(supplierId, supplierDto));
     }
 
     @PatchMapping("{id}/account")
+    @PreAuthorize(("hasRole('SUPPLIER')"))
     public ResponseEntity<SupplierDto> updateAccountInfo(@PathVariable("id") Long supplierId,
                                                          @RequestBody SupplierDto supplierDto) {
         return ResponseEntity.ok(supplierService.updateAccountInfo(supplierId, supplierDto));
     }
 
     @PatchMapping("{id}/bank")
+    @PreAuthorize(("hasRole('SUPPLIER')"))
     public ResponseEntity<SupplierDto> updateBankInfo(@PathVariable("id") Long supplierId,
                                                       @RequestBody SupplierDto supplierDto) {
         return ResponseEntity.ok(supplierService.updateBankInfo(supplierId, supplierDto));
     }
 
     @PatchMapping("{id}/avatar")
+    @PreAuthorize(("hasRole('SUPPLIER')"))
     public ResponseEntity<SupplierDto> updateSupplierAvatar(@PathVariable("id") Long supplierId,
                                                             @RequestParam("file") MultipartFile multipartFile) {
         return ResponseEntity.ok(supplierService.updateSupplierAvatar(supplierId, multipartFile));
     }
 
     @PatchMapping("{id}/password")
+    @PreAuthorize(("hasRole('SUPPLIER')"))
     public ResponseEntity<SupplierDto> changePassword(@PathVariable("id") Long supplierId,
                                                       @RequestBody PasswordDto passwordDto) {
         return ResponseEntity.ok(supplierService.changePassword(supplierId, passwordDto));
@@ -65,6 +90,7 @@ public class SupplierController {
     }
 
     @PatchMapping("{id}/rsa")
+    @PreAuthorize(("hasRole('SUPPLIER')"))
     public ResponseEntity<ResultDto> updateRSAPubKey(@PathVariable("id") Long supplierId,
                                                        @RequestBody AESDto dto){
         return ResponseEntity.ok(supplierService.updateRSAKey(supplierId, dto));

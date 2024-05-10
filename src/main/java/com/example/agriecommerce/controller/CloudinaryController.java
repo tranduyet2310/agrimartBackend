@@ -39,7 +39,7 @@ public class CloudinaryController {
         }
         Map result = cloudinaryService.upload(multipartFile);
         Image image = new Image((String) result.get("original_filename"),
-                (String) result.get("url"),
+                (String) result.get("secure_url"),
                 (String) result.get("public_id"));
         imageService.save(image);
         return new ResponseEntity<>("Image uploaded successfully", HttpStatus.OK);

@@ -6,6 +6,7 @@ import com.example.agriecommerce.utils.AppConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -23,6 +24,7 @@ public class ReviewController {
     }
 
     @PostMapping("/{userId}/{productId}")
+    @PreAuthorize(("hasRole('USER')"))
     public ResponseEntity<ReviewDto> createReview(@PathVariable("userId") Long userId,
                                                   @PathVariable("productId") Long productId,
                                                   @RequestBody ReviewDto reviewDto) {

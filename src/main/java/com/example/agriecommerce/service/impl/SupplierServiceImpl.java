@@ -1,8 +1,6 @@
 package com.example.agriecommerce.service.impl;
 
-import com.example.agriecommerce.entity.Image;
-import com.example.agriecommerce.entity.Supplier;
-import com.example.agriecommerce.entity.SupplierBankInfo;
+import com.example.agriecommerce.entity.*;
 import com.example.agriecommerce.exception.AgriMartException;
 import com.example.agriecommerce.exception.ResourceNotFoundException;
 import com.example.agriecommerce.payload.*;
@@ -14,6 +12,10 @@ import com.example.agriecommerce.service.SupplierService;
 import com.example.agriecommerce.utils.Encryption;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -67,11 +69,26 @@ public class SupplierServiceImpl implements SupplierService {
     }
 
     @Override
-    public List<SupplierDto> getAllSupplier() {
-        List<Supplier> suppliers = supplierRepository.findAll();
-        return suppliers.stream()
-                .map(supplier -> modelMapper.map(supplier, SupplierDto.class))
-                .collect(Collectors.toList());
+    public SupplierResponse getAllSuppliers(boolean status, int pageNo, int pageSize, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        Page<Supplier> supplierPage = supplierRepository.findByIsActive(status, pageable).orElseThrow(
+                () -> new ResourceNotFoundException("user list is empty")
+        );
+
+        List<Supplier> supplierList = supplierPage.getContent();
+        List<SupplierDto> content = supplierList.stream().map(supplier -> modelMapper.map(supplier, SupplierDto.class)).toList();
+
+        SupplierResponse supplierResponse = new SupplierResponse();
+        supplierResponse.setContent(content);
+        supplierResponse.setPageNo(supplierPage.getNumber());
+        supplierResponse.setPageSize(supplierPage.getSize());
+        supplierResponse.setTotalElements(supplierPage.getTotalElements());
+        supplierResponse.setTotalPage(supplierPage.getTotalPages());
+        supplierResponse.setLast(supplierPage.isLast());
+
+        return supplierResponse;
     }
 
     @Override
@@ -215,6 +232,14 @@ public class SupplierServiceImpl implements SupplierService {
                 () -> new ResourceNotFoundException("Supplier does not exists")
         );
         return supplier.getId();
+    }
+
+    @Override
+    public Boolean checkAccountStatus(String email) {
+        Supplier supplier = supplierRepository.findByEmail(email).orElseThrow(
+                () -> new ResourceNotFoundException("Supplier does not exists")
+        );
+        return supplier.isActive();
     }
 
     @Override

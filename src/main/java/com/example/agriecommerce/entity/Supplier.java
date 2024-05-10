@@ -63,4 +63,6 @@ public class Supplier {
 
     @Column(name = "iv")
     private String iv;
+    @Column(name = "is_active")
+    private boolean isActive;
 }

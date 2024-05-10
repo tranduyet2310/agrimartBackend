@@ -6,6 +6,7 @@ import com.example.agriecommerce.service.FavoriteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,6 +22,7 @@ public class FavoriteController {
     }
 
     @PostMapping("{userId}/add/{productId}")
+    @PreAuthorize(("hasRole('USER')"))
     public ResponseEntity<FavoriteDto> createFavortieProduct(@PathVariable("userId") Long userId,
                                                              @PathVariable("productId") Long productId) {
         FavoriteDto favoriteDto = favoriteService.createFavoriteProduct(userId, productId);
@@ -38,6 +40,7 @@ public class FavoriteController {
     }
 
     @DeleteMapping("{userId}/delete/{id}")
+    @PreAuthorize(("hasRole('USER')"))
     public ResponseEntity<String> deleteFavoriteById(@PathVariable("userId") Long userId,
                                                      @PathVariable("id") Long id) {
         favoriteService.deleteFavoriteProductById(id, userId);
@@ -45,6 +48,7 @@ public class FavoriteController {
     }
 
     @DeleteMapping("{userId}/{productId}")
+    @PreAuthorize(("hasRole('USER')"))
     public ResponseEntity<ResultDto> deleteFavoriteByUserAndProductId(@PathVariable("userId") Long userId,
                                                                       @PathVariable("productId") Long productId) {
         ResultDto resultDto = favoriteService.deleteFavoriteProduct(userId, productId);

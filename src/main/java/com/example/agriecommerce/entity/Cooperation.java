@@ -25,7 +25,7 @@ public class Cooperation {
     private Double requireYield;
     private String investment;
     private String contact;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
     @ManyToOne(fetch = FetchType.LAZY)
