@@ -263,4 +263,17 @@ public class SupplierServiceImpl implements SupplierService {
         aesDto.setRsaPublicKey(supplier.getPublicKey());
         return aesDto;
     }
+
+    @Override
+    public SupplierDto updateFcmToken(Long supplierId, String fcmToken) {
+        Supplier supplier = supplierRepository.findById(supplierId).orElseThrow(
+                () -> new ResourceNotFoundException("Supplier does not exists")
+        );
+
+        supplier.setId(supplierId);
+        supplier.setFcmToken(fcmToken);
+        Supplier updatedSupplier = supplierRepository.save(supplier);
+
+        return modelMapper.map(updatedSupplier, SupplierDto.class);
+    }
 }

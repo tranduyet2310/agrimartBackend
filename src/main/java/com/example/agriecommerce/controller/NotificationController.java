@@ -1,6 +1,7 @@
 package com.example.agriecommerce.controller;
 
 import com.example.agriecommerce.payload.NotificationMessage;
+import com.example.agriecommerce.payload.ResultDto;
 import com.example.agriecommerce.service.FirebaseMessagingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,7 @@ public class NotificationController {
     }
 
     @PostMapping
-    public ResponseEntity<String> sendNotification(@RequestBody NotificationMessage notificationMessage){
+    public ResponseEntity<ResultDto> sendNotification(@RequestBody NotificationMessage notificationMessage){
         return ResponseEntity.ok(firebaseMessagingService.sendNotificationByToken(notificationMessage));
     }
 }

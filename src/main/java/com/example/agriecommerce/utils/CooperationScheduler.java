@@ -37,6 +37,7 @@ public class CooperationScheduler {
             String content = "Đơn hàng: " + cooperation.getCropsName() + " - Số lượng: " +estimateYield(cooperation.getRequireYield());
 
             cooperation.setCooperationStatus(OrderStatus.CANCELLED);
+            cooperation.setRequireYield(0.0);
             cooperationRepository.save(cooperation);
             // send notification to user
             User currentUser = cooperation.getUser();

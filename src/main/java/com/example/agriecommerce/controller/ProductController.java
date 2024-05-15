@@ -257,10 +257,18 @@ public class ProductController {
         return ResponseEntity.ok(result);
     }
 
-    @PatchMapping("{productId}") // both
+    @PatchMapping("{productId}")
+    @PreAuthorize(("hasRole('USER')"))
     public ResponseEntity<ProductDto> increaseSoldNumber(@PathVariable("productId") Long productId,
                                                          @RequestParam("quantity") Long quantity) {
         return ResponseEntity.ok(productService.increaseSoldNumber(productId, quantity));
+    }
+
+    @PatchMapping("{productId}/quantity")
+    @PreAuthorize(("hasRole('USER')"))
+    public ResponseEntity<ProductDto> decreaseQuantity(@PathVariable("productId") Long productId,
+                                                         @RequestParam("quantity") Integer quantity) {
+        return ResponseEntity.ok(productService.decreaseQuantity(productId, quantity));
     }
 
     @GetMapping("category/{supplierId}")

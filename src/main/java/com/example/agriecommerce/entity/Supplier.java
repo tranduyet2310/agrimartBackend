@@ -65,4 +65,7 @@ public class Supplier {
     private String iv;
     @Column(name = "is_active")
     private boolean isActive;
+
+    @Column(name = "fcm")
+    private String fcmToken;
 }

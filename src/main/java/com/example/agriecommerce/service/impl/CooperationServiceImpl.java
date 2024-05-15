@@ -211,4 +211,5 @@ public class CooperationServiceImpl implements CooperationService {
         Cooperation updatedCooperation = cooperationRepository.save(cooperation);
         return modelMapper.map(updatedCooperation, CooperationDto.class);
     }
+
 }

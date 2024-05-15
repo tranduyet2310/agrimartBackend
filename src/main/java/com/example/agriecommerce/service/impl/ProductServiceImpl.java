@@ -74,6 +74,7 @@ public class ProductServiceImpl implements ProductService {
         product.setActive(productDto.isActive());
         product.setNew(productDto.isNew());
         product.setAvailable(productDto.isAvailable());
+        product.setSold(0L);
 
         String categoryName = productDto.getCategoryName();
         String subcategoryName = productDto.getSubCategoryName();
@@ -606,6 +607,22 @@ public class ProductServiceImpl implements ProductService {
         if (quantity > 0){
             Long newValue = product.getSold() + quantity;
             product.setSold(newValue);
+        }
+        product.setId(productId);
+
+        Product updatedProduct = productRepository.save(product);
+
+        return modelMapper.map(updatedProduct, ProductDto.class);
+    }
+
+    @Override
+    public ProductDto decreaseQuantity(Long productId, Integer quantity) {
+        Product product = productRepository.findById(productId).orElseThrow(
+                () -> new ResourceNotFoundException("product", "id", productId)
+        );
+        if (quantity > 0){
+            Integer newValue = product.getQuantity() - quantity;
+            product.setQuantity(newValue);
         }
         product.setId(productId);
 

@@ -1,6 +1,7 @@
 package com.example.agriecommerce.service.impl;
 
 import com.example.agriecommerce.payload.NotificationMessage;
+import com.example.agriecommerce.payload.ResultDto;
 import com.example.agriecommerce.service.FirebaseMessagingService;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
@@ -19,7 +20,7 @@ public class FirebaseMessagingServiceImpl implements FirebaseMessagingService {
     }
 
     @Override
-    public String sendNotificationByToken(NotificationMessage notificationMessage) {
+    public ResultDto sendNotificationByToken(NotificationMessage notificationMessage) {
         Notification notification = Notification.builder().setTitle(notificationMessage.getTitle())
                 .setBody(notificationMessage.getBody()).build();
 
@@ -28,12 +29,17 @@ public class FirebaseMessagingServiceImpl implements FirebaseMessagingService {
                 .setNotification(notification)
                 .putAllData(notificationMessage.getData()).build();
 
+        ResultDto resultDto = new ResultDto();
         try {
             firebaseMessaging.send(message);
-            return "Send notification successfully";
+            resultDto.setMessage("Send notification successfully");
+            resultDto.setSuccessful(true);
+            return resultDto;
         } catch (FirebaseMessagingException e) {
             e.printStackTrace();
-            return "Error sending notification";
+            resultDto.setMessage("Error sending notification");
+            resultDto.setSuccessful(true);
+            return resultDto;
         }
     }
 }

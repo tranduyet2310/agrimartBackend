@@ -1,7 +1,8 @@
 package com.example.agriecommerce.service;
 
 import com.example.agriecommerce.payload.NotificationMessage;
+import com.example.agriecommerce.payload.ResultDto;
 
 public interface FirebaseMessagingService {
-    String sendNotificationByToken(NotificationMessage notificationMessage);
+    ResultDto sendNotificationByToken(NotificationMessage notificationMessage);
 }

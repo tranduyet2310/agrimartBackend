@@ -100,4 +100,11 @@ public class SupplierController {
     public ResponseEntity<AESDto> getRSAPubKey(@PathVariable("id") Long supplierId){
         return ResponseEntity.ok(supplierService.getRSAPubKey(supplierId));
     }
+
+    @PatchMapping("{id}/fcm")
+    @PreAuthorize(("hasRole('SUPPLIER')"))
+    public ResponseEntity<SupplierDto> updateFcmToken(@PathVariable("id") Long supplierId,
+                                                  @RequestParam("token") String fcmToken) {
+        return ResponseEntity.ok(supplierService.updateFcmToken(supplierId, fcmToken));
+    }
 }

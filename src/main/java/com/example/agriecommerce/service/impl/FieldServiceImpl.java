@@ -1,10 +1,9 @@
 package com.example.agriecommerce.service.impl;
 
-import com.example.agriecommerce.entity.Field;
-import com.example.agriecommerce.entity.FieldDetail;
-import com.example.agriecommerce.entity.Supplier;
+import com.example.agriecommerce.entity.*;
 import com.example.agriecommerce.exception.ResourceNotFoundException;
 import com.example.agriecommerce.payload.FieldDto;
+import com.example.agriecommerce.repository.CooperationRepository;
 import com.example.agriecommerce.repository.FieldRepository;
 import com.example.agriecommerce.repository.SupplierRepository;
 import com.example.agriecommerce.service.FieldService;
@@ -20,13 +19,18 @@ import java.util.stream.Collectors;
 public class FieldServiceImpl implements FieldService {
     private final FieldRepository fieldRepository;
     private final SupplierRepository supplierRepository;
+    private final CooperationRepository cooperationRepository;
     private final ModelMapper modelMapper;
 
     @Autowired
-    public FieldServiceImpl(FieldRepository fieldRepository, SupplierRepository supplierRepository, ModelMapper modelMapper) {
+    public FieldServiceImpl(FieldRepository fieldRepository,
+                            SupplierRepository supplierRepository,
+                            ModelMapper modelMapper,
+                            CooperationRepository cooperationRepository) {
         this.fieldRepository = fieldRepository;
         this.supplierRepository = supplierRepository;
         this.modelMapper = modelMapper;
+        this.cooperationRepository = cooperationRepository;
     }
 
     @Override
@@ -76,6 +80,15 @@ public class FieldServiceImpl implements FieldService {
                 () -> new ResourceNotFoundException("field does not exists")
         );
 
+        Double currentYield = field.getEstimateYield();
+        Double newYieldValue = fieldDto.getEstimateYield();
+
+        if (newYieldValue < currentYield){
+            Double gapsValue = currentYield - newYieldValue;
+            List<Cooperation> cooperationList = cooperationRepository.findByFieldIdAndDateCreated(fieldId);
+            terminatedCooperation(cooperationList, gapsValue);
+        }
+
         field.setEstimateYield(fieldDto.getEstimateYield());
         field.setEstimatePrice(fieldDto.getEstimatePrice());
 
@@ -111,5 +124,24 @@ public class FieldServiceImpl implements FieldService {
                 () -> new ResourceNotFoundException("field does not exists")
         );
         return modelMapper.map(field, FieldDto.class);
+    }
+
+    private void terminatedCooperation(List<Cooperation> cooperationList, Double gapsValue){
+        for (Cooperation cooperation : cooperationList){
+            Double currentYield = cooperation.getRequireYield();
+            if (gapsValue > 0){
+                if (currentYield >= gapsValue){
+                    cooperation.setCooperationStatus(OrderStatus.CANCELLED);
+                    cooperation.setRequireYield(0.0);
+                    cooperationRepository.save(cooperation);
+                    break;
+                } else {
+                    gapsValue -= currentYield;
+                    cooperation.setCooperationStatus(OrderStatus.CANCELLED);
+                    cooperation.setRequireYield(0.0);
+                    cooperationRepository.save(cooperation);
+                }
+            }
+        }
     }
 }

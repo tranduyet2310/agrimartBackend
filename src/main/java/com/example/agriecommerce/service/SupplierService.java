@@ -25,4 +25,5 @@ public interface SupplierService {
     Boolean checkAccountStatus(String email);
     ResultDto updateRSAKey(Long supplierId, AESDto dto);
     AESDto getRSAPubKey(Long supplierId);
+    SupplierDto updateFcmToken(Long supplierId, String fcmToken);
 }

@@ -26,6 +26,7 @@ public interface ProductService {
     ProductDto activeProduct(Long suppilerId, Long productId);
     ProductDto inactiveProduct(Long suppilerId, Long productId);
     ProductDto increaseSoldNumber(Long productId, Long quantity);
+    ProductDto decreaseQuantity(Long productId, Integer quantity);
     List<CategoryDto> getCategoryBySupplierId(Long supplierId);
     ResultDto countTotalProducts(Long supplierId);
     ResultDto countSoldProducts(Long supplierId);

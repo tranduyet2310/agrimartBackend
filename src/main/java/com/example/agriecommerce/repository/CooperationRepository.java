@@ -24,4 +24,7 @@ public interface CooperationRepository extends JpaRepository<Cooperation, Long> 
     Double calculateYieldAccepted(Long fieldId, Long supplierId);
 
     List<Cooperation> findByPaymentStatusIsNullAndDateCreatedBefore(LocalDateTime date);
+    @Query(nativeQuery = true, value = "SELECT * FROM tbl_cooperation " +
+            "WHERE field_id = :fieldId ORDER BY date_created DESC")
+    List<Cooperation> findByFieldIdAndDateCreated(@Param("fieldId") Long fieldId);
 }

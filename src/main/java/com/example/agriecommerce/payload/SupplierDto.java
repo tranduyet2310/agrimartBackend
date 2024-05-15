@@ -28,4 +28,5 @@ public class SupplierDto {
     private String bankBranchName;
     private String avatar;
     private boolean isActive;
+    private String fcmToken;
 }
