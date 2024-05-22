@@ -1,5 +1,6 @@
 package com.example.agriecommerce.controller;
 
+import com.example.agriecommerce.payload.ComparationDto;
 import com.example.agriecommerce.payload.CooperationDto;
 import com.example.agriecommerce.payload.CooperationResponse;
 import com.example.agriecommerce.payload.ResultDto;
@@ -36,6 +37,16 @@ public class CooperationController {
     public ResponseEntity<CooperationDto> updateCooperation(@PathVariable("cooperationId") Long cooperationId,
                                                             @RequestBody CooperationDto cooperationDto) {
         return ResponseEntity.ok(cooperationService.updateCooperation(cooperationId, cooperationDto));
+    }
+
+    @GetMapping("list")
+    @PreAuthorize(("hasRole('ADMIN')"))
+    public ResponseEntity<CooperationResponse> getAllCooperations(
+            @RequestParam(value = "pageNo", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) int pageSize,
+            @RequestParam(value = "sortBy", defaultValue = AppConstants.DEFAULT_SORT_BY, required = false) String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = AppConstants.DEFAULT_SORT_DIRECTION, required = false) String sortDir) {
+        return ResponseEntity.ok(cooperationService.getAllCooperations(pageNo, pageSize, sortBy, sortDir));
     }
 
     @GetMapping("{supplierId}/list")
@@ -98,5 +109,11 @@ public class CooperationController {
     @GetMapping("{cooperationId}/general")
     public ResponseEntity<CooperationDto> getCooperationById(@PathVariable("cooperationId") Long cooperationId){
         return ResponseEntity.ok(cooperationService.getCooperationById(cooperationId));
+    }
+
+    @GetMapping("statistic")
+    public ResponseEntity<ComparationDto> getStatisticCooperation(@RequestParam("m") int month,
+                                                               @RequestParam("y") int year){
+        return ResponseEntity.ok(cooperationService.getStatisticCooperation(month, year));
     }
 }

@@ -45,13 +45,16 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
 
-        httpSecurity.csrf(csrf -> csrf.disable())
+        httpSecurity
+                .cors(Customizer.withDefaults())
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests((authorize) ->
 //                        authorize.anyRequest().authenticated()
                                 authorize.requestMatchers(HttpMethod.GET, "/api/**").permitAll()
                                         .requestMatchers("/api/auth/**").permitAll()
                                         .requestMatchers("/cloudinary/**").permitAll()
                                         .requestMatchers("/api/notification/**").permitAll()
+                                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                                         .anyRequest().authenticated()
                 ).exceptionHandling(
                         exception -> exception.authenticationEntryPoint(authenticationEntryPoint)

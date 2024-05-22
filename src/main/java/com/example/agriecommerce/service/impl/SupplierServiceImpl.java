@@ -69,6 +69,14 @@ public class SupplierServiceImpl implements SupplierService {
     }
 
     @Override
+    public SupplierDto getSupplierInfoById(Long supplierId) {
+        Supplier supplier = supplierRepository.findById(supplierId).orElseThrow(
+                () -> new ResourceNotFoundException("supplier", "id", supplierId)
+        );
+        return modelMapper.map(supplier, SupplierDto.class);
+    }
+
+    @Override
     public SupplierResponse getAllSuppliers(boolean status, int pageNo, int pageSize, String sortBy, String sortDir) {
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
@@ -275,5 +283,48 @@ public class SupplierServiceImpl implements SupplierService {
         Supplier updatedSupplier = supplierRepository.save(supplier);
 
         return modelMapper.map(updatedSupplier, SupplierDto.class);
+    }
+
+    @Override
+    public ResultDto updateAccountStatus(Long supplierId, boolean state) {
+        Supplier supplier = supplierRepository.findById(supplierId).orElseThrow(
+                () -> new ResourceNotFoundException("Supplier does not exists")
+        );
+
+        supplier.setId(supplierId);
+        supplier.setActive(state);
+        supplierRepository.save(supplier);
+
+        return new ResultDto(true, "update account status successfully");
+    }
+
+    @Override
+    public ResultDto countRegisterAccount() {
+        long total = supplierRepository.countRegisterAccount();
+        return new ResultDto(true, total+"");
+    }
+
+    @Override
+    public ComparationDto getStatisticSupplier(int month, int year) {
+        ComparationDto dto = new ComparationDto();
+        int previousMonth = month - 1;
+        int previousYear = year;
+        if (previousMonth == 0){
+            previousMonth = 12;
+            previousYear = year - 1;
+        }
+        long current = supplierRepository.countSuppliersByMonthAndYear(month, year);
+        long previous = supplierRepository.countSuppliersByMonthAndYear(previousMonth, previousYear);
+        long total = supplierRepository.countTotalSupplier();
+
+        long gaps = current - previous;
+        if (gaps < 0) gaps *=-1;
+
+        dto.setCurrent((double) current);
+        dto.setPrevious((double) previous);
+        dto.setGaps((double) gaps);
+        dto.setTotal((double) total);
+
+        return dto;
     }
 }

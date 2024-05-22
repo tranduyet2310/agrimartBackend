@@ -27,4 +27,8 @@ public interface CooperationRepository extends JpaRepository<Cooperation, Long> 
     @Query(nativeQuery = true, value = "SELECT * FROM tbl_cooperation " +
             "WHERE field_id = :fieldId ORDER BY date_created DESC")
     List<Cooperation> findByFieldIdAndDateCreated(@Param("fieldId") Long fieldId);
+
+    @Query(nativeQuery = true, value = "SELECT COALESCE(SUM(require_yield), 0) " +
+            "FROM tbl_cooperation c WHERE MONTH(c.date_created) = :month AND YEAR(c.date_created) = :year")
+    double countRequiredYieldByMonthAndYear(@Param("month") int month, @Param("year") int year);
 }

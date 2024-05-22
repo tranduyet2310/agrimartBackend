@@ -1,5 +1,6 @@
 package com.example.agriecommerce.controller;
 
+import com.example.agriecommerce.payload.ResultDto;
 import com.example.agriecommerce.payload.SubCategoryDto;
 import com.example.agriecommerce.service.SubCategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,13 @@ public class SubCategoryController {
         return new ResponseEntity<>(dto, HttpStatus.CREATED);
     }
 
+    @PostMapping("{id}/subcategories/list")
+    public ResponseEntity<ResultDto> createListSubcategories(@PathVariable("id") Long categoryId,
+                                                             @RequestBody List<String> subcategoryNames) {
+        ResultDto dto = subCategoryService.createListSubcategory(categoryId, subcategoryNames);
+        return new ResponseEntity<>(dto, HttpStatus.CREATED);
+    }
+
     @GetMapping("/subcategories/{id}")
     public ResponseEntity<SubCategoryDto> getSubcategoryById(@PathVariable("id") Long subcategoryId) {
         return ResponseEntity.ok(subCategoryService.getSubcategoryById(subcategoryId));
@@ -47,5 +55,11 @@ public class SubCategoryController {
                                                          @PathVariable("id") Long subcategoryId,
                                                          @RequestBody SubCategoryDto subCategoryDto) {
         return ResponseEntity.ok(subCategoryService.updateSubcategory(subcategoryId, subCategoryDto, categoryId));
+    }
+
+    @PutMapping("{categoryId}/subcategories/list")
+    public ResponseEntity<ResultDto> updateListCategory(@PathVariable("categoryId") Long categoryId,
+                                                         @RequestBody List<SubCategoryDto> subCategoryDto) {
+        return ResponseEntity.ok(subCategoryService.updateListSubcategories(subCategoryDto, categoryId));
     }
 }

@@ -133,6 +133,27 @@ public class CooperationServiceImpl implements CooperationService {
     }
 
     @Override
+    public CooperationResponse getAllCooperations(int pageNo, int pageSize, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        Page<Cooperation> cooperationPage = cooperationRepository.findAll(pageable);
+
+        List<Cooperation> cooperationList = cooperationPage.getContent();
+        List<CooperationDto> content = cooperationList.stream().map(cooperation -> modelMapper.map(cooperation, CooperationDto.class)).toList();
+
+        CooperationResponse cooperationResponse = new CooperationResponse();
+        cooperationResponse.setContent(content);
+        cooperationResponse.setPageNo(cooperationPage.getNumber());
+        cooperationResponse.setPageSize(cooperationPage.getSize());
+        cooperationResponse.setTotalElements(cooperationPage.getTotalElements());
+        cooperationResponse.setTotalPage(cooperationPage.getTotalPages());
+        cooperationResponse.setLast(cooperationPage.isLast());
+
+        return cooperationResponse;
+    }
+
+    @Override
     public CooperationResponse getCooperationSortByField(Long supplierId, Long fieldId, int pageNo, int pageSize, String sortBy, String sortDir) {
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
@@ -212,4 +233,23 @@ public class CooperationServiceImpl implements CooperationService {
         return modelMapper.map(updatedCooperation, CooperationDto.class);
     }
 
+    @Override
+    public ComparationDto getStatisticCooperation(int month, int year) {
+        ComparationDto dto = new ComparationDto();
+        int previousMonth = month - 1;
+        int previousYear = year;
+        if (previousMonth == 0){
+            previousMonth = 12;
+            previousYear = year - 1;
+        }
+        double current = cooperationRepository.countRequiredYieldByMonthAndYear(month, year);
+        double previous = cooperationRepository.countRequiredYieldByMonthAndYear(previousMonth, previousYear);
+        double gaps = current - previous;
+
+        dto.setCurrent(current);
+        dto.setPrevious(previous);
+        dto.setGaps(gaps);
+
+        return dto;
+    }
 }

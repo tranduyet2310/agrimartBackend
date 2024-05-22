@@ -48,4 +48,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Long countSoldProduct(@Param("supplierId") Long supplierId);
     @Query(nativeQuery = true, value = "SELECT COUNT(*) FROM tbl_product WHERE supplier_id = :supplierId")
     Long countProducts(@Param("supplierId") Long supplierId);
+
+    @Query("SELECT COUNT(p) FROM Product p")
+    long countAllProducts();
 }

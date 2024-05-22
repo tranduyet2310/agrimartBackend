@@ -25,4 +25,5 @@ public class FieldDto {
     private Long estimatePrice;
     private Boolean isComplete;
     private Long supplierId;
+    private String supplierContactName;
 }

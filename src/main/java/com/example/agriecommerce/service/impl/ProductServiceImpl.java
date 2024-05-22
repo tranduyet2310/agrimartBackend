@@ -720,4 +720,10 @@ public class ProductServiceImpl implements ProductService {
 
         return modelMapper.map(updatedProduct, ProductDto.class);
     }
+
+    @Override
+    public ResultDto countAllProducts() {
+        long total = productRepository.countAllProducts();
+        return new ResultDto(true, total+"");
+    }
 }

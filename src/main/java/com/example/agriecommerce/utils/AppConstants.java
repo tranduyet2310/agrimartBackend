@@ -14,5 +14,6 @@ public class AppConstants {
     public static final String CLOUD_API_KEY = "342769926395116";
     public static final String CLOUD_API_SECRET = "B8_B_EPbb4o7i-1QbFWmdVqjuSA";
     public static final String DATE_PATTERN = "dd/MM/yyyy";
-
+    public static final String[] listMonths = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Agu", "Sep", "Oct", "Nov", "Dec"};
+    public static final String[] listOrderStatus = {"PROCESSING", "CONFIRMED", "DELIVERING", "COMPLETED", "CANCELLED"};
 }

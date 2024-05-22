@@ -7,6 +7,7 @@ import java.util.List;
 
 public interface SupplierService {
     SupplierDto getSupplierById(Long supplierId);
+    SupplierDto getSupplierInfoById(Long supplierId);
 
     SupplierResponse getAllSuppliers(boolean status, int pageNo, int pageSize, String sortBy, String sortDir);
 
@@ -26,4 +27,7 @@ public interface SupplierService {
     ResultDto updateRSAKey(Long supplierId, AESDto dto);
     AESDto getRSAPubKey(Long supplierId);
     SupplierDto updateFcmToken(Long supplierId, String fcmToken);
+    ResultDto updateAccountStatus(Long supplierId, boolean state);
+    ResultDto countRegisterAccount();
+    ComparationDto getStatisticSupplier(int month, int year);
 }

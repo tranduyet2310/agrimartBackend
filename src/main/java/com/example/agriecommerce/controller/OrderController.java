@@ -33,6 +33,16 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getOrderById(orderId));
     }
 
+    @GetMapping
+    @PreAuthorize(("hasRole('ADMIN')"))
+    public ResponseEntity<OrderResponse> getAllOrders(
+            @RequestParam(value = "pageNo", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) int pageSize,
+            @RequestParam(value = "sortBy", defaultValue = AppConstants.DEFAULT_SORT_BY, required = false) String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = AppConstants.DEFAULT_SORT_DIRECTION, required = false) String sortDir) {
+        return ResponseEntity.ok(orderService.getAllOrders(pageNo, pageSize, sortBy, sortDir));
+    }
+
     @GetMapping("{userId}")
     public ResponseEntity<OrderResponse> getOrderByUserId(
             @PathVariable("userId") Long userId,
@@ -55,7 +65,7 @@ public class OrderController {
     }
 
     @PatchMapping("{orderId}")
-    @PreAuthorize(("hasRole('USER')"))
+    @PreAuthorize(("hasRole('USER') or hasRole('ADMIN')"))
     public ResponseEntity<OrderDto> updateOrderStatus(@PathVariable("orderId") Long orderId,
                                                       @RequestParam("orderStatus") String orderStatus) {
         return ResponseEntity.ok(orderService.updateOrderStatus(orderId, orderStatus));
@@ -82,7 +92,7 @@ public class OrderController {
 
     @GetMapping("{supplierId}/recent")
     public ResponseEntity<List<OrderStatisticDto>> getRecentOrderStatistic(@PathVariable("supplierId") Long userId,
-                                                                     @RequestParam(value = "date") String datePattern) {
+                                                                           @RequestParam(value = "date") String datePattern) {
         return ResponseEntity.ok(orderService.getRecentOrderStatistic(userId, datePattern));
     }
 
@@ -90,5 +100,29 @@ public class OrderController {
     public ResponseEntity<OrderStatisticDto> getStatistic(@PathVariable("supplierId") Long userId,
                                                           @RequestParam(value = "date") String datePattern) {
         return ResponseEntity.ok(orderService.getStatistic(userId, datePattern));
+    }
+
+    @GetMapping("statistic")
+    public ResponseEntity<ComparationDto> getStatisticOrder(@RequestParam("m") int month,
+                                                            @RequestParam("y") int year) {
+        return ResponseEntity.ok(orderService.getStatisticOrder(month, year));
+    }
+
+    @GetMapping("revenue")
+    public ResponseEntity<ComparationDto> getStatisticRevenue(@RequestParam("m") int month,
+                                                              @RequestParam("y") int year) {
+        return ResponseEntity.ok(orderService.getStatisticRevenue(month, year));
+    }
+
+    @GetMapping("chart")
+    public ResponseEntity<List<BarChartOrderDto>> getChartData(@RequestParam("m") int month,
+                                                               @RequestParam("y") int year) {
+        return ResponseEntity.ok(orderService.getChartData(month, year));
+    }
+
+    @GetMapping("pie")
+    public ResponseEntity<List<PieChartDto>> getPieChartData(@RequestParam("m") int month,
+                                                             @RequestParam("y") int year) {
+        return ResponseEntity.ok(orderService.getPieChartData(month, year));
     }
 }

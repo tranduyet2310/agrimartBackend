@@ -2,7 +2,10 @@ package com.example.agriecommerce.controller;
 
 import com.example.agriecommerce.exception.CloudinaryException;
 import com.example.agriecommerce.payload.CategoryDto;
+import com.example.agriecommerce.payload.CategoryResponse;
+import com.example.agriecommerce.payload.ResultDto;
 import com.example.agriecommerce.service.CategoryService;
+import com.example.agriecommerce.utils.AppConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +44,16 @@ public class CategoryController {
         return ResponseEntity.ok(responses);
     }
 
+    @GetMapping("list")
+    public ResponseEntity<CategoryResponse> getAllCategories(
+            @RequestParam(value = "pageNo", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) int pageSize,
+            @RequestParam(value = "sortBy", defaultValue = AppConstants.DEFAULT_SORT_BY, required = false) String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = AppConstants.DEFAULT_SORT_DIRECTION, required = false) String sortDir
+    ) {
+        return ResponseEntity.ok(categoryService.getAllCategories(pageNo, pageSize, sortBy, sortDir));
+    }
+
     @GetMapping("{id}")
     public ResponseEntity<CategoryDto> getCategoryById(@PathVariable Long id) {
         return ResponseEntity.ok(categoryService.getCategoryById(id));
@@ -55,9 +68,16 @@ public class CategoryController {
         return ResponseEntity.ok(response);
     }
 
+    @PatchMapping("{id}/info")
+    public ResponseEntity<CategoryDto> updateCategoryInfo(@PathVariable Long id,
+                                                      @RequestParam("categoryName") String categoryName) {
+        CategoryDto response = categoryService.updateCategoryInfo(categoryName, id);
+        return ResponseEntity.ok(response);
+    }
+
     @DeleteMapping("{id}")
-    public ResponseEntity<String> deleteCategory(@PathVariable Long id) {
+    public ResponseEntity<ResultDto> deleteCategory(@PathVariable Long id) {
         categoryService.deleteCategory(id);
-        return ResponseEntity.ok("Category deleted successfully");
+        return ResponseEntity.ok(new ResultDto(true, "Category deleted successfully"));
     }
 }

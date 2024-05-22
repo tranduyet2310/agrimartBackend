@@ -1,8 +1,6 @@
 package com.example.agriecommerce.controller;
 
-import com.example.agriecommerce.payload.PasswordDto;
-import com.example.agriecommerce.payload.UserDto;
-import com.example.agriecommerce.payload.UserResponse;
+import com.example.agriecommerce.payload.*;
 import com.example.agriecommerce.service.UserService;
 import com.example.agriecommerce.utils.AppConstants;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,10 +39,17 @@ public class UserController {
     }
 
     @PatchMapping("{id}")
-    @PreAuthorize(("hasRole('USER')"))
+    @PreAuthorize(("hasRole('USER') or hasRole('ADMIN')"))
     public ResponseEntity<UserDto> updateUserInfo(@PathVariable("id") Long userId,
                                                   @RequestBody UserDto userDto) {
         return ResponseEntity.ok(userService.updateUserInfo(userId, userDto));
+    }
+
+    @PatchMapping("{id}/status")
+    @PreAuthorize(("hasRole('ADMIN')"))
+    public ResponseEntity<UserDto> updateAccountStatus(@PathVariable("id") Long userId,
+                                                       @RequestParam("status") Integer status) {
+        return ResponseEntity.ok(userService.updateStatusAccount(userId, status));
     }
 
     @PatchMapping("{id}/avatar")
@@ -66,5 +71,17 @@ public class UserController {
     public ResponseEntity<UserDto> updateFcmToken(@PathVariable("id") Long userId,
                                                   @RequestParam("token") String fcmToken) {
         return ResponseEntity.ok(userService.updateFcmToken(userId, fcmToken));
+    }
+
+    @GetMapping("statistic")
+    public ResponseEntity<ComparationDto> getStatistic(@RequestParam("m") int month,
+                                                       @RequestParam("y") int year) {
+        return ResponseEntity.ok(userService.countAccountByMonthAndYear(month, year));
+    }
+
+    @GetMapping("chart")
+    public ResponseEntity<List<LineChartAccountDto>> getChartData(@RequestParam("m") int month,
+                                                                  @RequestParam("y") int year) {
+        return ResponseEntity.ok(userService.getChartData(month, year));
     }
 }

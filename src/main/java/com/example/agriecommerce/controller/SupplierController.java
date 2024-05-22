@@ -26,6 +26,11 @@ public class SupplierController {
     public ResponseEntity<SupplierDto> getSupplierById(@PathVariable("id") Long supplierId) {
         return ResponseEntity.ok(supplierService.getSupplierById(supplierId));
     }
+    @GetMapping("{id}/info")
+    @PreAuthorize(("hasRole('ADMIN')"))
+    public ResponseEntity<SupplierDto> getSupplierInfoById(@PathVariable("id") Long supplierId) {
+        return ResponseEntity.ok(supplierService.getSupplierInfoById(supplierId));
+    }
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -47,6 +52,13 @@ public class SupplierController {
             @RequestParam(value = "sortDir", defaultValue = AppConstants.DEFAULT_SORT_DIRECTION, required = false) String sortDir
     ) {
         return ResponseEntity.ok(supplierService.getAllSuppliers(false, pageNo, pageSize, sortBy, sortDir));
+    }
+
+    @PatchMapping("{id}/status")
+    @PreAuthorize(("hasRole('ADMIN')"))
+    public ResponseEntity<ResultDto> updateAccountStatus(@PathVariable("id") Long supplierId,
+                                                         @RequestParam("status") boolean status) {
+        return ResponseEntity.ok(supplierService.updateAccountStatus(supplierId, status));
     }
 
     @PatchMapping("{id}/general")
@@ -106,5 +118,16 @@ public class SupplierController {
     public ResponseEntity<SupplierDto> updateFcmToken(@PathVariable("id") Long supplierId,
                                                   @RequestParam("token") String fcmToken) {
         return ResponseEntity.ok(supplierService.updateFcmToken(supplierId, fcmToken));
+    }
+
+    @GetMapping("register")
+    public ResponseEntity<ResultDto> countRegisterAccount(){
+        return ResponseEntity.ok(supplierService.countRegisterAccount());
+    }
+
+    @GetMapping("statistic")
+    public ResponseEntity<ComparationDto> getStatisticSupplier(@RequestParam("m") int month,
+                                                               @RequestParam("y") int year){
+        return ResponseEntity.ok(supplierService.getStatisticSupplier(month, year));
     }
 }

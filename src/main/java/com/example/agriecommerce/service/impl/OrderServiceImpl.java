@@ -4,12 +4,15 @@ import com.example.agriecommerce.entity.Order;
 import com.example.agriecommerce.entity.OrderStatus;
 import com.example.agriecommerce.entity.User;
 import com.example.agriecommerce.entity.UserAddress;
+import com.example.agriecommerce.exception.AgriMartException;
 import com.example.agriecommerce.exception.ResourceNotFoundException;
 import com.example.agriecommerce.payload.*;
+import com.example.agriecommerce.repository.CooperativePaymentRepository;
 import com.example.agriecommerce.repository.OrderRepository;
 import com.example.agriecommerce.repository.UserAddressRepository;
 import com.example.agriecommerce.repository.UserRepository;
 import com.example.agriecommerce.service.OrderService;
+import com.example.agriecommerce.utils.AppConstants;
 import com.example.agriecommerce.utils.OrderInfoDto;
 import com.example.agriecommerce.utils.OrderNumberGenerator;
 import com.example.agriecommerce.utils.OrderStatistic;
@@ -19,9 +22,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,17 +36,20 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
     private final UserAddressRepository userAddressRepository;
+    private final CooperativePaymentRepository paymentRepository;
     private final ModelMapper modelMapper;
 
     @Autowired
     public OrderServiceImpl(OrderRepository orderRepository,
                             UserRepository userRepository,
                             UserAddressRepository userAddressRepository,
-                            ModelMapper modelMapper) {
+                            ModelMapper modelMapper,
+                            CooperativePaymentRepository paymentRepository) {
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
         this.userAddressRepository = userAddressRepository;
         this.modelMapper = modelMapper;
+        this.paymentRepository = paymentRepository;
     }
 
     @Override
@@ -118,6 +124,27 @@ public class OrderServiceImpl implements OrderService {
         Page<Order> orderPage = orderRepository.findByUserId(userId, pageable).orElseThrow(
                 () -> new ResourceNotFoundException("user's order is empty")
         );
+
+        List<Order> orders = orderPage.getContent();
+        List<OrderDto> content = orders.stream().map(order -> modelMapper.map(order, OrderDto.class)).collect(Collectors.toList());
+
+        OrderResponse orderResponse = new OrderResponse();
+        orderResponse.setContent(content);
+        orderResponse.setPageNo(orderPage.getNumber());
+        orderResponse.setPageSize(orderPage.getSize());
+        orderResponse.setTotalElements(orderPage.getTotalElements());
+        orderResponse.setTotalPage(orderPage.getTotalPages());
+        orderResponse.setLast(orderPage.isLast());
+
+        return orderResponse;
+    }
+
+    @Override
+    public OrderResponse getAllOrders(int pageNo, int pageSize, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        Page<Order> orderPage = orderRepository.findAll(pageable);
 
         List<Order> orders = orderPage.getContent();
         List<OrderDto> content = orders.stream().map(order -> modelMapper.map(order, OrderDto.class)).collect(Collectors.toList());
@@ -314,5 +341,93 @@ public class OrderServiceImpl implements OrderService {
         dto.setSuccessful(result > 0);
         dto.setMessage(result + "");
         return dto;
+    }
+
+    @Override
+    public ComparationDto getStatisticOrder(int month, int year) {
+        ComparationDto dto = new ComparationDto();
+        int previousMonth = month - 1;
+        int previousYear = year;
+        if (previousMonth == 0){
+            previousMonth = 12;
+            previousYear = year - 1;
+        }
+        double current = orderRepository.countTotalOrderByMonthAndYear(month, year);
+        double previous = orderRepository.countTotalOrderByMonthAndYear(previousMonth, previousYear);
+        double gaps = current - previous;
+
+        dto.setCurrent(current);
+        dto.setPrevious(previous);
+        dto.setGaps(gaps);
+
+        return dto;
+    }
+
+    @Override
+    public ComparationDto getStatisticRevenue(int month, int year) {
+        ComparationDto dto = new ComparationDto();
+        int previousMonth = month - 1;
+        int previousYear = year;
+        if (previousMonth == 0){
+            previousMonth = 12;
+            previousYear = year - 1;
+        }
+        double currentOrder = orderRepository.calculateTotalRevenue(month, year);
+        double previousOrder = orderRepository.calculateTotalRevenue(previousMonth, previousYear);
+        double currentCooperation = paymentRepository.calculateTotalRevenue(month, year);
+        double previousCooperation = paymentRepository.calculateTotalRevenue(previousMonth, previousYear);
+
+        double current = currentOrder+currentCooperation;
+        double previous = previousOrder+previousCooperation;
+        double gaps = current - previous;
+
+        dto.setCurrent(current);
+        dto.setPrevious(previous);
+        dto.setGaps(gaps);
+
+        return dto;
+    }
+
+    @Override
+    public List<BarChartOrderDto> getChartData(int month, int year) {
+        List<BarChartOrderDto> dataSource = new ArrayList<>();
+        if (month <= 0 || month > 12)
+            throw new AgriMartException(HttpStatus.BAD_REQUEST, "Month is invalid, m=" + month);
+
+        for (int i = 1; i <= 12; i++) {
+            BarChartOrderDto item = new BarChartOrderDto();
+            String name = AppConstants.listMonths[i - 1];
+
+            double currentRevenueOrder = orderRepository.calculateTotalRevenue(i, year);
+            double currentRevenueCooperation = paymentRepository.calculateTotalRevenue(i, year);
+            double currentOrder = orderRepository.countTotalOrderByMonthAndYear(i, year);
+            double currentCooperation = paymentRepository.countTotalOrder(i, year);
+
+            item.setName(name);
+            item.setOrder(currentOrder + currentCooperation);
+            item.setRevenue(currentRevenueOrder + currentRevenueCooperation);
+
+            dataSource.add(item);
+        }
+
+        return dataSource;
+    }
+
+    @Override
+    public List<PieChartDto> getPieChartData(int month, int year) {
+        List<PieChartDto> dataSource = new ArrayList<>();
+        if (month <= 0 || month > 12)
+            throw new AgriMartException(HttpStatus.BAD_REQUEST, "Month is invalid, m=" + month);
+
+        for (int i=0; i<=4; i++){
+            PieChartDto item = new PieChartDto();
+            String name = AppConstants.listOrderStatus[i];
+            long value = orderRepository.statisticOrderStatus(month, year, i);
+            item.setName(name);
+            item.setValue(value);
+            dataSource.add(item);
+        }
+
+        return dataSource;
     }
 }

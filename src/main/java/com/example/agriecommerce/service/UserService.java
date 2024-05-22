@@ -1,8 +1,6 @@
 package com.example.agriecommerce.service;
 
-import com.example.agriecommerce.payload.PasswordDto;
-import com.example.agriecommerce.payload.UserDto;
-import com.example.agriecommerce.payload.UserResponse;
+import com.example.agriecommerce.payload.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -16,4 +14,7 @@ public interface UserService {
     UserResponse getAllUsers(int pageNo, int pageSize, String sortBy, String sortDir);
     Long getUserIdByEmail(String email);
     Boolean checkAdminRole(String email);
+    UserDto updateStatusAccount(Long userId, Integer status);
+    ComparationDto countAccountByMonthAndYear(int month, int year);
+    List<LineChartAccountDto> getChartData(int month, int year);
 }

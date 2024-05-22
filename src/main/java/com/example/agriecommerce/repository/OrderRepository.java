@@ -54,4 +54,16 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             "LEFT JOIN tbl_product p ON p.id = od.product_id " +
             "WHERE p.supplier_id = :supplierId and date_created like :date")
     Optional<OrderStatistic> getStatistic(@Param("supplierId") Long supplierId, @Param("date") String date);
+
+    @Query(nativeQuery = true, value = "SELECT COUNT(*) FROM tbl_order o " +
+            "WHERE MONTH(o.date_created) = :month AND YEAR(o.date_created) = :year")
+    double countTotalOrderByMonthAndYear(@Param("month") int month, @Param("year") int year);
+    @Query(nativeQuery = true, value = "SELECT COALESCE(SUM(total), 0) FROM tbl_order o " +
+            "WHERE MONTH(o.date_created) = :month AND YEAR(o.date_created) = :year " +
+            "AND o.order_status IN (0, 1, 2, 3)")
+    long calculateTotalRevenue(@Param("month") int month, @Param("year") int year);
+    @Query(nativeQuery = true, value = "SELECT COUNT(*) FROM tbl_order o " +
+            "WHERE MONTH(o.date_created) = :month AND YEAR(o.date_created) = :year " +
+            "AND order_status = :status")
+    long statisticOrderStatus(@Param("month") int month, @Param("year") int year, @Param("status") int status);
 }

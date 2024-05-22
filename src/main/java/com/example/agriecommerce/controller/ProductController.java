@@ -287,8 +287,13 @@ public class ProductController {
     }
 
     @PatchMapping("{productId}/state")
-    @PreAuthorize(("hasRole('SUPPLIER')"))
+    @PreAuthorize(("hasRole('SUPPLIER') or hasRole('ADMIN')"))
     public ResponseEntity<ProductDto> updateProductState(@PathVariable("productId") Long productId) {
         return ResponseEntity.ok(productService.updateProductState(productId));
+    }
+
+    @GetMapping("total")
+    public ResponseEntity<ResultDto> countAllProducts() {
+        return ResponseEntity.ok(productService.countAllProducts());
     }
 }

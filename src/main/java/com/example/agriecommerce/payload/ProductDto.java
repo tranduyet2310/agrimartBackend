@@ -29,4 +29,5 @@ public class ProductDto {
     private Long sold;
     private String supplierProvince;
     private String supplierId;
+    private Long warehouseId;
 }

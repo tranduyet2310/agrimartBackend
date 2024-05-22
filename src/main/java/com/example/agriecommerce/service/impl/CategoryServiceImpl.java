@@ -4,12 +4,17 @@ import com.example.agriecommerce.entity.Category;
 import com.example.agriecommerce.entity.Image;
 import com.example.agriecommerce.exception.ResourceNotFoundException;
 import com.example.agriecommerce.payload.CategoryDto;
+import com.example.agriecommerce.payload.CategoryResponse;
 import com.example.agriecommerce.repository.CategoryRepository;
 import com.example.agriecommerce.repository.ImageRepository;
 import com.example.agriecommerce.service.CategoryService;
 import com.example.agriecommerce.service.CloudinaryService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -64,6 +69,27 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    public CategoryResponse getAllCategories(int pageNo, int pageSize, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        Page<Category> categoryPage = categoryRepository.findAll(pageable);
+
+        List<Category> categories = categoryPage.getContent();
+        List<CategoryDto> content = categories.stream().map(category -> modelMapper.map(category, CategoryDto.class)).toList();
+
+        CategoryResponse categoryResponse = new CategoryResponse();
+        categoryResponse.setContent(content);
+        categoryResponse.setPageNo(categoryPage.getNumber());
+        categoryResponse.setPageSize(categoryPage.getSize());
+        categoryResponse.setTotalElements(categoryPage.getTotalElements());
+        categoryResponse.setTotalPage(categoryPage.getTotalPages());
+        categoryResponse.setLast(categoryPage.isLast());
+
+        return categoryResponse;
+    }
+
+    @Override
     @Transactional
     public CategoryDto updateCategory(String categoryName, MultipartFile file, Long id, Boolean isUpdated) {
         Category category = categoryRepository.findById(id).orElseThrow(
@@ -91,6 +117,19 @@ public class CategoryServiceImpl implements CategoryService {
             imageRepository.save(newImage);
         }
 
+        Category updatedCategory = categoryRepository.save(category);
+
+        return modelMapper.map(updatedCategory, CategoryDto.class);
+    }
+
+    @Override
+    public CategoryDto updateCategoryInfo(String categoryName, Long id) {
+        Category category = categoryRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("category", "id", id)
+        );
+
+        category.setId(id);
+        category.setCategoryName(categoryName);
         Category updatedCategory = categoryRepository.save(category);
 
         return modelMapper.map(updatedCategory, CategoryDto.class);

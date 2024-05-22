@@ -9,9 +9,11 @@ import com.example.agriecommerce.exception.ResourceNotFoundException;
 import com.example.agriecommerce.payload.*;
 import com.example.agriecommerce.repository.ImageRepository;
 import com.example.agriecommerce.repository.RoleRepository;
+import com.example.agriecommerce.repository.SupplierRepository;
 import com.example.agriecommerce.repository.UserRepository;
 import com.example.agriecommerce.service.CloudinaryService;
 import com.example.agriecommerce.service.UserService;
+import com.example.agriecommerce.utils.AppConstants;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -24,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -37,6 +40,7 @@ public class UserServiceImpl implements UserService {
     private final ImageRepository imageRepository;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
+    private final SupplierRepository supplierRepository;
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository,
@@ -44,13 +48,15 @@ public class UserServiceImpl implements UserService {
                            CloudinaryService cloudinaryService,
                            ImageRepository imageRepository,
                            PasswordEncoder passwordEncoder,
-                           RoleRepository roleRepository) {
+                           RoleRepository roleRepository,
+                           SupplierRepository supplierRepository) {
         this.userRepository = userRepository;
         this.modelMapper = modelMapper;
         this.cloudinaryService = cloudinaryService;
         this.imageRepository = imageRepository;
         this.passwordEncoder = passwordEncoder;
         this.roleRepository = roleRepository;
+        this.supplierRepository = supplierRepository;
     }
 
     @Override
@@ -184,5 +190,61 @@ public class UserServiceImpl implements UserService {
         );
         Role role = user.getRoles();
         return role.getName().equals("ROLE_ADMIN");
+    }
+
+    @Override
+    public UserDto updateStatusAccount(Long userId, Integer status) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new ResourceNotFoundException("User does not exists in DB")
+        );
+        user.setStatus(status);
+        User updatedUser = userRepository.save(user);
+
+        return modelMapper.map(updatedUser, UserDto.class);
+    }
+
+    @Override
+    public ComparationDto countAccountByMonthAndYear(int month, int year) {
+        ComparationDto dto = new ComparationDto();
+        int previousMonth = month - 1;
+        int previousYear = year;
+        if (previousMonth == 0){
+            previousMonth = 12;
+            previousYear = year - 1;
+        }
+        long current = userRepository.countUsersByMonthAndYear(month, year);
+        long previous = userRepository.countUsersByMonthAndYear(previousMonth, previousYear);
+        long total = userRepository.countTotalUser();
+        long gaps = current - previous;
+        if (gaps < 0) gaps *=-1;
+
+        dto.setCurrent((double) current);
+        dto.setPrevious((double) previous);
+        dto.setGaps((double) gaps);
+        dto.setTotal((double) total);
+
+        return dto;
+    }
+
+    @Override
+    public List<LineChartAccountDto> getChartData(int month, int year) {
+        List<LineChartAccountDto> dataSource = new ArrayList<>();
+        if (month <= 0 || month > 12)
+            throw new AgriMartException(HttpStatus.BAD_REQUEST, "Month is invalid, m=" + month);
+
+        for (int i = 1; i <= 12; i++) {
+            LineChartAccountDto item = new LineChartAccountDto();
+            long user = userRepository.countUsersByMonthAndYear(i, year);
+            long supplier = supplierRepository.countSuppliersByMonthAndYear(i, year);
+            String name = AppConstants.listMonths[i - 1];
+
+            item.setName(name);
+            item.setUser((double) user);
+            item.setSupplier((double) supplier);
+
+            dataSource.add(item);
+        }
+
+        return dataSource;
     }
 }
