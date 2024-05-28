@@ -14,10 +14,10 @@ public interface SupplierRepository extends JpaRepository<Supplier, Long> {
     Boolean existsByEmail(String email);
     Optional<Supplier> findByPublicKey(String publicKey);
     Optional<Page<Supplier>> findByIsActive(Boolean isActive, Pageable pageable);
-    @Query(nativeQuery = true, value = "SELECT COUNT(*) FROM tbl_supplier WHERE is_active = 0")
-    long countRegisterAccount();
-    @Query(nativeQuery = true, value = "SELECT COUNT(*) FROM tbl_supplier WHERE is_active = 1")
-    long countTotalSupplier();
+    @Query(nativeQuery = true, value = "SELECT COUNT(*) FROM tbl_supplier WHERE is_active = 0 AND YEAR(date_created) = :year")
+    long countRegisterAccount(@Param("year") int year);
+    @Query(nativeQuery = true, value = "SELECT COUNT(*) FROM tbl_supplier WHERE is_active = 1 AND YEAR(date_created) = :year")
+    long countTotalSupplier(@Param("year") int year);
     @Query(nativeQuery = true, value = "SELECT COUNT(*) FROM tbl_supplier s WHERE MONTH(s.date_created) = :month AND YEAR(s.date_created) = :year")
     long countSuppliersByMonthAndYear(@Param("month") int month, @Param("year") int year);
 }

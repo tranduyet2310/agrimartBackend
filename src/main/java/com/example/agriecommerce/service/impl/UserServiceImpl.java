@@ -14,6 +14,10 @@ import com.example.agriecommerce.repository.UserRepository;
 import com.example.agriecommerce.service.CloudinaryService;
 import com.example.agriecommerce.service.UserService;
 import com.example.agriecommerce.utils.AppConstants;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.UserRecord;
+import com.google.firebase.messaging.FirebaseMessagingException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -122,7 +126,7 @@ public class UserServiceImpl implements UserService {
         Map result = cloudinaryService.upload(file);
         // save to images table
         Image image = new Image((String) result.get("original_filename"),
-                (String) result.get("url"),
+                (String) result.get("secure_url"),
                 (String) result.get("public_id"));
         imageRepository.save(image);
 
@@ -137,26 +141,32 @@ public class UserServiceImpl implements UserService {
             imageRepository.delete(oldImage);
         }
 
-        user.setAvatar((String) result.get("url"));
+        user.setAvatar((String) result.get("secure_url"));
         User updatedUser = userRepository.save(user);
 
         return modelMapper.map(updatedUser, UserDto.class);
     }
 
     @Override
-    public UserDto changePassword(Long userId, PasswordDto passwordDto) {
+    public UserDto changePassword(Long userId, PasswordDto passwordDto) throws FirebaseAuthException {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new ResourceNotFoundException("user", "id", userId)
         );
 
         user.setId(userId);
         String currentPass = passwordDto.getCurrentPass();
+
+        // Firebase
+        String userUid = getUserUidByEmail(user.getEmail());
+        UserRecord.UpdateRequest request = new UserRecord.UpdateRequest(userUid)
+                .setPassword(passwordDto.getNewPass());
+        FirebaseAuth.getInstance().updateUser(request);
+
         if (passwordEncoder.matches(currentPass, user.getPassword())) {
             String encryptPass = passwordEncoder.encode(passwordDto.getNewPass());
             user.setPassword(encryptPass);
         } else
             throw new AgriMartException(HttpStatus.BAD_REQUEST, "Password does not match");
-
         User updatedUser = userRepository.save(user);
 
         return modelMapper.map(updatedUser, UserDto.class);
@@ -193,6 +203,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Boolean checkAccountStatus(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new ResourceNotFoundException("Email does not exists in DB")
+        );
+        return user.getStatus() == 1;
+    }
+
+    @Override
     public UserDto updateStatusAccount(Long userId, Integer status) {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new ResourceNotFoundException("User does not exists in DB")
@@ -214,7 +232,7 @@ public class UserServiceImpl implements UserService {
         }
         long current = userRepository.countUsersByMonthAndYear(month, year);
         long previous = userRepository.countUsersByMonthAndYear(previousMonth, previousYear);
-        long total = userRepository.countTotalUser();
+        long total = userRepository.countTotalUser(previousYear);
         long gaps = current - previous;
         if (gaps < 0) gaps *=-1;
 
@@ -246,5 +264,11 @@ public class UserServiceImpl implements UserService {
         }
 
         return dataSource;
+    }
+
+    @Override
+    public String getUserUidByEmail(String email) throws FirebaseAuthException {
+        UserRecord userRecord = FirebaseAuth.getInstance().getUserByEmail(email);
+        return userRecord.getUid();
     }
 }

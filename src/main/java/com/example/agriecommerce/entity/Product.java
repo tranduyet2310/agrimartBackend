@@ -5,7 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -51,4 +53,6 @@ public class Product {
     @JoinColumn(name = "product_id")
     private List<Image> images;
     private Long sold;
+    @CreationTimestamp
+    private LocalDateTime dateCreated;
 }

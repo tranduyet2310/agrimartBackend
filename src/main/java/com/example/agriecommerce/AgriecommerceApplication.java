@@ -36,13 +36,17 @@ public class AgriecommerceApplication {
     }
 
     @Bean
-    FirebaseMessaging firebaseMessaging() throws IOException {
+    public FirebaseMessaging firebaseMessaging(FirebaseApp firebaseApp){
+        return FirebaseMessaging.getInstance(firebaseApp);
+    }
+
+    @Bean
+    public FirebaseApp firebaseApp() throws IOException {
         GoogleCredentials googleCredentials = GoogleCredentials.fromStream(
                 new ClassPathResource("firebase-service-account.json").getInputStream());
         FirebaseOptions firebaseOptions = FirebaseOptions.builder()
                 .setCredentials(googleCredentials).build();
-        FirebaseApp app = FirebaseApp.initializeApp(firebaseOptions, "agrimart");
-        return FirebaseMessaging.getInstance(app);
+        return FirebaseApp.initializeApp(firebaseOptions);
     }
 
     public static void main(String[] args) {

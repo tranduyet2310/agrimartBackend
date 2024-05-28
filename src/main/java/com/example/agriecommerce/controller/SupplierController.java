@@ -121,8 +121,8 @@ public class SupplierController {
     }
 
     @GetMapping("register")
-    public ResponseEntity<ResultDto> countRegisterAccount(){
-        return ResponseEntity.ok(supplierService.countRegisterAccount());
+    public ResponseEntity<ResultDto> countRegisterAccount(@RequestParam("y") int year){
+        return ResponseEntity.ok(supplierService.countRegisterAccount(year));
     }
 
     @GetMapping("statistic")

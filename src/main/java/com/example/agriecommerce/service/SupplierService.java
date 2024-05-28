@@ -28,6 +28,6 @@ public interface SupplierService {
     AESDto getRSAPubKey(Long supplierId);
     SupplierDto updateFcmToken(Long supplierId, String fcmToken);
     ResultDto updateAccountStatus(Long supplierId, boolean state);
-    ResultDto countRegisterAccount();
+    ResultDto countRegisterAccount(int year);
     ComparationDto getStatisticSupplier(int month, int year);
 }

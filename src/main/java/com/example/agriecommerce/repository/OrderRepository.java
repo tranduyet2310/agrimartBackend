@@ -27,7 +27,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             "CROSS JOIN tbl_order_detail od ON o.id = od.order_id " +
             "LEFT JOIN tbl_product p ON p.id = od.product_id " +
             "LEFT JOIN tbl_warehouse w on p.warehouse_id = w.id " +
-            "WHERE p.supplier_id = :supplierId AND date_created like :date")
+            "WHERE p.supplier_id = :supplierId AND o.date_created like :date")
     Optional<Page<OrderInfoDto>> findOrderBySupplier(@Param("supplierId") Long supplierId,
                                                      @Param("date") String date, Pageable pageable);
     @Query(nativeQuery = true, value = "SELECT  o.id as id, o.order_status as orderStatus, o.total as total, " +
@@ -37,7 +37,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             "CROSS JOIN tbl_order_detail od ON o.id = od.order_id " +
             "LEFT JOIN tbl_product p ON p.id = od.product_id " +
             "LEFT JOIN tbl_user u on u.id = o.user_id " +
-            "WHERE p.supplier_id = :supplierId and date_created like :date")
+            "WHERE p.supplier_id = :supplierId and o.date_created like :date")
     Optional<List<OrderStatistic>> getOrderStatistic(@Param("supplierId") Long supplierId, @Param("date") String date);
 
     @Query(nativeQuery = true, value = "SELECT DISTINCT o.id as id, o.order_status as orderStatus, o.total as total, u.full_name as fullName  " +
@@ -45,14 +45,14 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             "CROSS JOIN tbl_order_detail od ON o.id = od.order_id " +
             "LEFT JOIN tbl_product p ON p.id = od.product_id " +
             "LEFT JOIN tbl_user u on u.id = o.user_id " +
-            "WHERE p.supplier_id = :supplierId and date_created like :date")
+            "WHERE p.supplier_id = :supplierId and o.date_created like :date")
     Optional<List<OrderStatistic>> getRecentOrderStatistic(@Param("supplierId") Long supplierId, @Param("date") String date);
 
     @Query(nativeQuery = true, value = "SELECT COALESCE(SUM(o.total), 0) as total, COALESCE(SUM(od.quantity), 0) as quantity " +
             "FROM tbl_order o " +
             "CROSS JOIN tbl_order_detail od ON o.id = od.order_id " +
             "LEFT JOIN tbl_product p ON p.id = od.product_id " +
-            "WHERE p.supplier_id = :supplierId and date_created like :date")
+            "WHERE p.supplier_id = :supplierId and o.date_created like :date")
     Optional<OrderStatistic> getStatistic(@Param("supplierId") Long supplierId, @Param("date") String date);
 
     @Query(nativeQuery = true, value = "SELECT COUNT(*) FROM tbl_order o " +

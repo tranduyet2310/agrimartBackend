@@ -1,5 +1,6 @@
 package com.example.agriecommerce.controller;
 
+import com.example.agriecommerce.exception.AgriMartException;
 import com.example.agriecommerce.payload.*;
 import com.example.agriecommerce.service.AuthService;
 import com.example.agriecommerce.service.SupplierService;
@@ -30,12 +31,18 @@ public class AuthController {
     public ResponseEntity<JWTAuthResponse> login(@RequestBody LoginDto loginDto) {
         String token = authService.login(loginDto);
         JWTAuthResponse jwtAuthResponse = new JWTAuthResponse();
-        jwtAuthResponse.setAccessToken(token);
 
         Long userId = userService.getUserIdByEmail(loginDto.getEmail());
         Boolean role = userService.checkAdminRole(loginDto.getEmail());
-        jwtAuthResponse.setUserId(userId);
-        jwtAuthResponse.setAdmin(role);
+        Boolean status = userService.checkAccountStatus(loginDto.getEmail());
+
+        if (status){
+            jwtAuthResponse.setAccessToken(token);
+            jwtAuthResponse.setUserId(userId);
+            jwtAuthResponse.setAdmin(role);
+        } else {
+            throw new AgriMartException(HttpStatus.BAD_REQUEST, "Account is banned");
+        }
 
         return ResponseEntity.ok(jwtAuthResponse);
     }
@@ -47,6 +54,7 @@ public class AuthController {
 
         Long supplierId = supplierService.getSupplierIdByEmail(loginDto.getEmail());
         Boolean status = supplierService.checkAccountStatus(loginDto.getEmail());
+
         if (status){
             jwtAuthResponse.setAccessToken(token);
             jwtAuthResponse.setSupplierId(supplierId);

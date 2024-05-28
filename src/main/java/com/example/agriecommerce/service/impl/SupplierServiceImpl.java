@@ -299,8 +299,8 @@ public class SupplierServiceImpl implements SupplierService {
     }
 
     @Override
-    public ResultDto countRegisterAccount() {
-        long total = supplierRepository.countRegisterAccount();
+    public ResultDto countRegisterAccount(int year) {
+        long total = supplierRepository.countRegisterAccount(year);
         return new ResultDto(true, total+"");
     }
 
@@ -315,7 +315,7 @@ public class SupplierServiceImpl implements SupplierService {
         }
         long current = supplierRepository.countSuppliersByMonthAndYear(month, year);
         long previous = supplierRepository.countSuppliersByMonthAndYear(previousMonth, previousYear);
-        long total = supplierRepository.countTotalSupplier();
+        long total = supplierRepository.countTotalSupplier(previousYear);
 
         long gaps = current - previous;
         if (gaps < 0) gaps *=-1;

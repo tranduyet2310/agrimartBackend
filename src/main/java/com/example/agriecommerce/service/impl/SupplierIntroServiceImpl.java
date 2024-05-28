@@ -57,7 +57,7 @@ public class SupplierIntroServiceImpl implements SupplierIntroService {
             Map result = cloudinaryService.upload(file);
             // save to images table
             Image image = new Image((String) result.get("original_filename"),
-                    (String) result.get("url"),
+                    (String) result.get("secure_url"),
                     (String) result.get("public_id"));
             images.add(image);
         }
@@ -109,7 +109,7 @@ public class SupplierIntroServiceImpl implements SupplierIntroService {
             Map result = cloudinaryService.upload(file);
             // save to images table
             Image image = new Image((String) result.get("original_filename"),
-                    (String) result.get("url"),
+                    (String) result.get("secure_url"),
                     (String) result.get("public_id"));
             images.add(image);
         }

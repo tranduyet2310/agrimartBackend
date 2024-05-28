@@ -30,5 +30,5 @@ public interface ProductService {
     List<CategoryDto> getCategoryBySupplierId(Long supplierId);
     ResultDto countTotalProducts(Long supplierId);
     ResultDto countSoldProducts(Long supplierId);
-    ResultDto countAllProducts();
+    ComparationDto getStatisticProduct(int month, int year);
 }

@@ -1,9 +1,12 @@
 package com.example.agriecommerce.controller;
 
+import com.example.agriecommerce.exception.AgriMartException;
 import com.example.agriecommerce.payload.*;
 import com.example.agriecommerce.service.UserService;
 import com.example.agriecommerce.utils.AppConstants;
+import com.google.firebase.auth.FirebaseAuthException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -63,7 +66,11 @@ public class UserController {
     @PreAuthorize(("hasRole('USER')"))
     public ResponseEntity<UserDto> changePassword(@PathVariable("id") Long userId,
                                                   @RequestBody PasswordDto passwordDto) {
-        return ResponseEntity.ok(userService.changePassword(userId, passwordDto));
+        try {
+            return ResponseEntity.ok(userService.changePassword(userId, passwordDto));
+        } catch (FirebaseAuthException e) {
+            throw new AgriMartException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
     }
 
     @PatchMapping("{id}/fcm")

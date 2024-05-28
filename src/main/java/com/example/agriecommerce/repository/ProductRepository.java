@@ -16,15 +16,16 @@ import java.util.Set;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
     Optional<Page<Product>> findBySupplierId(Long supplierId, Pageable pageable);
+    Optional<Page<Product>> findByIsActive(Boolean isActive, Pageable pageable);
 
-    Optional<Page<Product>> findByCategoryId(Long categoryId, Pageable pageable);
+    Optional<Page<Product>> findByCategoryIdAndIsActive(Long categoryId, Boolean isActive, Pageable pageable);
 
-    Optional<Page<Product>> findBySubCategoryId(Long subcategoryId, Pageable pageable);
+    Optional<Page<Product>> findBySubCategoryIdAndIsActive(Long subcategoryId, Boolean isActive , Pageable pageable);
 
-    @Query("SELECT p FROM Product p WHERE p.discountPrice > 0")
+    @Query("SELECT p FROM Product p WHERE p.discountPrice > 0 AND p.isActive = true")
     Optional<Page<Product>> findProductsWithDiscount(Pageable pageable);
 
-    @Query("SELECT p FROM Product p WHERE p.isNew = true")
+    @Query("SELECT p FROM Product p WHERE p.isNew = true AND p.isActive = true")
     Optional<Page<Product>> findUpcomingProduct(Pageable pageable);
 
     @Query("SELECT p FROM Product p WHERE " +
@@ -44,11 +45,17 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "LEFT JOIN tbl_subcategory s ON c.id = s.category_id " +
             "WHERE p.supplier_id = :supplierId", nativeQuery = true)
     List<SupplierCategory> getCategoryBySupplierId(@Param("supplierId") Long supplierId);
+
     @Query(nativeQuery = true, value = "SELECT COALESCE(SUM(sold), 0) FROM tbl_product WHERE supplier_id = :supplierId")
     Long countSoldProduct(@Param("supplierId") Long supplierId);
+
     @Query(nativeQuery = true, value = "SELECT COUNT(*) FROM tbl_product WHERE supplier_id = :supplierId")
     Long countProducts(@Param("supplierId") Long supplierId);
 
-    @Query("SELECT COUNT(p) FROM Product p")
-    long countAllProducts();
+    @Query(nativeQuery = true, value = "SELECT COUNT(*) FROM tbl_product WHERE YEAR(date_created) = :year")
+    long countAllProductsByYears(@Param("year") int year);
+
+    @Query(nativeQuery = true, value = "SELECT COUNT(*) FROM tbl_product p " +
+            "WHERE MONTH(p.date_created) = :month AND YEAR(p.date_created) = :year")
+    long countProductsByMonthAndYear(@Param("month") int month, @Param("year") int year);
 }

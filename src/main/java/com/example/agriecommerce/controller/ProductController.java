@@ -62,18 +62,18 @@ public class ProductController {
     @PostMapping("/{id}/v2")
     @PreAuthorize(("hasRole('SUPPLIER')"))
     public ResponseEntity<ProductDto> createProduct_Encrypt(@PathVariable("id") Long supplierId,
-                                                      @RequestParam("productName") String productName,
-                                                      @RequestParam("description") String description,
-                                                      @RequestParam("standardPrice") Long standardPrice,
-                                                      @RequestParam("discountPrice") Long discountPrice,
-                                                      @RequestParam("quantity") Integer quantity,
-                                                      @RequestParam("isActive") Boolean isActive,
-                                                      @RequestParam("isNew") Boolean isNew,
-                                                      @RequestParam("isAvailable") Boolean isAvailable,
-                                                      @RequestParam("categoryName") String categoryName,
-                                                      @RequestParam("subCategoryName") String subCategoryName,
-                                                      @RequestParam("warehouseName") String warehouseName,
-                                                      @RequestParam("file") MultipartFile[] multipartFiles) {
+                                                            @RequestParam("productName") String productName,
+                                                            @RequestParam("description") String description,
+                                                            @RequestParam("standardPrice") Long standardPrice,
+                                                            @RequestParam("discountPrice") Long discountPrice,
+                                                            @RequestParam("quantity") Integer quantity,
+                                                            @RequestParam("isActive") Boolean isActive,
+                                                            @RequestParam("isNew") Boolean isNew,
+                                                            @RequestParam("isAvailable") Boolean isAvailable,
+                                                            @RequestParam("categoryName") String categoryName,
+                                                            @RequestParam("subCategoryName") String subCategoryName,
+                                                            @RequestParam("warehouseName") String warehouseName,
+                                                            @RequestParam("file") MultipartFile[] multipartFiles) {
         ProductDto productDto = new ProductDto();
         productDto.setProductName(productName.substring(1, productName.length() - 1));
         productDto.setDescription(description.substring(1, description.length() - 1));
@@ -267,7 +267,7 @@ public class ProductController {
     @PatchMapping("{productId}/quantity")
     @PreAuthorize(("hasRole('USER')"))
     public ResponseEntity<ProductDto> decreaseQuantity(@PathVariable("productId") Long productId,
-                                                         @RequestParam("quantity") Integer quantity) {
+                                                       @RequestParam("quantity") Integer quantity) {
         return ResponseEntity.ok(productService.decreaseQuantity(productId, quantity));
     }
 
@@ -293,7 +293,8 @@ public class ProductController {
     }
 
     @GetMapping("total")
-    public ResponseEntity<ResultDto> countAllProducts() {
-        return ResponseEntity.ok(productService.countAllProducts());
+    public ResponseEntity<ComparationDto> getStatisticProduct(@RequestParam("m") int month,
+                                                              @RequestParam("y") int year) {
+        return ResponseEntity.ok(productService.getStatisticProduct(month, year));
     }
 }

@@ -18,6 +18,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<Page<User>> findByRoles(Role role, Pageable pageable);
     @Query(nativeQuery = true, value = "SELECT COUNT(*) FROM tbl_user u WHERE MONTH(u.date_created) = :month AND YEAR(u.date_created) = :year")
     long countUsersByMonthAndYear(@Param("month") int month, @Param("year") int year);
-    @Query(nativeQuery = true, value = "SELECT COUNT(*) FROM tbl_user")
-    long countTotalUser();
+    @Query(nativeQuery = true, value = "SELECT COUNT(*) FROM tbl_user WHERE YEAR(date_created) = :year")
+    long countTotalUser(@Param("year") int year);
 }

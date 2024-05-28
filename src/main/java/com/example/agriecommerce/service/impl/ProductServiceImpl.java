@@ -107,11 +107,11 @@ public class ProductServiceImpl implements ProductService {
             Map result = cloudinaryService.upload(files.get(i));
             // save to images table
             Image image = new Image((String) result.get("original_filename"),
-                    (String) result.get("url"),
+                    (String) result.get("secure_url"),
                     (String) result.get("public_id"));
             images.add(image);
             if (i == 0) {
-                product.setProductImage((String) result.get("url"));
+                product.setProductImage((String) result.get("secure_url"));
             }
         }
         product.setImages(images);
@@ -175,11 +175,11 @@ public class ProductServiceImpl implements ProductService {
             Map result = cloudinaryService.upload(files.get(i));
             // save to images table
             Image image = new Image((String) result.get("original_filename"),
-                    (String) result.get("url"),
+                    (String) result.get("secure_url"),
                     (String) result.get("public_id"));
             images.add(image);
             if (i == 0) {
-                product.setProductImage((String) result.get("url"));
+                product.setProductImage((String) result.get("secure_url"));
             }
         }
         product.setImages(images);
@@ -265,7 +265,9 @@ public class ProductServiceImpl implements ProductService {
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
-        Page<Product> productPage = productRepository.findAll(pageable);
+        Page<Product> productPage = productRepository.findByIsActive(true, pageable).orElseThrow(
+                () -> new ResourceNotFoundException("Don't have any active products")
+        );
 
         List<Product> products = productPage.getContent();
         List<ProductDto> content = products.stream().map(product -> modelMapper.map(product, ProductDto.class)).toList();
@@ -286,7 +288,7 @@ public class ProductServiceImpl implements ProductService {
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
-        Page<Product> productPage = productRepository.findByCategoryId(categoryId, pageable).orElseThrow(
+        Page<Product> productPage = productRepository.findByCategoryIdAndIsActive(categoryId, true, pageable).orElseThrow(
                 () -> new ResourceNotFoundException("Don't have any product with category id " + categoryId)
         );
 
@@ -309,7 +311,7 @@ public class ProductServiceImpl implements ProductService {
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
-        Page<Product> productPage = productRepository.findBySubCategoryId(subcategoryId, pageable).orElseThrow(
+        Page<Product> productPage = productRepository.findBySubCategoryIdAndIsActive(subcategoryId, true, pageable).orElseThrow(
                 () -> new ResourceNotFoundException("Don't have any product with subcategory id " + subcategoryId)
         );
 
@@ -520,11 +522,11 @@ public class ProductServiceImpl implements ProductService {
             Map result = cloudinaryService.upload(files.get(i));
             // save to images table
             Image image = new Image((String) result.get("original_filename"),
-                    (String) result.get("url"),
+                    (String) result.get("secure_url"),
                     (String) result.get("public_id"));
             images.add(image);
             if (i == 0) {
-                product.setProductImage((String) result.get("url"));
+                product.setProductImage((String) result.get("secure_url"));
             }
         }
         imageList.addAll(images);
@@ -722,8 +724,25 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ResultDto countAllProducts() {
-        long total = productRepository.countAllProducts();
-        return new ResultDto(true, total+"");
+    public ComparationDto getStatisticProduct(int month, int year) {
+        ComparationDto dto = new ComparationDto();
+        int previousMonth = month - 1;
+        int previousYear = year;
+        if (previousMonth == 0){
+            previousMonth = 12;
+            previousYear = year - 1;
+        }
+        long current = productRepository.countProductsByMonthAndYear(month, year);
+        long previous = productRepository.countProductsByMonthAndYear(previousMonth, previousYear);
+        long total = productRepository.countAllProductsByYears(previousYear);
+        long gaps = current - previous;
+        if (gaps < 0) gaps *=-1;
+
+        dto.setCurrent((double) current);
+        dto.setPrevious((double) previous);
+        dto.setGaps((double) gaps);
+        dto.setTotal((double) total);
+
+        return dto;
     }
 }

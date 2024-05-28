@@ -185,7 +185,8 @@ public class FieldServiceImpl implements FieldService {
         }
         long current = fieldRepository.countFieldByMonthAndYear(month, year);
         long previous = fieldRepository.countFieldByMonthAndYear(previousMonth, previousYear);
-        long total = fieldRepository.countTotalField();
+        long total = fieldRepository.countTotalField(previousYear);
+
         long gaps = current - previous;
         if (gaps < 0) gaps *= -1;
 
