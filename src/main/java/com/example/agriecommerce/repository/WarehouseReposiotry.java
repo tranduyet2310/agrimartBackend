@@ -1,6 +1,5 @@
 package com.example.agriecommerce.repository;
 
-import com.example.agriecommerce.entity.Product;
 import com.example.agriecommerce.entity.Warehouse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

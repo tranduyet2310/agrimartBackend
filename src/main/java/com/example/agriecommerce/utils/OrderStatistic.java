@@ -1,6 +1,5 @@
 package com.example.agriecommerce.utils;
 
-import com.example.agriecommerce.entity.OrderStatus;
 import org.springframework.beans.factory.annotation.Value;
 
 public interface OrderStatistic {

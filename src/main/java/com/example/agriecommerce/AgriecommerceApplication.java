@@ -6,6 +6,11 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.messaging.FirebaseMessaging;
+import io.swagger.v3.oas.annotations.ExternalDocumentation;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.info.Contact;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.info.License;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -24,6 +29,18 @@ import static com.example.agriecommerce.utils.AppConstants.*;
 
 @SpringBootApplication
 @EnableScheduling
+@OpenAPIDefinition(
+        info = @Info(
+                title = "Spring Boot REST API Documentation",
+                description = "API Documenation for Agrimart",
+                version = "v1.0",
+                contact = @Contact(
+                        name = "Duyet",
+                        email = "trantheduyetsl@gmail.com",
+                        url = "https://github.com/tranduyet2310"
+                )
+        )
+)
 public class AgriecommerceApplication {
     @Bean
     public Cloudinary getCloudinary() {

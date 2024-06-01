@@ -26,6 +26,13 @@ public class SupplierController {
     public ResponseEntity<SupplierDto> getSupplierById(@PathVariable("id") Long supplierId) {
         return ResponseEntity.ok(supplierService.getSupplierById(supplierId));
     }
+
+    @GetMapping("{id}/v2")
+    @PreAuthorize(("hasRole('SUPPLIER')"))
+    public ResponseEntity<SupplierDto> getSupplierByIdV2(@PathVariable("id") Long supplierId) {
+        return ResponseEntity.ok(supplierService.getSupplierByIdV2(supplierId));
+    }
+
     @GetMapping("{id}/info")
     @PreAuthorize(("hasRole('ADMIN')"))
     public ResponseEntity<SupplierDto> getSupplierInfoById(@PathVariable("id") Long supplierId) {

@@ -13,6 +13,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import static com.example.agriecommerce.utils.AppConstants.*;
 
@@ -29,6 +30,7 @@ public class FieldDetailServiceImpl implements FieldDetailService {
     }
 
     @Override
+    @Transactional
     public FieldDetailDto createFieldDetail(Long fieldId, FieldDetailDto fieldDetailDto) {
         Field field = fieldRepository.findById(fieldId).orElseThrow(
                 () -> new ResourceNotFoundException("field does not exists")
@@ -56,6 +58,7 @@ public class FieldDetailServiceImpl implements FieldDetailService {
     }
 
     @Override
+    @Transactional
     public FieldDetailDto updateFieldDetail(Long fieldId, FieldDetailDto fieldDetailDto) {
         Field field = fieldRepository.findById(fieldId).orElseThrow(
                 () -> new ResourceNotFoundException("field does not exists")
@@ -75,6 +78,7 @@ public class FieldDetailServiceImpl implements FieldDetailService {
     }
 
     @Override
+    @Transactional
     public ResultDto deleteFieldDetail(Long fieldDetailId) {
         FieldDetail detail = fieldDetailRepository.findById(fieldDetailId).orElseThrow(
                 () -> new ResourceNotFoundException("field detail does not exists")

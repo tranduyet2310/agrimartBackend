@@ -1,11 +1,12 @@
 package com.example.agriecommerce.service.impl;
 
-import com.example.agriecommerce.entity.*;
+import com.example.agriecommerce.entity.Cooperation;
+import com.example.agriecommerce.entity.CooperativePayment;
+import com.example.agriecommerce.entity.Supplier;
+import com.example.agriecommerce.entity.User;
 import com.example.agriecommerce.exception.ResourceNotFoundException;
 import com.example.agriecommerce.payload.CooperativePaymentDto;
 import com.example.agriecommerce.payload.CooperativePaymentResponse;
-import com.example.agriecommerce.payload.OrderDto;
-import com.example.agriecommerce.payload.OrderResponse;
 import com.example.agriecommerce.repository.CooperationRepository;
 import com.example.agriecommerce.repository.CooperativePaymentRepository;
 import com.example.agriecommerce.repository.SupplierRepository;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,6 +46,7 @@ public class CooperativePaymentServiceImpl implements CooperativePaymentService 
     }
 
     @Override
+    @Transactional
     public CooperativePaymentDto createOrder(Long userId, CooperativePaymentDto paymentDto) {
         Long supplierId = paymentDto.getSupplierId();
         Long cooperationId = paymentDto.getCooperationId();

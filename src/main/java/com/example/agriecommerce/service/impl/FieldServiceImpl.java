@@ -10,6 +10,7 @@ import com.example.agriecommerce.repository.SupplierRepository;
 import com.example.agriecommerce.service.FieldService;
 import com.example.agriecommerce.utils.AppConstants;
 import com.example.agriecommerce.utils.CropsNameStatistic;
+import com.example.agriecommerce.utils.OrderStatus;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +44,7 @@ public class FieldServiceImpl implements FieldService {
     }
 
     @Override
+    @Transactional
     public FieldDto createNewCrops(Long supplierId, FieldDto fieldDto) {
         Supplier supplier = supplierRepository.findById(supplierId).orElseThrow(
                 () -> new ResourceNotFoundException("supplier does not exists")
@@ -67,6 +70,7 @@ public class FieldServiceImpl implements FieldService {
     }
 
     @Override
+    @Transactional
     public FieldDto updateCropsField(Long fieldId, FieldDto fieldDto) {
         Field field = fieldRepository.findById(fieldId).orElseThrow(
                 () -> new ResourceNotFoundException("field does not exists")
@@ -83,6 +87,7 @@ public class FieldServiceImpl implements FieldService {
     }
 
     @Override
+    @Transactional
     public FieldDto updateYield(Long fieldId, FieldDto fieldDto) {
         Field field = fieldRepository.findById(fieldId).orElseThrow(
                 () -> new ResourceNotFoundException("field does not exists")
@@ -106,6 +111,7 @@ public class FieldServiceImpl implements FieldService {
     }
 
     @Override
+    @Transactional
     public FieldDto completeCrops(Long fieldId) {
         Field field = fieldRepository.findById(fieldId).orElseThrow(
                 () -> new ResourceNotFoundException("field does not exists")

@@ -1,9 +1,10 @@
-package com.example.agriecommerce.utils;
+package com.example.agriecommerce.utils.encrypt;
 
 import com.example.agriecommerce.exception.AgriMartException;
 import com.example.agriecommerce.payload.ProductDto;
 import com.example.agriecommerce.payload.SupplierDto;
 import com.example.agriecommerce.payload.WarehouseDto;
+import com.example.agriecommerce.utils.encrypt.AES;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

@@ -48,10 +48,10 @@ public class CategoryServiceImpl implements CategoryService {
         category.setCategoryName(categoryName);
 
         Map result = cloudinaryService.upload(file);
-        category.setCategoryImage((String) result.get("url"));
+        category.setCategoryImage((String) result.get("secure_url"));
         // save to images table
         Image image = new Image((String) result.get("original_filename"),
-                (String) result.get("url"),
+                (String) result.get("secure_url"),
                 (String) result.get("public_id"));
         imageRepository.save(image);
 
@@ -110,9 +110,9 @@ public class CategoryServiceImpl implements CategoryService {
             imageRepository.delete(oldImage);
 
             Map result = cloudinaryService.upload(file);
-            category.setCategoryImage((String) result.get("url"));
+            category.setCategoryImage((String) result.get("secure_url"));
             Image newImage = new Image((String) result.get("original_filename"),
-                    (String) result.get("url"),
+                    (String) result.get("secure_url"),
                     (String) result.get("public_id"));
             imageRepository.save(newImage);
         }
@@ -123,6 +123,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional
     public CategoryDto updateCategoryInfo(String categoryName, Long id) {
         Category category = categoryRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("category", "id", id)

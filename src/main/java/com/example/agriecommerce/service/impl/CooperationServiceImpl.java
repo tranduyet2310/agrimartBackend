@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,6 +42,7 @@ public class CooperationServiceImpl implements CooperationService {
     }
 
     @Override
+    @Transactional
     public CooperationDto createCooperation(Long supplierId, CooperationDto cooperationDto) {
         Supplier supplier = supplierRepository.findById(supplierId).orElseThrow(
                 () -> new ResourceNotFoundException("supplier does not exists")
@@ -74,6 +76,7 @@ public class CooperationServiceImpl implements CooperationService {
     }
 
     @Override
+    @Transactional
     public CooperationDto updateCooperation(Long cooperationId, CooperationDto cooperationDto) {
         Cooperation cooperation = cooperationRepository.findById(cooperationId).orElseThrow(
                 () -> new ResourceNotFoundException("cooperation does not exists")
@@ -196,6 +199,7 @@ public class CooperationServiceImpl implements CooperationService {
     }
 
     @Override
+    @Transactional
     public CooperationDto updateStatus(Long cooperationId, CooperationDto cooperationDto) {
         Cooperation cooperation = cooperationRepository.findById(cooperationId).orElseThrow(
                 () -> new ResourceNotFoundException("cooperation does not exists")
@@ -208,6 +212,7 @@ public class CooperationServiceImpl implements CooperationService {
     }
 
     @Override
+    @Transactional
     public CooperationDto updateAddress(Long cooperationId, Long addressId) {
         Cooperation cooperation = cooperationRepository.findById(cooperationId).orElseThrow(
                 () -> new ResourceNotFoundException("cooperation does not exists")
@@ -224,6 +229,7 @@ public class CooperationServiceImpl implements CooperationService {
     }
 
     @Override
+    @Transactional
     public CooperationDto updatePayment(Long cooperationId, CooperationDto cooperationDto) {
         Cooperation cooperation = cooperationRepository.findById(cooperationId).orElseThrow(
                 () -> new ResourceNotFoundException("cooperation does not exists")

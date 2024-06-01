@@ -1,6 +1,5 @@
 package com.example.agriecommerce.utils;
 
-import com.example.agriecommerce.entity.OrderStatus;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 import org.springframework.stereotype.Component;

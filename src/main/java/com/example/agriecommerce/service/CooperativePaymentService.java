@@ -1,8 +1,7 @@
 package com.example.agriecommerce.service;
 
-import com.example.agriecommerce.payload.*;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import com.example.agriecommerce.payload.CooperativePaymentDto;
+import com.example.agriecommerce.payload.CooperativePaymentResponse;
 
 public interface CooperativePaymentService {
     CooperativePaymentDto createOrder(Long userId, CooperativePaymentDto paymentDto);

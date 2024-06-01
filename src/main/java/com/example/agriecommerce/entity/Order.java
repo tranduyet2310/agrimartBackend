@@ -1,5 +1,6 @@
 package com.example.agriecommerce.entity;
 
+import com.example.agriecommerce.utils.OrderStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -9,7 +9,6 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 
 @Setter
 @Getter
@@ -46,14 +45,6 @@ public class Supplier {
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "bank_info_id", referencedColumnName = "id")
     private SupplierBankInfo bankInfo;
-
-//    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-//    @JoinTable(name = "tbl_supplier_role",
-//            joinColumns = @JoinColumn(name = "supplier_id", referencedColumnName = "id"),
-//            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")
-//    )
-//    private Set<Role> roles;
-
     @ManyToOne
     @JoinColumn(name = "role_id")
     private Role roles;
@@ -62,12 +53,10 @@ public class Supplier {
 
     @Column(name = "aes_key")
     private String aesKey;
-
     @Column(name = "iv")
     private String iv;
     @Column(name = "is_active")
     private boolean isActive;
-
     @Column(name = "fcm")
     private String fcmToken;
     @CreationTimestamp

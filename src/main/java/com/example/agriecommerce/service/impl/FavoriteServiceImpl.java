@@ -15,6 +15,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
@@ -39,6 +40,7 @@ public class FavoriteServiceImpl implements FavoriteService {
     }
 
     @Override
+    @Transactional
     public FavoriteDto createFavoriteProduct(Long userId, Long productId) {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new ResourceNotFoundException("user", "id", userId)
@@ -75,6 +77,7 @@ public class FavoriteServiceImpl implements FavoriteService {
     }
 
     @Override
+    @Transactional
     public void deleteFavoriteProductById(Long id, Long userId) {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new ResourceNotFoundException("user", "id", userId)
@@ -90,6 +93,7 @@ public class FavoriteServiceImpl implements FavoriteService {
     }
 
     @Override
+    @Transactional
     public ResultDto deleteFavoriteProduct(Long userId, Long productId) {
         Favorite favorite = favoriteRepository.findByUserIdAndProductId(userId, productId).orElseThrow(
                 () -> new ResourceNotFoundException("favorite does not exists with userId, productId: " + userId + "-" + productId)

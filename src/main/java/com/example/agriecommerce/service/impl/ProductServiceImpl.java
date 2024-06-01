@@ -7,8 +7,7 @@ import com.example.agriecommerce.payload.*;
 import com.example.agriecommerce.repository.*;
 import com.example.agriecommerce.service.CloudinaryService;
 import com.example.agriecommerce.service.ProductService;
-import com.example.agriecommerce.utils.AES;
-import com.example.agriecommerce.utils.Encryption;
+import com.example.agriecommerce.utils.encrypt.Encryption;
 import com.example.agriecommerce.utils.SupplierCategory;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -538,6 +537,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public ProductDto updateProductInfo(Long supplierId, Long productId, ProductDto productDto) {
         Supplier supplier = supplierRepository.findById(supplierId).orElseThrow(
                 () -> new ResourceNotFoundException("supplier", "id", supplierId)
@@ -589,6 +589,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public ResultDto deleteProduct(Long supplierId, Long productId) {
         Supplier supplier = supplierRepository.findById(supplierId).orElseThrow(
                 () -> new ResourceNotFoundException("supplier", "id", supplierId)

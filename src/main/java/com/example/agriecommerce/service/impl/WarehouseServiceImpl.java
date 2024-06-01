@@ -10,7 +10,7 @@ import com.example.agriecommerce.payload.WarehouseResponse;
 import com.example.agriecommerce.repository.SupplierRepository;
 import com.example.agriecommerce.repository.WarehouseReposiotry;
 import com.example.agriecommerce.service.WarehouseService;
-import com.example.agriecommerce.utils.AES;
+import com.example.agriecommerce.utils.encrypt.AES;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,9 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class WarehouseServiceImpl implements WarehouseService {
@@ -121,27 +119,14 @@ public class WarehouseServiceImpl implements WarehouseService {
         List<Warehouse> warehouseList = warehouseReposiotry.findBySupplierId(supplierId).orElseThrow(
                 () -> new ResourceNotFoundException("Warehouse does not exists with supplier id: " + supplierId)
         );
-//        Supplier supplier = supplierRepository.findById(supplierId).orElseThrow(
-//                () -> new ResourceNotFoundException("Supplier does not exists")
-//        );
 
-//        String secretKey = supplier.getAesKey();
-//        String iv = supplier.getIv();
-
-        List<WarehouseDto> result = warehouseList.stream()
+        return warehouseList.stream()
                 .map(warehouse -> modelMapper.map(warehouse, WarehouseDto.class))
                 .toList();
-
-//        List<WarehouseDto> encryptedResult = new ArrayList<>();
-//        for (WarehouseDto w : result){
-//            encryptedResult.add(encryptWarehouseDto(w, secretKey, iv));
-//        }
-
-//        return encryptedResult;
-        return result;
     }
 
     @Override
+    @Transactional
     public ResultDto deleteWarehouse(Long supplierId, Long warehouseId) {
         Supplier supplier = supplierRepository.findById(supplierId).orElseThrow(
                 () -> new ResourceNotFoundException("supplier", "id", supplierId)
@@ -163,23 +148,7 @@ public class WarehouseServiceImpl implements WarehouseService {
                 () -> new ResourceNotFoundException("warehouse", "id", warehouseId)
         );
 
-//        String secretKey = supplier.getAesKey();
-//        String iv = supplier.getIv();
-
-//        WarehouseDto decryptedDto = decryptWarehouseDto(warehouseDto, secretKey, iv);
-
         warehouse.setId(warehouseId);
-//        warehouse.setWarehouseName(decryptedDto.getWarehouseName());
-//        warehouse.setEmail(decryptedDto.getEmail());
-//        warehouse.setPhone(decryptedDto.getPhone());
-//        warehouse.setContact(decryptedDto.getContact());
-//        warehouse.setProvince(decryptedDto.getProvince());
-//        warehouse.setDistrict(decryptedDto.getDistrict());
-//        warehouse.setCommune(decryptedDto.getCommune());
-//        warehouse.setDetail(decryptedDto.getDetail());
-//        warehouse.setSupplier(supplier);
-//        warehouse.setActive(decryptedDto.isActive());
-
         warehouse.setWarehouseName(warehouseDto.getWarehouseName());
         warehouse.setEmail(warehouseDto.getEmail());
         warehouse.setPhone(warehouseDto.getPhone());
@@ -193,33 +162,22 @@ public class WarehouseServiceImpl implements WarehouseService {
 
         Warehouse updatedWarehouse = warehouseReposiotry.save(warehouse);
 
-        WarehouseDto result = modelMapper.map(updatedWarehouse, WarehouseDto.class);
-
-//        return encryptWarehouseDto(result, secretKey, iv);
-        return result;
+        return modelMapper.map(updatedWarehouse, WarehouseDto.class);
     }
 
     @Override
+    @Transactional
     public WarehouseDto updateState(Long supplierId, Long warehouseId, ResultDto resultDto) {
-//        Supplier supplier = supplierRepository.findById(supplierId).orElseThrow(
-//                () -> new ResourceNotFoundException("supplier", "id", supplierId)
-//        );
         Warehouse warehouse = warehouseReposiotry.findById(warehouseId).orElseThrow(
                 () -> new ResourceNotFoundException("warehouse", "id", warehouseId)
         );
-
-//        String secretKey = supplier.getAesKey();
-//        String iv = supplier.getIv();
 
         warehouse.setId(warehouseId);
         warehouse.setActive(resultDto.isSuccessful());
 
         Warehouse updatedWarehouse = warehouseReposiotry.save(warehouse);
 
-        WarehouseDto result = modelMapper.map(updatedWarehouse, WarehouseDto.class);
-
-//        return encryptWarehouseDto(result, secretKey, iv);
-        return result;
+        return modelMapper.map(updatedWarehouse, WarehouseDto.class);
     }
 
     @Override
@@ -231,23 +189,10 @@ public class WarehouseServiceImpl implements WarehouseService {
                 () -> new ResourceNotFoundException("Don't have any product with subcategory id " + supplierId)
         );
 
-//        Supplier supplier = supplierRepository.findById(supplierId).orElseThrow(
-//                () -> new ResourceNotFoundException("Supplier does not exists")
-//        );
-
         List<Warehouse> warehouses = warehousePage.getContent();
         List<WarehouseDto> content = warehouses.stream().map(warehouse -> modelMapper.map(warehouse, WarehouseDto.class)).toList();
 
-//        List<WarehouseDto> encryptContent = new ArrayList<>();
-//        String aesKey = supplier.getAesKey();
-//        String iv = supplier.getIv();
-//
-//        for (WarehouseDto w : content){
-//            encryptContent.add(encryptWarehouseDto(w, aesKey, iv));
-//        }
-
         WarehouseResponse warehouseResponse = new WarehouseResponse();
-//        warehouseResponse.setContent(encryptContent);
         warehouseResponse.setContent(content);
         warehouseResponse.setPageNo(warehousePage.getNumber());
         warehouseResponse.setPageSize(warehousePage.getSize());
@@ -267,23 +212,10 @@ public class WarehouseServiceImpl implements WarehouseService {
                 () -> new ResourceNotFoundException("There are no results for that condition " + query)
         );
 
-//        Supplier supplier = supplierRepository.findById(supplierId).orElseThrow(
-//                () -> new ResourceNotFoundException("Supplier does not exists")
-//        );
-
         List<Warehouse> warehouses = warehousePage.getContent();
         List<WarehouseDto> content = warehouses.stream().map(warehouse -> modelMapper.map(warehouse, WarehouseDto.class)).toList();
 
-//        List<WarehouseDto> encryptContent = new ArrayList<>();
-//        String aesKey = supplier.getAesKey();
-//        String iv = supplier.getIv();
-//
-//        for (WarehouseDto w : content){
-//            encryptContent.add(encryptWarehouseDto(w, aesKey, iv));
-//        }
-
         WarehouseResponse warehouseResponse = new WarehouseResponse();
-//        warehouseResponse.setContent(encryptContent);
         warehouseResponse.setContent(content);
         warehouseResponse.setPageNo(warehousePage.getNumber());
         warehouseResponse.setPageSize(warehousePage.getSize());

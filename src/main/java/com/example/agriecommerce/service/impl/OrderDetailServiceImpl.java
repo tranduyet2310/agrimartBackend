@@ -12,6 +12,7 @@ import com.example.agriecommerce.service.OrderDetailService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,6 +35,7 @@ public class OrderDetailServiceImpl implements OrderDetailService {
     }
 
     @Override
+    @Transactional
     public OrderDetailDto createOrderDetail(Long orderId, OrderDetailDto dto) {
         Long productId = dto.getProductId();
 

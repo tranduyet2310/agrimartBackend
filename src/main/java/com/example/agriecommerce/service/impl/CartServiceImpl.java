@@ -13,6 +13,7 @@ import com.example.agriecommerce.service.CartService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -37,6 +38,7 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
+    @Transactional
     public CartDto addToCart(Long userId, Long productId) {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new ResourceNotFoundException("user", "id", userId)
@@ -74,6 +76,7 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
+    @Transactional
     public CartDto changeQuantity(Long userId, Long productId, Integer quantity) {
         Cart cart = cartRepository.findByUserIdAndProductId(userId, productId).orElseThrow(
                 () -> new ResourceNotFoundException("Item does not found in db")
@@ -86,6 +89,7 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
+    @Transactional
     public ResultDto removeFromCart(Long userId, Long productId) {
         Cart cart = cartRepository.findByUserIdAndProductId(userId, productId).orElseThrow(
                 () -> new ResourceNotFoundException("item does not found in db")
@@ -98,6 +102,7 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
+    @Transactional
     public ResultDto deleteAllItemsByUserId(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new ResourceNotFoundException("user does not exists with id ="+userId)

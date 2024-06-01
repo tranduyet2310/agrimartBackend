@@ -1,16 +1,13 @@
 package com.example.agriecommerce.payload;
 
-import com.example.agriecommerce.entity.CropsStatus;
-import com.example.agriecommerce.entity.Field;
+import com.example.agriecommerce.utils.CropsStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 @Getter

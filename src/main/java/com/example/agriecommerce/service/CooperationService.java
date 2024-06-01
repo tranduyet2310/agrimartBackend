@@ -1,7 +1,5 @@
 package com.example.agriecommerce.service;
 
-import com.example.agriecommerce.entity.Cooperation;
-import com.example.agriecommerce.entity.OrderStatus;
 import com.example.agriecommerce.payload.*;
 
 import java.util.List;

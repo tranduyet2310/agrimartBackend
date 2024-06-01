@@ -1,9 +1,7 @@
 package com.example.agriecommerce.repository;
 
 import com.example.agriecommerce.entity.Product;
-import com.example.agriecommerce.payload.SupplierCategoryDto;
 import com.example.agriecommerce.utils.SupplierCategory;
-import jakarta.persistence.Converter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,7 +10,6 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
     Optional<Page<Product>> findBySupplierId(Long supplierId, Pageable pageable);

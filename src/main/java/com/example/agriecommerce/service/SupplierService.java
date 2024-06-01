@@ -3,10 +3,9 @@ package com.example.agriecommerce.service;
 import com.example.agriecommerce.payload.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-
 public interface SupplierService {
     SupplierDto getSupplierById(Long supplierId);
+    SupplierDto getSupplierByIdV2(Long supplierId);
     SupplierDto getSupplierInfoById(Long supplierId);
 
     SupplierResponse getAllSuppliers(boolean status, int pageNo, int pageSize, String sortBy, String sortDir);

@@ -5,20 +5,20 @@ import com.example.agriecommerce.payload.*;
 import com.example.agriecommerce.service.AuthService;
 import com.example.agriecommerce.service.SupplierService;
 import com.example.agriecommerce.service.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "CRUD REST APIs for Login & Register")
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
     private final AuthService authService;
     private final UserService userService;
     private final SupplierService supplierService;
+
     @Autowired
     public AuthController(AuthService authService,
                           UserService userService,
@@ -27,6 +27,7 @@ public class AuthController {
         this.userService = userService;
         this.supplierService = supplierService;
     }
+
     @PostMapping("login")
     public ResponseEntity<JWTAuthResponse> login(@RequestBody LoginDto loginDto) {
         String token = authService.login(loginDto);
@@ -36,7 +37,7 @@ public class AuthController {
         Boolean role = userService.checkAdminRole(loginDto.getEmail());
         Boolean status = userService.checkAccountStatus(loginDto.getEmail());
 
-        if (status){
+        if (status) {
             jwtAuthResponse.setAccessToken(token);
             jwtAuthResponse.setUserId(userId);
             jwtAuthResponse.setAdmin(role);
@@ -55,7 +56,7 @@ public class AuthController {
         Long supplierId = supplierService.getSupplierIdByEmail(loginDto.getEmail());
         Boolean status = supplierService.checkAccountStatus(loginDto.getEmail());
 
-        if (status){
+        if (status) {
             jwtAuthResponse.setAccessToken(token);
             jwtAuthResponse.setSupplierId(supplierId);
             jwtAuthResponse.setActive(status);

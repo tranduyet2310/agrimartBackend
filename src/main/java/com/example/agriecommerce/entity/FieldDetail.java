@@ -1,6 +1,6 @@
 package com.example.agriecommerce.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.example.agriecommerce.utils.CropsStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

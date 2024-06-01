@@ -9,7 +9,7 @@ import com.example.agriecommerce.repository.ImageRepository;
 import com.example.agriecommerce.repository.SupplierRepository;
 import com.example.agriecommerce.service.CloudinaryService;
 import com.example.agriecommerce.service.SupplierService;
-import com.example.agriecommerce.utils.Encryption;
+import com.example.agriecommerce.utils.encrypt.Encryption;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -25,7 +25,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 public class SupplierServiceImpl implements SupplierService {
@@ -69,6 +68,14 @@ public class SupplierServiceImpl implements SupplierService {
     }
 
     @Override
+    public SupplierDto getSupplierByIdV2(Long supplierId) {
+        Supplier supplier = supplierRepository.findById(supplierId).orElseThrow(
+                () -> new ResourceNotFoundException("supplier", "id", supplierId)
+        );
+        return modelMapper.map(supplier, SupplierDto.class);
+    }
+
+    @Override
     public SupplierDto getSupplierInfoById(Long supplierId) {
         Supplier supplier = supplierRepository.findById(supplierId).orElseThrow(
                 () -> new ResourceNotFoundException("supplier", "id", supplierId)
@@ -100,6 +107,7 @@ public class SupplierServiceImpl implements SupplierService {
     }
 
     @Override
+    @Transactional
     public SupplierDto updateAccountInfo(Long supplierId, SupplierDto supplierDto) {
         Supplier supplier = supplierRepository.findById(supplierId).orElseThrow(
                 () -> new ResourceNotFoundException("supplier", "id", supplierId)
@@ -115,6 +123,7 @@ public class SupplierServiceImpl implements SupplierService {
     }
 
     @Override
+    @Transactional
     public SupplierDto updateGeneralInfo(Long supplierId, SupplierDto supplierDto) {
         Supplier supplier = supplierRepository.findById(supplierId).orElseThrow(
                 () -> new ResourceNotFoundException("supplier", "id", supplierId)
@@ -174,6 +183,7 @@ public class SupplierServiceImpl implements SupplierService {
     }
 
     @Override
+    @Transactional
     public SupplierDto updateSupplierAvatar(Long supplierId, MultipartFile file) {
         Supplier supplier = supplierRepository.findById(supplierId).orElseThrow(
                 () -> new ResourceNotFoundException("supplier", "id", supplierId)
@@ -183,7 +193,7 @@ public class SupplierServiceImpl implements SupplierService {
         Map result = cloudinaryService.upload(file);
         // save to images table
         Image image = new Image((String) result.get("original_filename"),
-                (String) result.get("url"),
+                (String) result.get("secure_url"),
                 (String) result.get("public_id"));
         imageRepository.save(image);
 
@@ -198,13 +208,14 @@ public class SupplierServiceImpl implements SupplierService {
             imageRepository.delete(oldImage);
         }
 
-        supplier.setAvatar((String) result.get("url"));
+        supplier.setAvatar((String) result.get("secure_url"));
         Supplier updatedSupplier = supplierRepository.save(supplier);
 
         return modelMapper.map(updatedSupplier, SupplierDto.class);
     }
 
     @Override
+    @Transactional
     public SupplierDto changePassword(Long supplierId, PasswordDto passwordDto) {
         Supplier supplier = supplierRepository.findById(supplierId).orElseThrow(
                 () -> new ResourceNotFoundException("supplier", "id", supplierId)
@@ -286,6 +297,7 @@ public class SupplierServiceImpl implements SupplierService {
     }
 
     @Override
+    @Transactional
     public ResultDto updateAccountStatus(Long supplierId, boolean state) {
         Supplier supplier = supplierRepository.findById(supplierId).orElseThrow(
                 () -> new ResourceNotFoundException("Supplier does not exists")

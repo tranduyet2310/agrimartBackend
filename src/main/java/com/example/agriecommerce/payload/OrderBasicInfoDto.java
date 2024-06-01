@@ -1,6 +1,6 @@
 package com.example.agriecommerce.payload;
 
-import com.example.agriecommerce.entity.OrderStatus;
+import com.example.agriecommerce.utils.OrderStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;

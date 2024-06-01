@@ -13,6 +13,7 @@ import com.example.agriecommerce.service.SupplierIntroService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
@@ -42,6 +43,7 @@ public class SupplierIntroServiceImpl implements SupplierIntroService {
     }
 
     @Override
+    @Transactional
     public SupplierIntroDto createSupplierIntro(Long supplierId, SupplierIntroDto introDto, List<MultipartFile> files) {
         Supplier supplier = supplierRepository.findById(supplierId).orElseThrow(
                 () -> new ResourceNotFoundException("supplier does not exists")
@@ -79,6 +81,7 @@ public class SupplierIntroServiceImpl implements SupplierIntroService {
     }
 
     @Override
+    @Transactional
     public SupplierIntroDto updateSupplierIntro(Long supplierId, Long introId, SupplierIntroDto introDto, List<MultipartFile> files) {
         Supplier supplier = supplierRepository.findById(supplierId).orElseThrow(
                 () -> new ResourceNotFoundException("supplier does not exists")
@@ -123,6 +126,7 @@ public class SupplierIntroServiceImpl implements SupplierIntroService {
     }
 
     @Override
+    @Transactional
     public SupplierIntroDto updateDescriptionIntro(Long introId, SupplierIntroDto introDto) {
         Supplier supplier = supplierRepository.findById(introDto.getSupplierId()).orElseThrow(
                 () -> new ResourceNotFoundException("supplier does not exists")

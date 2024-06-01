@@ -1,6 +1,6 @@
 package com.example.agriecommerce.payload;
 
-import com.example.agriecommerce.entity.OrderStatus;
+import com.example.agriecommerce.utils.OrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -1,7 +1,7 @@
 package com.example.agriecommerce.service.impl;
 
 import com.example.agriecommerce.entity.Order;
-import com.example.agriecommerce.entity.OrderStatus;
+import com.example.agriecommerce.utils.OrderStatus;
 import com.example.agriecommerce.entity.User;
 import com.example.agriecommerce.entity.UserAddress;
 import com.example.agriecommerce.exception.AgriMartException;
@@ -24,6 +24,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,6 +54,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional
     public OrderDto createOrder(Long userId, OrderDto orderDto) {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new ResourceNotFoundException("user does not exists")
@@ -80,6 +82,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional
     public OrderDto updateOrder(Long orderId, OrderDto orderDto) {
         Order order = orderRepository.findById(orderId).orElseThrow(
                 () -> new ResourceNotFoundException("order does not exists")
@@ -286,6 +289,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional
     public ResultDto deleteOrder(Long orderId) {
         Order order = orderRepository.findById(orderId).orElseThrow(
                 () -> new ResourceNotFoundException("order does not exists")
@@ -295,6 +299,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional
     public OrderDto updateOrderStatus(Long orderId, String orderStatus) {
         Order order = orderRepository.findById(orderId).orElseThrow(
                 () -> new ResourceNotFoundException("order does not exists")
@@ -315,6 +320,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional
     public OrderBasicInfoDto updateOrderStatusV2(Long orderId, String orderStatus) {
         Order order = orderRepository.findById(orderId).orElseThrow(
                 () -> new ResourceNotFoundException("order does not exists")

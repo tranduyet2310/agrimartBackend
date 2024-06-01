@@ -1,7 +1,6 @@
 package com.example.agriecommerce.repository;
 
 import com.example.agriecommerce.entity.Order;
-import com.example.agriecommerce.payload.OrderStatisticDto;
 import com.example.agriecommerce.utils.OrderInfoDto;
 import com.example.agriecommerce.utils.OrderStatistic;
 import org.springframework.data.domain.Page;

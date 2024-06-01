@@ -1,4 +1,4 @@
-package com.example.agriecommerce.utils;
+package com.example.agriecommerce.utils.encrypt;
 
 import org.springframework.stereotype.Component;
 

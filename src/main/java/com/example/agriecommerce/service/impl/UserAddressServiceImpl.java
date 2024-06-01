@@ -102,6 +102,7 @@ public class UserAddressServiceImpl implements UserAddressService {
     }
 
     @Override
+    @Transactional
     public UserAddressDto updateAddress(Long userId, Long addressId, UserAddressDto userAddressDto) {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new ResourceNotFoundException("user", "id", userId)

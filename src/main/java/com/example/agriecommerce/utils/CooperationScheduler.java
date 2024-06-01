@@ -1,7 +1,6 @@
 package com.example.agriecommerce.utils;
 
 import com.example.agriecommerce.entity.Cooperation;
-import com.example.agriecommerce.entity.OrderStatus;
 import com.example.agriecommerce.entity.User;
 import com.example.agriecommerce.payload.NotificationMessage;
 import com.example.agriecommerce.repository.CooperationRepository;

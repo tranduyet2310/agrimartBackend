@@ -12,8 +12,8 @@ import com.example.agriecommerce.repository.SupplierRepository;
 import com.example.agriecommerce.repository.UserRepository;
 import com.example.agriecommerce.security.JwtTokenProvider;
 import com.example.agriecommerce.service.AuthService;
-import com.example.agriecommerce.utils.AES;
-import com.example.agriecommerce.utils.RSA;
+import com.example.agriecommerce.utils.encrypt.AES;
+import com.example.agriecommerce.utils.encrypt.RSA;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -85,11 +85,7 @@ public class AuthServiceImpl implements AuthService {
         user.setEmail(userRegisterDto.getEmail());
         user.setPassword(passwordEncoder.encode(userRegisterDto.getPassword()));
 
-//        Set<Role> roles = new HashSet<>();
         Role userRole = roleRepository.findByName("ROLE_USER").get();
-//        roles.add(userRole);
-
-//        user.setRoles(roles);
         user.setRoles(userRole);
         user.setStatus(1); // 1 - active; 0 - deleted
 
@@ -133,22 +129,17 @@ public class AuthServiceImpl implements AuthService {
         supplier.setAddress("");
         supplier.setActive(false);
 
-//        Set<Role> roles = new HashSet<>();
         Role supplierRole = roleRepository.findByName("ROLE_SUPPLIER").get();
-//        roles.add(supplierRole);
 
         SupplierBankInfo info = new SupplierBankInfo();
         info.setBankAccountNumber(decryptDto.getBankAccountNumber());
         info.setAccountOwner(decryptDto.getBankAccountOwner());
         info.setBankName(decryptDto.getBankName());
         info.setBankBranchName(decryptDto.getBankBranchName());
-
         bankInfoRepository.save(info);
 
-//        supplier.setRoles(roles);
         supplier.setRoles(supplierRole);
         supplier.setBankInfo(info);
-        // get public key RSA
         supplier.setPublicKey(decryptDto.getRsaPublicKey());
 
         Supplier savedSupplier = supplierRepository.save(supplier);

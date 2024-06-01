@@ -1,8 +1,5 @@
 package com.example.agriecommerce.payload;
 
-import com.example.agriecommerce.entity.Image;
-import com.example.agriecommerce.entity.Supplier;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

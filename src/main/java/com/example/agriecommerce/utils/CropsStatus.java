@@ -1,4 +1,4 @@
-package com.example.agriecommerce.entity;
+package com.example.agriecommerce.utils;
 
 public enum CropsStatus {
     MAKE_LAND,

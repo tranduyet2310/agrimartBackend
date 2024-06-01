@@ -1,4 +1,4 @@
-package com.example.agriecommerce.utils;
+package com.example.agriecommerce.utils.encrypt;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;

@@ -1,7 +1,6 @@
 package com.example.agriecommerce.service.impl;
 
 import com.example.agriecommerce.entity.Image;
-import com.example.agriecommerce.entity.Product;
 import com.example.agriecommerce.entity.Role;
 import com.example.agriecommerce.entity.User;
 import com.example.agriecommerce.exception.AgriMartException;
@@ -17,7 +16,6 @@ import com.example.agriecommerce.utils.AppConstants;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
-import com.google.firebase.messaging.FirebaseMessagingException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -34,7 +32,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -99,6 +96,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public UserDto updateUserInfo(Long userId, UserDto userDto) {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new ResourceNotFoundException("user", "id", userId)
@@ -107,7 +105,6 @@ public class UserServiceImpl implements UserService {
         user.setId(userId);
         user.setFullName(userDto.getFullName());
         user.setPhone(userDto.getPhone());
-//        user.setEmail(userDto.getEmail());
 
         User updatedUser = userRepository.save(user);
 
@@ -148,6 +145,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public UserDto changePassword(Long userId, PasswordDto passwordDto) throws FirebaseAuthException {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new ResourceNotFoundException("user", "id", userId)
@@ -211,6 +209,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public UserDto updateStatusAccount(Long userId, Integer status) {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new ResourceNotFoundException("User does not exists in DB")

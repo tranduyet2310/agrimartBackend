@@ -1,6 +1,6 @@
 package com.example.agriecommerce.config;
 
-import com.example.agriecommerce.utils.RSA;
+import com.example.agriecommerce.utils.encrypt.RSA;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

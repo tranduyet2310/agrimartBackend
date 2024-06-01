@@ -75,6 +75,7 @@ public class SubcategoryServiceImpl implements SubCategoryService {
     }
 
     @Override
+    @Transactional
     public SubCategoryDto updateSubcategory(Long id, SubCategoryDto subCategoryDto, Long categoryId) {
         SubCategory subCategory = subCategoryRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("subcategory", "id", id)
@@ -162,6 +163,7 @@ public class SubcategoryServiceImpl implements SubCategoryService {
     }
 
     @Override
+    @Transactional
     public void deleteSubcategory(Long id) {
         SubCategory subCategory = subCategoryRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("subcategory", "id", id)
