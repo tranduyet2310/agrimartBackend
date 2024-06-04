@@ -5,6 +5,7 @@ import com.example.agriecommerce.payload.*;
 import com.example.agriecommerce.service.UserService;
 import com.example.agriecommerce.utils.AppConstants;
 import com.google.firebase.auth.FirebaseAuthException;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-
+@Tag(name = "REST APIs for User")
 @RestController
 @RequestMapping("api/users")
 public class UserController {

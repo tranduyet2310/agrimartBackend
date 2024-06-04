@@ -6,6 +6,7 @@ import com.example.agriecommerce.payload.CooperationResponse;
 import com.example.agriecommerce.payload.ResultDto;
 import com.example.agriecommerce.service.CooperationService;
 import com.example.agriecommerce.utils.AppConstants;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +14,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@Tag(name = "REST APIs for Cooperation")
 @RestController
 @RequestMapping("api/cooperation")
 public class CooperationController {
@@ -84,6 +85,11 @@ public class CooperationController {
     public ResponseEntity<ResultDto> calculateCurrentTotal(@PathVariable("fieldId") Long fieldId,
                                                            @PathVariable("supplierId") Long supplierId) {
         return ResponseEntity.ok(cooperationService.calculateCurrentTotal(fieldId, supplierId));
+    }
+
+    @GetMapping("{fieldId}/remaining")
+    public ResponseEntity<ResultDto> calculateRemainingOrder(@PathVariable("fieldId") Long fieldId){
+        return ResponseEntity.ok(cooperationService.calculateRemainingCooperation(fieldId));
     }
 
     @PatchMapping("{cooperationId}") // both

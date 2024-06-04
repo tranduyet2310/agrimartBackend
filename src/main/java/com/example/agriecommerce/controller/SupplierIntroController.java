@@ -2,6 +2,7 @@ package com.example.agriecommerce.controller;
 
 import com.example.agriecommerce.payload.SupplierIntroDto;
 import com.example.agriecommerce.service.SupplierIntroService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
+@Tag(name = "REST APIs for Supplier Introduction")
 @RestController
 @RequestMapping("api/shop")
 public class SupplierIntroController {

@@ -3,6 +3,7 @@ package com.example.agriecommerce.controller;
 import com.example.agriecommerce.entity.Image;
 import com.example.agriecommerce.service.CloudinaryService;
 import com.example.agriecommerce.service.ImageService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +16,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
+@Tag(name = "REST APIs for Upload Image")
 @RestController
 @RequestMapping("/cloudinary")
 public class CloudinaryController {

@@ -3,12 +3,13 @@ package com.example.agriecommerce.controller;
 import com.example.agriecommerce.payload.FieldDetailDto;
 import com.example.agriecommerce.payload.ResultDto;
 import com.example.agriecommerce.service.FieldDetailService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
+@Tag(name = "REST APIs for Field Detail")
 @RestController
 @RequestMapping("api/field_detail")
 public class FieldDetailController {

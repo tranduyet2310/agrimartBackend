@@ -21,6 +21,9 @@ public interface CooperationRepository extends JpaRepository<Cooperation, Long> 
     @Query("SELECT SUM(c.requireYield) FROM Cooperation c " +
             "WHERE c.field.id = :fieldId AND c.supplier.id = :supplierId")
     Double calculateYieldAccepted(Long fieldId, Long supplierId);
+    @Query(nativeQuery = true, value = "SELECT COUNT(*) FROM tbl_cooperation " +
+            "WHERE field_id = :fieldId AND status IN (0, 1, 2)")
+    Long calculateRemainingCooperation(@Param("fieldId") Long fieldId);
 
     List<Cooperation> findByPaymentStatusIsNullAndDateCreatedBefore(LocalDateTime date);
     @Query(nativeQuery = true, value = "SELECT * FROM tbl_cooperation " +

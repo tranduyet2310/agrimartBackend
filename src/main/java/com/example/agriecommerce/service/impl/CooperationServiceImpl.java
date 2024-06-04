@@ -88,6 +88,7 @@ public class CooperationServiceImpl implements CooperationService {
         cooperation.setRequireYield(cooperationDto.getRequireYield());
         cooperation.setInvestment(cooperationDto.getInvestment());
         cooperation.setContact(cooperationDto.getContact());
+        cooperation.setCooperationStatus(cooperationDto.getCooperationStatus());
 
         Cooperation updatedCooperation = cooperationRepository.save(cooperation);
 
@@ -237,6 +238,12 @@ public class CooperationServiceImpl implements CooperationService {
         cooperation.setPaymentStatus(cooperationDto.getPaymentStatus());
         Cooperation updatedCooperation = cooperationRepository.save(cooperation);
         return modelMapper.map(updatedCooperation, CooperationDto.class);
+    }
+
+    @Override
+    public ResultDto calculateRemainingCooperation(Long fieldId) {
+        Long value = cooperationRepository.calculateRemainingCooperation(fieldId);
+        return new ResultDto(true, value+"");
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.example.agriecommerce;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.example.agriecommerce.config.SwaggerConfiguration;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
@@ -67,7 +68,9 @@ public class AgriecommerceApplication {
     }
 
     public static void main(String[] args) {
-        SpringApplication.run(AgriecommerceApplication.class, args);
+        SpringApplication application = new SpringApplication(AgriecommerceApplication.class);
+        application.addListeners(new SwaggerConfiguration());
+        application.run(args);
     }
 
 }

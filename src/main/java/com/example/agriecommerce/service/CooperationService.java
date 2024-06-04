@@ -17,5 +17,6 @@ public interface CooperationService {
     CooperationDto updateStatus(Long cooperationId, CooperationDto cooperationDto);
     CooperationDto updateAddress(Long cooperationId, Long addressId);
     CooperationDto updatePayment(Long cooperationId, CooperationDto cooperationDto);
+    ResultDto calculateRemainingCooperation(Long fieldId);
     ComparationDto getStatisticCooperation(int month, int year);
 }

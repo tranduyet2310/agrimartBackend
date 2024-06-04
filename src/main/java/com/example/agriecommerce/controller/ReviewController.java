@@ -3,6 +3,7 @@ package com.example.agriecommerce.controller;
 import com.example.agriecommerce.payload.*;
 import com.example.agriecommerce.service.ReviewService;
 import com.example.agriecommerce.utils.AppConstants;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
-
+@Tag(name = "REST APIs for Review")
 @RestController
 @RequestMapping("api/reviews")
 public class ReviewController {

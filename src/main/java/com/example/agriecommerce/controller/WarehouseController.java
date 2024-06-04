@@ -5,6 +5,7 @@ import com.example.agriecommerce.payload.WarehouseDto;
 import com.example.agriecommerce.payload.WarehouseResponse;
 import com.example.agriecommerce.service.WarehouseService;
 import com.example.agriecommerce.utils.AppConstants;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@Tag(name = "REST APIs for Warehouse")
 @RestController
 @RequestMapping("api/suppliers")
 public class WarehouseController {

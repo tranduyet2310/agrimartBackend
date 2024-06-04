@@ -2,6 +2,7 @@ package com.example.agriecommerce.controller;
 
 import com.example.agriecommerce.payload.OrderDetailDto;
 import com.example.agriecommerce.service.OrderDetailService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,7 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@Tag(name = "REST APIs for Order Detail")
 @RestController
 @RequestMapping("api/details")
 public class OrderDetailController {

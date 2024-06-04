@@ -6,6 +6,7 @@ import com.example.agriecommerce.payload.CategoryResponse;
 import com.example.agriecommerce.payload.ResultDto;
 import com.example.agriecommerce.service.CategoryService;
 import com.example.agriecommerce.utils.AppConstants;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +17,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.List;
-
+@Tag(name = "REST APIs for Category")
 @RestController
 @RequestMapping("api/categories")
 public class CategoryController {

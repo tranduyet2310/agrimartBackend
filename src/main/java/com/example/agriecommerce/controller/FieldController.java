@@ -3,6 +3,7 @@ package com.example.agriecommerce.controller;
 import com.example.agriecommerce.payload.*;
 import com.example.agriecommerce.service.FieldService;
 import com.example.agriecommerce.utils.AppConstants;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@Tag(name = "REST APIs for Field")
 @RestController
 @RequestMapping("api/field")
 public class FieldController {
